@@ -16,10 +16,9 @@ def get(key, max_age=None):
         max_age = config.get(config.CACHE_TIMEOUT, datetime.timedelta(seconds=60 * 60 * 24))
     elif not isinstance(max_age, datetime.timedelta):
         max_age = datetime.timedelta(seconds=max_age)
-    now = datetime.datetime.now()
     db_row = Cache.query.filter(
         Cache.key == key,
-        Cache.last_updated >= now + max_age)
+        Cache.last_updated >= (datetime.datetime.now() + max_age))
     if db_row is None:
         raise NotInCache
     return db_row.value
@@ -44,11 +43,10 @@ def flush_expired(max_age=None):
         max_age = config.get(config.CACHE_TIMEOUT, datetime.timedelta(seconds=60 * 60 * 24))
     elif not isinstance(max_age, datetime.timedelta):
         max_age = datetime.timedelta(seconds=max_age)
-    now = datetime.datetime.now()
     (db
      .session
      .query(Cache)
-     .filter(Cache.last_updated >= now + max_age)
+     .filter(Cache.last_updated >= (datetime.datetime.now() + max_age))
      .delete())
     db.session.commit()
 
