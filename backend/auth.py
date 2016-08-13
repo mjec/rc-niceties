@@ -44,7 +44,7 @@ def authorized():
         db.session.add(user)
         db.session.commit()
     elif user.is_faculty != me['is_faculty']:
-        user.is_faculty = me['is_faculty']
+        user.faculty = me['is_faculty']
         db.session.commit()
     session['user_id'] = user.id
     return jsonify({'status': 'OK'})
