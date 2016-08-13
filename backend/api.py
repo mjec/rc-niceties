@@ -3,10 +3,10 @@ from flask.views import MethodView
 import random
 
 from backend import app, rc, db
-from models import Nicety, SiteConfiguration
-import cache
-import config
-import util
+from backend.models import Nicety, SiteConfiguration
+import backend.cache as cache
+import backend.config as config
+import backend.util as util
 
 
 @app.route('/api/v1/batches')

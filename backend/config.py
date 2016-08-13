@@ -1,4 +1,4 @@
-from models import SiteConfiguration
+from backend.models import SiteConfiguration
 from backend import db
 
 

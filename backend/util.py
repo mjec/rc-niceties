@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-import config
+import backend.config as config
 
 batch_closing_time_memo = {}
 batch_closing_warning_time_memo = {}

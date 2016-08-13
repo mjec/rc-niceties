@@ -1,8 +1,7 @@
 import datetime
 
-from models import Cache
-from backend import db
-import config
+from backend.models import Cache
+from backend import db, config
 
 
 class NotInCache(Exception):

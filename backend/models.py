@@ -40,6 +40,7 @@ class Nicety(db.Model):
     target_id = db.Column(db.Integer)
     anonymous = db.Column(db.Boolean)
     faculty_reviewed = db.Column(db.Boolean)
+    starred = db.Column(db.Boolean)
     text = db.Column(db.Text, nullable=True)
 
     batch_author_target_unique = db.UniqueConstraint('batch', 'author', 'target')
@@ -50,6 +51,7 @@ class Nicety(db.Model):
         self.target_id = target_id
         self.anonymous = kwargs.get("anonymous", False)
         self.faculty_reviewed = kwargs.get("faculty_reviewed", False)
+        self.starred = kwargs.get("starred", False)
         self.text = kwargs.get("text", None)
 
     def __repr__(self):
@@ -58,7 +60,7 @@ class Nicety(db.Model):
 
 class SiteConfiguration(db.Model):
     __tablename__ = 'site_configuration'
-    
+
     key = db.Column(db.String(100), primary_key=True)
     value = db.Column(db.PickleType)
 
