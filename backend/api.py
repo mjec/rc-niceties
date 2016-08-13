@@ -144,7 +144,7 @@ app.add_url_rule(
 
 
 class PreferencesAPI(MethodView):
-    def get():
+    def get(self):
         if session.get('user', None) is None:
             redirect(url_for('authorized'))
         user = session.get('user')
@@ -154,7 +154,7 @@ class PreferencesAPI(MethodView):
             'autosave_enabled': user.autosave_enabled,
         })
 
-    def post():
+    def post(self):
         if session.get('user', None) is None:
             redirect(url_for('authorized'))
         user = session.get('user')
@@ -177,7 +177,7 @@ app.add_url_rule(
 
 
 class SiteSettingsAPI(MethodView):
-    def get():
+    def get(self):
         if session.get('user', None) is None:
             redirect(url_for('authorized'))
         user = session.get('user')
@@ -185,7 +185,7 @@ class SiteSettingsAPI(MethodView):
             return abort(403)
         return jsonify({c.key: config.to_frontend_value(c) for c in SiteConfiguration.query.all()})
 
-    def post():
+    def post(self):
         if session.get('user', None) is None:
             redirect(url_for('authorized'))
         user = session.get('user')
