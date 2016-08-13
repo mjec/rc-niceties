@@ -12,7 +12,7 @@ class AuthorizationFailed(HTTPException):
         self.description = kwargs.get('description', '')
 
 
-@app.route('/api/v1/login')
+@app.route('/login')
 def login():
     return rc.authorize(callback=url_for('authorized', _external=True))
 
@@ -20,10 +20,11 @@ def login():
 @app.route('/api/v1/logout')
 def logout():
     session.pop('rc_token', None)
-    return redirect(url_for('whoami'))
+    session.pop('user_id', None)
+    return redirect(url_for('home'))
 
 
-@app.route('/api/v1/login/authorized')
+@app.route('/login/authorized')
 def authorized():
     resp = rc.authorized_response()
     if resp is None:
@@ -47,7 +48,7 @@ def authorized():
         user.faculty = me['is_faculty']
         db.session.commit()
     session['user_id'] = user.id
-    return jsonify({'status': 'OK'})
+    return redirect(url_for('home'))
 
 
 @rc.tokengetter
@@ -59,6 +60,9 @@ _current_user_memo = None
 
 
 def current_user():
-    if _current_user_memo is None:
-        current_user_memo = User.query.get(session.get('user_id'))
-    return current_user_memo
+    global _current_user_memo
+    if session.get('user_id', None) is None:
+        _current_user_memo = None
+    elif _current_user_memo is None or _current_user_memo.id != session.get('user_id'):
+        _current_user_memo = User.query.get(session.get('user_id'))
+    return _current_user_memo
