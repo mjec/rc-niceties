@@ -32,11 +32,11 @@ I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
 
 To run:
 
-1. Compile the frontend static files by running `npm build`.
+1. Compile the frontend static files by running `npm start`.
 
 2. Run the Flask application with `gunicorn backend:app --log-file -`.
 
-You can also use `npm run dev-server` to look at the frontend without the backend. Note that `npm start` will **not** start the development server, but instead is an alias for `npm build`. This just means we can sneakily use the default Heroku node.js buildpack.
+You can also use `npm run dev-server` to look at the frontend without the backend. Note that `npm start` will **not** start the development server.
 
 ## Deploying
 
