@@ -32,11 +32,9 @@ I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
 
 To run:
 
-1. Compile the frontend static files by running `npm start`.
+1. Compile the frontend static files by running `npm run build`.
 
 2. Run the Flask application with `gunicorn backend:app --log-file -`.
-
-You can also use `npm run dev-server` to look at the frontend without the backend. Note that `npm start` will **not** start the development server.
 
 ## Deploying
 
