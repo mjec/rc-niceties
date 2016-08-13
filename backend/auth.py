@@ -1,4 +1,4 @@
-from flask import session, url_for, redirect, request, jsonify
+from flask import session, url_for, redirect, request
 from werkzeug.exceptions import HTTPException
 
 from backend import app, rc, db, util
