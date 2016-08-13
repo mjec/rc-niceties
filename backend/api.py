@@ -19,7 +19,7 @@ def batches():
         pass
     batches = rc.get('batches').data
     for batch in batches:
-        if util.batch_is_open(batch.id, batch.end_date):
+        if util.batch_is_open(batch['id'], batch['end_date']):
             batch['is_open'] = True
             batch['closing_time'] = util.batch_closing_time(batch.end_date).isoformat()
             batch['warning_time'] = util.batch_closing_warning_time(batch.end_date).isoformat()
@@ -68,9 +68,9 @@ def batch_people(batch_id):
         people = []
         for p in rc.get('batches/{}/people'.format(batch_id)).data:
             people.append({
-                'id': p.id,
+                'id': p['id'],
                 'name': util.name_from_rc_person(p),
-                'avatar_url': p.image,
+                'avatar_url': p['image'],
             })
     random.seed(session.get('user').random_seed)
     random.shuffle(people)  # This order will be random but consistent for the user
@@ -87,9 +87,9 @@ def person(person_id):
     except cache.NotInCache:
         p = rc.get('people/{}'.format(person_id)).data
         person = {
-            'id': p.id,
+            'id': p['id'],
             'name': util.name_from_rc_person(p),
-            'avatar_url': p.image,
+            'avatar_url': p['image'],
         }
         cache.set(cache_key, jsonify(person))
     return cache.get(cache_key)
