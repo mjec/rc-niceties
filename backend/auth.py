@@ -65,4 +65,5 @@ def current_user():
         _current_user_memo = None
     elif _current_user_memo is None or _current_user_memo.id != session.get('user_id'):
         _current_user_memo = User.query.get(session.get('user_id'))
+        db.session.expunge(_current_user_memo)
     return _current_user_memo
