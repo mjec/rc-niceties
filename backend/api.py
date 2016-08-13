@@ -184,7 +184,7 @@ class SiteSettingsAPI(MethodView):
         if current_user() is None:
             redirect(url_for('authorized'))
         user = current_user()
-        if not user.is_faculty:
+        if not user.faculty:
             return abort(403)
         return jsonify({c.key: config.to_frontend_value(c) for c in SiteConfiguration.query.all()})
 
@@ -192,7 +192,7 @@ class SiteSettingsAPI(MethodView):
         if current_user() is None:
             redirect(url_for('authorized'))
         user = current_user()
-        if not user.is_faculty:
+        if not user.faculty:
             return abort(403)
         key = request.form.get('key', None)
         value = request.form.get('value', None)

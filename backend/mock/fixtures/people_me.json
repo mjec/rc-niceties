@@ -1,0 +1,45 @@
+{
+  "id": 36,
+  "first_name": "David",
+  "middle_name": null,
+  "last_name": "Hughbert",
+  "email": "dave@example.com",
+  "twitter": "davidhughhhhhhhbert",
+  "github": "davidhughhhhhhhbert",
+  "batch_id": 27,
+  "phone_number": "+1-555-555-1234",
+  "has_photo": true,
+  "interests": "Ruby, C, Git, Vim, yaks",
+  "before_rc": "I worked as a software engineer for one year after college before starting RC.",
+  "during_rc": "I like thinking about programming languages and programming environments. I am currently building an operating system called Thimble.",
+  "is_faculty": true,
+  "is_hacker_schooler": false,
+  "job": "Recurse Center",
+  "image": "https://placehold.it/400x400.jpg",
+  "batch": {
+    "id": 27,
+    "name": "Summer 1, 2016",
+    "start_date": "2016-05-23",
+    "end_date": "2016-08-11"
+  },
+  "pseudonym": null,
+  "current_location": {
+    "geoname_id": 5128581,
+    "name": "New York City, NY",
+    "short_name": "NYC",
+    "ascii_name": "New York City, NY"
+  },
+  "stints": [
+
+  ],
+  "projects": [
+
+  ],
+  "links": [
+
+  ],
+  "skills": [
+
+  ],
+  "bio": "Programming languages nerd. I run the Recurse Center."
+}

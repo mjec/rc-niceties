@@ -27,7 +27,9 @@ I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
     * `RC_OAUTH_ID` - your Recurse Center OAuth application ID
     * `RC_OAUTH_SECRET` - your Recurse Center OAuth application secret
 
-6. Run `python`, and inside it run `from backend import db` then `db.create_all()`.
+6. Optionally mock out the RC API by setting `MOCK_OUT_RC_API = True` in `backend/__init__.py`. This means you do not have to set `RC_OAUTH_ID` or `RC_OAUTH_SECRET`, but you'll only get sample data (contained in the `mock/fixtures` folder, and with request -> filename mapping in `mock/rc.py`).
+
+7. Run `python`, and inside it run `from backend import db` then `db.create_all()` to initialize the database.
 
 To run:
 

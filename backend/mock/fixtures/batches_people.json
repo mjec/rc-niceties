@@ -1,0 +1,183 @@
+[
+  {
+    "id": 739,
+    "first_name": "Michael",
+    "middle_name": "Middle",
+    "last_name": "Lawrences",
+    "email": "lry@example.com",
+    "twitter": ";arry",
+    "github": "larry",
+    "batch_id": 11,
+    "phone_number": "555 555 1233",
+    "has_photo": true,
+    "interests": "pl, Systems, Compilers, C, Python, Lisp, Scheme, Haskell, agda, twelf, Category theory, logic, Teaching",
+    "before_rc": null,
+    "during_rc": null,
+    "is_faculty": false,
+    "is_hacker_schooler": true,
+    "job": "University of Birmingham",
+    "image": "https://placehold.it/400x400.jpg",
+    "batch": {
+      "id": 11,
+      "name": "Summer 1, 2014",
+      "start_date": "2014-06-09",
+      "end_date": "2014-08-28"
+    },
+    "pseudonym": "Pillow Venezuelan",
+    "current_location": {
+      "geoname_id": 2655603,
+      "name": "Birmingham, United Kingdom",
+      "short_name": null,
+      "ascii_name": "Birmingham, United Kingdom"
+    },
+    "stints": [
+      {
+        "batch_id": 11,
+        "start_date": "2014-06-09",
+        "end_date": "2014-08-28"
+      }
+    ],
+    "projects": [
+
+    ],
+    "links": [
+
+    ],
+    "skills": [
+
+    ],
+    "bio": "This is my bio. "
+  },
+  {
+    "id": 736,
+    "first_name": "One",
+    "middle_name": "",
+    "last_name": "Person",
+    "email": "michael@example.com",
+    "twitter": "",
+    "github": "one1",
+    "batch_id": 11,
+    "phone_number": "",
+    "has_photo": true,
+    "interests": "Matlab, Mathematica, Python, Math, basic signal processing, JavaScript",
+    "before_rc": null,
+    "during_rc": null,
+    "is_faculty": false,
+    "is_hacker_schooler": true,
+    "job": "Student at Columbia University",
+    "image": "https://placehold.it/400x400.jpg",
+    "batch": {
+      "id": 11,
+      "name": "Summer 1, 2014",
+      "start_date": "2014-06-09",
+      "end_date": "2014-08-28"
+    },
+    "pseudonym": "Example Pie",
+    "current_location": null,
+    "stints": [
+      {
+        "batch_id": 11,
+        "start_date": "2014-06-09",
+        "end_date": "2014-08-28"
+      }
+    ],
+    "projects": [
+
+    ],
+    "links": [
+
+    ],
+    "skills": [
+
+    ],
+    "bio": "Whatever goes in here.\r\nIt might have multiple lines."
+  },
+  {
+    "id": 750,
+    "first_name": "Jasmine",
+    "middle_name": "",
+    "last_name": "Someone",
+    "email": "jaz@example.com",
+    "twitter": "",
+    "github": "jaz",
+    "batch_id": 11,
+    "phone_number": "555-555-1322",
+    "has_photo": true,
+    "interests": null,
+    "before_rc": null,
+    "during_rc": null,
+    "is_faculty": false,
+    "is_hacker_schooler": true,
+    "job": "Student at Harvard",
+    "image": "https://placehold.it/400x400.jpg",
+    "batch": {
+      "id": 11,
+      "name": "Summer 1, 2014",
+      "start_date": "2014-06-09",
+      "end_date": "2014-08-28"
+    },
+    "pseudonym": "Pendulum Soybean",
+    "current_location": null,
+    "stints": [
+      {
+        "batch_id": 11,
+        "start_date": "2014-06-09",
+        "end_date": "2014-08-28"
+      }
+    ],
+    "projects": [
+
+    ],
+    "links": [
+
+    ],
+    "skills": [
+
+    ],
+    "bio": "Current Applied Math/CS undergrad at Harvard. I used to play Go and basketball competitively, but now I play just for fun :)"
+  },
+  {
+    "id": 734,
+    "first_name": "Raymond",
+    "middle_name": "",
+    "last_name": "Romano",
+    "email": "rayr@example.com",
+    "twitter": "ray",
+    "github": "ray",
+    "batch_id": 11,
+    "phone_number": "",
+    "has_photo": true,
+    "interests": "Java, Python, JavaScript, Git, Flask, HTML, CSS, Haskell",
+    "before_rc": null,
+    "during_rc": null,
+    "is_faculty": false,
+    "is_hacker_schooler": true,
+    "job": "Student at Brown",
+    "image": "https://placehold.it/400x400.jpg",
+    "batch": {
+      "id": 11,
+      "name": "Summer 1, 2014",
+      "start_date": "2014-06-09",
+      "end_date": "2014-08-28"
+    },
+    "pseudonym": "Department Pin",
+    "current_location": null,
+    "stints": [
+      {
+        "batch_id": 11,
+        "start_date": "2014-06-09",
+        "end_date": "2014-08-28"
+      }
+    ],
+    "projects": [
+
+    ],
+    "links": [
+
+    ],
+    "skills": [
+
+    ],
+    "bio": "Undergrad at Brown. Interested in any kind of application development, algorithms, and functional programming.\r\n"
+  }
+]
