@@ -23,8 +23,8 @@ def get(key, default=None, memoized=True):
     db_row = SiteConfiguration.query.filter(SiteConfiguration.key == key)
     if db_row is None:
         return default
-    memo[key] = db_row.value
-    return db_row.value
+    memo[key] = db_row.value()
+    return memo[key]
 
 
 def set(key, value):
