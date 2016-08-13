@@ -18,7 +18,7 @@ def get(key, max_age=None):
         max_age = datetime.timedelta(seconds=max_age)
     db_row = Cache.query.filter(
         Cache.key == key,
-        Cache.last_updated >= (datetime.datetime.now() + max_age))
+        Cache.last_updated >= (datetime.datetime.now() + max_age)).one_or_none()
     if db_row is None:
         raise NotInCache
     return db_row.value
@@ -26,7 +26,7 @@ def get(key, max_age=None):
 
 def set(key, value):
     """Set a value in the cache."""
-    db_row = Cache.query.filter_by(key=key).first()
+    db_row = Cache.query.filter_by(key=key).one_or_none()
     if db_row is None:
         db_row = Cache(key, value)
         db.session.add(db_row)

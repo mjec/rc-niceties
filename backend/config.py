@@ -20,16 +20,16 @@ def get(key, default=None, memoized=True):
     bypassed by passing `memoized=False` as a parameter."""
     if memoized and key in memo:
         return memo[key]
-    db_row = SiteConfiguration.query.filter(SiteConfiguration.key == key)
+    db_row = SiteConfiguration.query.filter(SiteConfiguration.key == key).one_or_none()
     if db_row is None:
         return default
-    memo[key] = db_row.value()
+    memo[key] = db_row.value
     return memo[key]
 
 
 def set(key, value):
     """Set a configuration value in the SiteConfiguration table."""
-    db_row = SiteConfiguration.query.filter_by(key=key).first()
+    db_row = SiteConfiguration.query.filter_by(key=key).one_or_none()
     if db_row is None:
         db_row = SiteConfiguration(key, value)
         db.session.add(db_row)
