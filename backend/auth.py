@@ -1,9 +1,8 @@
 from flask import session, url_for, redirect, request, jsonify
 from werkzeug.exceptions import HTTPException
 
-from backend import app, rc, db
-from models import User
-import util
+from backend import app, rc, db, util
+from backend.models import User
 
 
 class AuthorizationFailed(HTTPException):

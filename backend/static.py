@@ -3,8 +3,12 @@ from flask import send_file, abort
 from backend import app
 
 
-@app.route('/<path:p>')
 @app.route('/')
+def home():
+    return send_file(os.path.realpath(os.path.join(app.static_folder, 'index.html')))
+
+
+@app.route('/<path:p>')
 def serve_static_files(p, index_on_error=True):
     """Securely serve static files for the given path using send_file."""
 

@@ -36,6 +36,7 @@ with app.app_context():
 
 # Imports for URLs that should be available
 import backend.api
+import backend.auth
 import backend.static
 
 

@@ -20,15 +20,14 @@ I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
 
 4. Install the frontend requirements with `npm install`.
 
-5. Create a Postgres database, and then run `psql [database-name] < database_setup.sql`.
-
-6. Set the following environment variables, noting that the application **will not run** if any of these is not set:
+5. Set the following environment variables, noting that the application **will not run** if any of these is not set:
 
     * `FLASK_SECRET_KEY_B64` - a base64-encoded random secret String
     * `DATABASE_URL` - the database connection URL
     * `RC_OAUTH_ID` - your Recurse Center OAuth application ID
     * `RC_OAUTH_SECRET` - your Recurse Center OAuth application secret
 
+6. Run `python`, and inside it run `from backend import db` then `db.create_all()`.
 
 To run:
 
