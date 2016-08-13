@@ -28,8 +28,9 @@ def batches():
             batch['is_open'] = False
             batch['closing_time'] = None
             batch['warning_time'] = None
-    cache.set('batches_list', jsonify(batches))
-    return cache.get('batches_list')
+    batches_json = jsonify(batches)
+    cache.set('batches_list', batches_json)
+    return batches_json
 
 
 @app.route('/api/v1/batch_ids/with_niceties_from_me')
@@ -92,8 +93,9 @@ def person(person_id):
             'name': util.name_from_rc_person(p),
             'avatar_url': p['image'],
         }
-        cache.set(cache_key, jsonify(person))
-    return cache.get(cache_key)
+        person_json = jsonify(person)
+        cache.set(cache_key, person_json)
+        return person_json
 
 
 class NicetyFromMeAPI(MethodView):
