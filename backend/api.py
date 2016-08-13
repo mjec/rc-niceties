@@ -17,7 +17,7 @@ def batches():
         return cache.get('batches_list')
     except cache.NotInCache:
         pass
-    batches = rc.get('batches')
+    batches = rc.get('batches').data
     for batch in batches:
         if util.batch_is_open(batch.id, batch.end_date):
             batch['is_open'] = True
@@ -66,7 +66,7 @@ def batch_people(batch_id):
         people = cache.get(cache_key)
     except cache.NotInCache:
         people = []
-        for p in rc.get('batches/{}/people'.format(batch_id)):
+        for p in rc.get('batches/{}/people'.format(batch_id)).data:
             people.append({
                 'id': p.id,
                 'name': util.name_from_rc_person(p),
@@ -85,7 +85,7 @@ def person(person_id):
     try:
         return cache.get(cache_key)
     except cache.NotInCache:
-        p = rc.get('people/{}'.format(person_id))
+        p = rc.get('people/{}'.format(person_id)).data
         person = {
             'id': p.id,
             'name': util.name_from_rc_person(p),
