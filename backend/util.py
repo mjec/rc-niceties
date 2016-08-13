@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 
 import backend.config as config
 
@@ -12,13 +12,13 @@ def batch_is_open(batch_id, end_date):
     be a datetime object or a string with format `%Y-%m-%d`."""
     if not isinstance(end_date, datetime):
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    opening_time = end_date - config.get(config.NICETIES_OPEN)
+    opening_time = end_date - config.get(config.NICETIES_OPEN, timedelta(days=14))
     closing_time = datetime.combine(
         (end_date - timedelta(days=1)).date(),
-        config.get(config.CLOSING_TIME))
+        config.get(config.CLOSING_TIME, time(hour=23, minute=0)))
     now = datetime.now()
     return (
-        int(batch_id) in config.get(config.CURRENTLY_ACCEPTING) and
+        int(batch_id) in config.get(config.CURRENTLY_ACCEPTING, []) and
         opening_time <= now and
         closing_time > now
     )
@@ -31,7 +31,7 @@ def batch_closing_time(end_date):
     if end_date not in batch_closing_time_memo:
         batch_closing_time_memo[end_date] = datetime.combine(
             (end_date - timedelta(days=1)).date(),
-            config.get(config.CLOSING_TIME))
+            config.get(config.CLOSING_TIME, time(hour=23, minute=0)))
     return batch_closing_time_memo[end_date]
 
 
@@ -39,7 +39,8 @@ def batch_closing_warning_time(end_date):
     """Returns a datetime of the closing time less the relevant closing buffer."""
     if end_date not in batch_closing_warning_time_memo:
         batch_closing_warning_time_memo[end_date] = (
-            batch_closing_time(end_date) - config.get(config.CLOSING_BUFFER))
+            batch_closing_time(end_date) -
+            config.get(config.CLOSING_BUFFER, timedelta(minutes=30)))
     return batch_closing_warning_time_memo[end_date]
 
 
