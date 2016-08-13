@@ -43,7 +43,7 @@ def authorized():
             is_faculty=me['is_faculty'])
         db.session.add(user)
         db.session.commit()
-    elif user.is_faculty != me['is_faculty']:
+    elif user.faculty != me['is_faculty']:
         user.faculty = me['is_faculty']
         db.session.commit()
     session['user_id'] = user.id
