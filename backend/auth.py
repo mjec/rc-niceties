@@ -34,7 +34,7 @@ def authorized():
             ))
     session['rc_token'] = (resp['access_token'], '')
     me = rc.get('people/me')
-    user = User.get(me.id)
+    user = User.query.get(me.id)
     if user is None:
         user = User(
             id=me.id,
