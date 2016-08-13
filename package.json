@@ -3,21 +3,19 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "babel-eslint": "^6.1.2",
-    "eslint": "^3.2.2",
-    "eslint-plugin-jsx-a11y": "^2.1.0",
-    "eslint-plugin-react": "^6.0.0",
-    "react-scripts": "0.2.1"
   },
   "dependencies": {
+    "react-scripts": "0.2.1",
     "axios": "^0.13.1",
     "react": "^15.2.1",
     "react-dom": "^15.2.1",
     "react-redux": "^4.4.5",
+    "react-router": "^2.6.1",
     "redux": "^3.5.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "dev-server": "react-scripts start",
+    "start": "react-scripts build",
     "build": "react-scripts build",
     "eject": "react-scripts eject"
   },
