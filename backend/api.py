@@ -4,6 +4,7 @@ import random
 
 from backend import app, rc, db
 from backend.models import Nicety, SiteConfiguration
+from backend.auth import current_user
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
@@ -11,7 +12,7 @@ import backend.util as util
 
 @app.route('/api/v1/batches')
 def batches():
-    if session.get('user', None) is None:
+    if current_user() is None:
         redirect(url_for('authorized'))
     try:
         return cache.get('batches_list')

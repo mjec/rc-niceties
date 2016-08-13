@@ -46,10 +46,19 @@ def authorized():
     elif user.is_faculty != me['is_faculty']:
         user.is_faculty = me['is_faculty']
         db.session.commit()
-    session['user'] = user
+    session['user_id'] = user.id
     return jsonify({'status': 'OK'})
 
 
 @rc.tokengetter
 def get_oauth_token():
     return session.get('rc_token')
+
+
+_current_user_memo = None
+
+
+def current_user():
+    if _current_user_memo is None:
+        current_user_memo = User.query.get(session.get('user_id'))
+    return current_user_memo
