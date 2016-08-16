@@ -8,7 +8,7 @@ from backend import app
 
 class MockRCOAuthAPI(object):
     url_matches = [
-        (re.compile('batches'), 'batches.json'),
+        (re.compile('batches'), 'comments.json'),
         (re.compile('people/me'), 'people_me.json'),
         (re.compile('people/(\d+)'), 'people_me.json'),
         (re.compile('batches/(\d+)/people'), 'batches_people.json'),

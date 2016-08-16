@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import CommentBox from './App';
 import './index.css';
 
 ReactDOM.render(
-  <App />,
-  document.getElementById('root')
+        <CommentBox url="/api/v1/batches" pollInterval={2000} />,
+    document.getElementById('root')
 );

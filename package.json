@@ -2,16 +2,16 @@
   "name": "niceties",
   "version": "0.0.1",
   "private": true,
-  "devDependencies": {
-  },
   "dependencies": {
-    "react-scripts": "0.2.1",
     "axios": "^0.13.1",
+    "jquery": "^3.1.0",
     "react": "^15.2.1",
     "react-dom": "^15.2.1",
     "react-redux": "^4.4.5",
     "react-router": "^2.6.1",
-    "redux": "^3.5.2"
+    "react-scripts": "0.2.1",
+    "redux": "^3.5.2",
+    "remarkable": "^1.6.2"
   },
   "scripts": {
     "start": "react-scripts start",
