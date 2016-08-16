@@ -20,6 +20,11 @@ import './App.css';
 //   }
 // }
 
+// - CommentBox
+//  - CommentList
+//   - Comment
+//  - CommentForm
+
 var Comment = React.createClass({
     rawMarkup: function() {
         var md = new Remarkable();
@@ -29,12 +34,12 @@ var Comment = React.createClass({
 
     render: function() {
         return (
-                <div className="comment">
-                <h2 className="commentAuthor">
+            <div className="comment">
+              <h2 className="commentAuthor">
                 {this.props.author}
-            </h2>
-                <span dangerouslySetInnerHTML={this.rawMarkup()} />
-                </div>
+              </h2>
+              <span dangerouslySetInnerHTML={this.rawMarkup()} />
+            </div>
         );
     }
 });
@@ -84,11 +89,11 @@ var CommentBox = React.createClass({
     },
     render: function() {
         return (
-                <div className="commentBox">
-                <h1>Comments</h1>
-                <CommentList data={this.state.data} />
-                <CommentForm onCommentSubmit={this.handleCommentSubmit} />
-                </div>
+            <div className="commentBox">
+              <h1>Comments</h1>
+              <CommentList data={this.state.data} />
+              <CommentForm onCommentSubmit={this.handleCommentSubmit} />
+            </div>
         );
     }
 });
@@ -97,14 +102,14 @@ var CommentList = React.createClass({
     render: function() {
         var commentNodes = this.props.data.map(function(comment) {
             return (
-                    <Comment author={comment.author} key={comment.id}>
-                    {comment.text}
+                <Comment author={comment.author} key={comment.id}>
+                  {comment.text}
                 </Comment>
             );
         });
         return (
-                <div className="commentList">
-                {commentNodes}
+            <div className="commentList">
+              {commentNodes}
             </div>
         );
     }
@@ -132,21 +137,21 @@ var CommentForm = React.createClass({
     },
     render: function() {
         return (
-                <form className="commentForm" onSubmit={this.handleSubmit}>
-                <input
-            type="text"
-            placeholder="Your name"
-            value={this.state.author}
-            onChange={this.handleAuthorChange}
-                />
-                <input
-            type="text"
-            placeholder="Say something..."
-            value={this.state.text}
-            onChange={this.handleTextChange}
-                />
-                <input type="submit" value="Post" />
-                </form>
+            <form className="commentForm" onSubmit={this.handleSubmit}>
+              <input
+                 type="text"
+                 placeholder="Your name"
+                 value={this.state.author}
+                 onChange={this.handleAuthorChange}
+                 />
+              <input
+                 type="text"
+                 placeholder="Say something..."
+                 value={this.state.text}
+                 onChange={this.handleTextChange}
+                 />
+              <input type="submit" value="Post" />
+            </form>
         );
     }
 });
