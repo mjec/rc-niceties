@@ -25,6 +25,10 @@ import './App.css';
 //   - Comment
 //  - CommentForm
 
+var Person = React.createClass({
+
+})
+
 var Comment = React.createClass({
     rawMarkup: function() {
         var md = new Remarkable();

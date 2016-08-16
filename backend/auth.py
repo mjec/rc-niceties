@@ -50,7 +50,6 @@ def authorized():
     session['user_id'] = user.id
     return redirect(url_for('home'))
 
-
 @rc.tokengetter
 def get_oauth_token():
     return session.get('rc_token')

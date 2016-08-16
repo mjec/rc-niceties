@@ -32,7 +32,6 @@ def batches():
     cache.set('batches_list', batches_json)
     return batches_json
 
-
 @app.route('/api/v1/batch_ids/with_niceties_from_me')
 def batches_with_niceties_from_me():
     if current_user() is None:
@@ -92,6 +91,7 @@ def person(person_id):
             'id': p['id'],
             'name': util.name_from_rc_person(p),
             'avatar_url': p['image'],
+            'batch_id' : p['batch.id']
         }
         person_json = jsonify(person)
         cache.set(cache_key, person_json)
