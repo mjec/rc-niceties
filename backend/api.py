@@ -72,6 +72,7 @@ def batch_people(batch_id):
                 'id': p['id'],
                 'name': util.name_from_rc_person(p),
                 'avatar_url': p['image'],
+                'batch' : p['batch'],
             })
     random.seed(current_user().random_seed)
     random.shuffle(people)  # This order will be random but consistent for the user
@@ -91,7 +92,6 @@ def person(person_id):
             'id': p['id'],
             'name': util.name_from_rc_person(p),
             'avatar_url': p['image'],
-            'batch_id' : p['batch.id']
         }
         person_json = jsonify(person)
         cache.set(cache_key, person_json)
