@@ -28,8 +28,8 @@ def batches():
             batch['is_open'] = False
             batch['closing_time'] = None
             batch['warning_time'] = None
-    batches_json = jsonify(batches)
-    cache.set('batches_list', batches_json)
+            batches_json = jsonify(batches)
+            cache.set('batches_list', batches_json)
     return batches_json
 
 @app.route('/api/v1/batch_ids/with_niceties_from_me')
@@ -39,10 +39,10 @@ def batches_with_niceties_from_me():
     return jsonify([
         n.batch_id
         for n in (
-            Nicety
-            .query
-            .filter(Nicety.author_id == current_user().id)
-            .all())
+                Nicety
+                .query
+                .filter(Nicety.author_id == current_user().id)
+                .all())
     ])
 
 
@@ -51,10 +51,10 @@ def batches_with_niceties_to_me():
     return jsonify([
         n.batch_id
         for n in (
-            Nicety
-            .query
-            .filter(Nicety.target_id == current_user().id)
-            .all())
+                Nicety
+                .query
+                .filter(Nicety.target_id == current_user().id)
+                .all())
     ])
 
 
@@ -62,7 +62,7 @@ def batches_with_niceties_to_me():
 def batch_people(batch_id):
     if current_user() is None:
         redirect(url_for('authorized'))
-    cache_key = 'batches_people_list:{}'.format(batch_id)
+        cache_key = 'batches_people_list:{}'.format(batch_id)
     try:
         people = cache.get(cache_key)
     except cache.NotInCache:
@@ -72,18 +72,17 @@ def batch_people(batch_id):
                 'id': p['id'],
                 'name': util.name_from_rc_person(p),
                 'avatar_url': p['image'],
-                'batch' : p['batch'],
+                'stints' : p['stints'],
             })
-    random.seed(current_user().random_seed)
-    random.shuffle(people)  # This order will be random but consistent for the user
+            random.seed(current_user().random_seed)
+            random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
-
 
 @app.route('/api/v1/people/<int:person_id>')
 def person(person_id):
     if current_user() is None:
         redirect(url_for('authorized'))
-    cache_key = 'person:{}'.format(person_id)
+        cache_key = 'person:{}'.format(person_id)
     try:
         return cache.get(cache_key)
     except cache.NotInCache:
@@ -96,7 +95,6 @@ def person(person_id):
         person_json = jsonify(person)
         cache.set(cache_key, person_json)
         return person_json
-
 
 class NicetyFromMeAPI(MethodView):
     def get(batch_id, person_id):
@@ -124,21 +122,21 @@ class NicetyFromMeAPI(MethodView):
     def post(batch_id, person_id):
         if current_user() is None:
             redirect(url_for('authorized'))
-        nicety = (
-            Nicety
-            .query
-            .filter_by(
-                batch_id=batch_id,
-                target_id=person_id,
-                author_id=current_user().id)
-            .one())
-        nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
-        text = request.form.get("text").trim()
+            nicety = (
+                Nicety
+                .query
+                .filter_by(
+                    batch_id=batch_id,
+                    target_id=person_id,
+                    author_id=current_user().id)
+                .one())
+            nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
+            text = request.form.get("text").trim()
         if '' == text:
             text = None
-        nicety.text = text
-        nicety.faculty_reviewed = False
-        db.session.commit()
+            nicety.text = text
+            nicety.faculty_reviewed = False
+            db.session.commit()
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
@@ -150,7 +148,7 @@ class PreferencesAPI(MethodView):
     def get(self):
         if current_user() is None:
             redirect(url_for('authorized'))
-        user = current_user()
+            user = current_user()
         return jsonify({
             'anonymous_by_default': user.anonymous_by_default,
             'autosave_timeout': user.autosave_timeout,
@@ -160,18 +158,18 @@ class PreferencesAPI(MethodView):
     def post(self):
         if current_user() is None:
             redirect(url_for('authorized'))
-        user = current_user()
-        user.anonymous_by_default = request.form.get(
-            'anonymous_by_default',
-            user.anonymous_by_default)
-        user.autosave_timeout = request.form.get(
-            'autosave_timeout',
-            user.autosave_timeout)
-        user.autosave_enabled = request.form.get(
-            'autosave_enabled',
-            user.autosave_enabled)
-        db.session.add(user)
-        db.sesison.commit()
+            user = current_user()
+            user.anonymous_by_default = request.form.get(
+                'anonymous_by_default',
+                user.anonymous_by_default)
+            user.autosave_timeout = request.form.get(
+                'autosave_timeout',
+                user.autosave_timeout)
+            user.autosave_enabled = request.form.get(
+                'autosave_enabled',
+                user.autosave_enabled)
+            db.session.add(user)
+            db.sesison.commit()
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
@@ -183,7 +181,7 @@ class SiteSettingsAPI(MethodView):
     def get(self):
         if current_user() is None:
             redirect(url_for('authorized'))
-        user = current_user()
+            user = current_user()
         if not user.faculty:
             return abort(403)
         return jsonify({c.key: config.to_frontend_value(c) for c in SiteConfiguration.query.all()})
@@ -191,7 +189,7 @@ class SiteSettingsAPI(MethodView):
     def post(self):
         if current_user() is None:
             redirect(url_for('authorized'))
-        user = current_user()
+            user = current_user()
         if not user.faculty:
             return abort(403)
         key = request.form.get('key', None)

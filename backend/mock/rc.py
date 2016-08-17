@@ -5,7 +5,6 @@ from flask import url_for, redirect, json
 
 from backend import app
 
-
 class MockRCOAuthAPI(object):
     url_matches = [
         (re.compile('batches'), 'comments.json'),

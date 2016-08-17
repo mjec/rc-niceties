@@ -4,7 +4,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_oauthlib.client import OAuth
 
-
 MOCK_OUT_RC_API = False
 
 # Flask won't rou    RLs in the static_url_path, so we set it to something arbitrary
@@ -37,7 +36,6 @@ with app.app_context():
             consumer_secret=os.environ['RC_OAUTH_SECRET'],  # Deliberately throw exception it not set
             access_token_method='POST',
         )
-
 
 # Imports for URLs that should be available
 import backend.api
