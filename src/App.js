@@ -62,35 +62,38 @@ var CommentBox = React.createClass({
     },
     componentDidMount: function() {
         this.loadCommentsFromServer();
-        setInterval(this.loadCommentsFromServer, this.props.pollInterval);
+        setInterval(tpthis.loadCommentsFromServer, this.props.pollInterval);
     },
     render: function() {
         return (
             <div className="commentBox">
               <h1>Comments</h1>
-              <Person data={this.state.data} />
+              <People data={this.state.data} />
             </div>
         );
     }
 });
 
-var Person = React.createClass({
+var People = React.createClass({
     render: function() {
-        var commentNodes = this.props.data.map(function(comment) {
+        var Person = this.props.data.map(function(comment) {
             var dateEnd = new Date(comment.stints[0].end_date.toString());
             var timeDiff = dateEnd.getTime() - Date.now();
             var difference = Math.ceil(timeDiff / (1000 * 3600 * 24));
             var diffDays = (difference > 0) ? difference : 0;
             if (diffDays != 0)
                 return (
-                    <Comment author={comment.name} key={comment.id}>
-                      {diffDays}
-                    </Comment>
+                    <div className="node">
+                         <img src={comment.avatar_url} className="img-responsive" />
+                         <Comment author={comment.name} key={comment.id}>
+                           {diffDays}
+                         </Comment>
+                    </div>
                 );
         });
         return (
             <div className="person">
-              {commentNodes}
+              {Person}
             </div>
         );
     }

@@ -62,7 +62,7 @@ def batches_with_niceties_to_me():
 def batch_people(batch_id):
     if current_user() is None:
         redirect(url_for('authorized'))
-        cache_key = 'batches_people_list:{}'.format(batch_id)
+    cache_key = 'batches_people_list:{}'.format(batch_id)
     try:
         people = cache.get(cache_key)
     except cache.NotInCache:
@@ -78,11 +78,12 @@ def batch_people(batch_id):
             random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
 
+
 @app.route('/api/v1/people/<int:person_id>')
 def person(person_id):
     if current_user() is None:
         redirect(url_for('authorized'))
-        cache_key = 'person:{}'.format(person_id)
+    cache_key = 'person:{}'.format(person_id)
     try:
         return cache.get(cache_key)
     except cache.NotInCache:
@@ -95,6 +96,7 @@ def person(person_id):
         person_json = jsonify(person)
         cache.set(cache_key, person_json)
         return person_json
+
 
 class NicetyFromMeAPI(MethodView):
     def get(batch_id, person_id):
