@@ -24,26 +24,85 @@ import './App.css';
 //  - CommentList
 //   - Comment
 
-var Comment = React.createClass({
-    rawMarkup: function() {
-        var md = new Remarkable();
-        var rawMarkup = md.render(this.props.children.toString());
-        return { __html: rawMarkup };
-    },
+// var Comment = React.createClass({
+//     rawMarkup: function() {
+//         var md = new Remarkable();
+//         var rawMarkup = md.render(this.props.children.toString());
+//         return { __html: rawMarkup };
+//     },
+
+//     render: function() {
+//         return (
+//             <div className="comment">
+//               <h2 className="commentAuthor">
+//                 {this.props.author}
+//               </h2>
+//               <span dangerouslySetInnerHTML={this.rawMarkup()} />
+//             </div>
+//         );
+//     }
+// });
+
+// var People = React.createClass({
+//     render: function() {
+//         var Person = this.props.data.map(function(comment) {
+//             var dateEnd = new Date(comment.stints[0].end_date.toString());
+//             var timeDiff = dateEnd.getTime() - Date.now();
+//             var difference = Math.ceil(timeDiff / (1000 * 3600 * 24));
+//             var diffDays = (difference > 0) ? difference : 0;
+//             if (diffDays != 0)
+//                 return (
+//                     <div className="node">
+//                          <img src={comment.avatar_url} className="img-responsive" />
+//                          <Comment author={comment.name} key={comment.id}>
+//                            {diffDays}
+//                          </Comment>
+                         
+//                     </div>
+//                 );
+//         });
+//         return (
+//             <div className="person">
+//               {Person}
+//             </div>
+//         );
+//     }
+// });
+
+var People = React.createClass({
 
     render: function() {
-        return (
-            <div className="comment">
-              <h2 className="commentAuthor">
-                {this.props.author}
-              </h2>
-              <span dangerouslySetInnerHTML={this.rawMarkup()} />
+        var dataa = this.props.data
+                .filter(function(result) {
+                    var dateEnd = new Date(result.stints[0].end_date.toString());
+                    var timeDiff = dateEnd.getTime() - Date.now();
+                    var difference = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    var diffDays = (difference > 0) ? difference : 0;
+                    return (diffDays != 0)
+                })
+                console.log(dataa);
+               return (
+            <div className="people">
+              {dataa.map(function(result) {
+                    return <Person key={result.id} data={result}/>;
+                })
+            }
             </div>
         );
     }
 });
 
-var CommentBox = React.createClass({
+var Person = React.createClass({
+    render: function() {
+        return ( 
+            <div className="person">
+                <img src={this.props.data.avatar_url} className="img-responsive" />
+            </div>
+        );
+    }
+});
+
+var App = React.createClass({
     loadCommentsFromServer: function() {
         $.ajax({
             url: this.props.url,
@@ -62,41 +121,17 @@ var CommentBox = React.createClass({
     },
     componentDidMount: function() {
         this.loadCommentsFromServer();
-        setInterval(tpthis.loadCommentsFromServer, this.props.pollInterval);
+        setInterval(this.loadCommentsFromServer, this.props.pollInterval);
     },
     render: function() {
         return (
-            <div className="commentBox">
+            <div className="App">
               <h1>Comments</h1>
               <People data={this.state.data} />
+              
             </div>
         );
     }
 });
 
-var People = React.createClass({
-    render: function() {
-        var Person = this.props.data.map(function(comment) {
-            var dateEnd = new Date(comment.stints[0].end_date.toString());
-            var timeDiff = dateEnd.getTime() - Date.now();
-            var difference = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            var diffDays = (difference > 0) ? difference : 0;
-            if (diffDays != 0)
-                return (
-                    <div className="node">
-                         <img src={comment.avatar_url} className="img-responsive" />
-                         <Comment author={comment.name} key={comment.id}>
-                           {diffDays}
-                         </Comment>
-                    </div>
-                );
-        });
-        return (
-            <div className="person">
-              {Person}
-            </div>
-        );
-    }
-});
-
-export default CommentBox;
+export default App;
