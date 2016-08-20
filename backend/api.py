@@ -9,7 +9,7 @@ import backend.cache as cache
 import backend.config as config
 import backend.util as util
 
-
+@needs_authorization
 @app.route('/api/v1/batches')
 def batches():
     if current_user() is None:
@@ -32,6 +32,7 @@ def batches():
             cache.set('batches_list', batches_json)
     return batches_json
 
+@needs_authorization
 @app.route('/api/v1/batch_ids/with_niceties_from_me')
 def batches_with_niceties_from_me():
     if current_user() is None:
@@ -42,10 +43,9 @@ def batches_with_niceties_from_me():
                 Nicety
                 .query
                 .filter(Nicety.author_id == current_user().id)
-                .all())
-    ])
+                .all())])
 
-
+@needs_authorization
 @app.route('/api/v1/batch_ids/with_niceties_to_me')
 def batches_with_niceties_to_me():
     return jsonify([
@@ -56,7 +56,6 @@ def batches_with_niceties_to_me():
                 .filter(Nicety.target_id == current_user().id)
                 .all())
     ])
-
 
 @app.route('/api/v1/batches/<int:batch_id>/people')
 def batch_people(batch_id):
@@ -78,11 +77,33 @@ def batch_people(batch_id):
             random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
 
+@needs_authorization
+@app.route('/api/v1/people')
+def exiting_batch(func):
+    def f():
+        func()
+        return f
 
+def needs_authorization(func):
+    def f():
+        if current_user() is None:
+            redirect(url_for('authorized'))
+        func()
+    return f
+
+# So this is a function which takes in a function (called func), then defines a function
+# called f which does the check and calls func; and returns f.
+# So the way decorators work is they replace the function with what's returned from the
+# decorator.
+
+# I think that @app.route() is something like this:
+# So that doesn't actually change the function, but it creates a side effect
+# Not really, other than to look up the occasional thing I was interested in.
+
+# I think this should work (!)
+@needs_authorization
 @app.route('/api/v1/people/<int:person_id>')
 def person(person_id):
-    if current_user() is None:
-        redirect(url_for('authorized'))
     cache_key = 'person:{}'.format(person_id)
     try:
         return cache.get(cache_key)
