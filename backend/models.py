@@ -35,9 +35,10 @@ class Nicety(db.Model):
     __tablename__ = 'nicety'
 
     id = db.Column(db.Integer, primary_key=True)
-    batch_id = db.Column(db.Integer)  # RC batch ID
-    author_id = db.Column(db.ForeignKey('user.id'))
-    target_id = db.Column(db.Integer)
+    batch_id = db.Column(db.Integer)  # RC batch ID  TODO: DELETE
+    last_day = db.Column(db.Date)
+    author_id = db.Column(db.ForeignKey('user.id'))  # RC user ID
+    target_id = db.Column(db.Integer)  # RC user ID
     anonymous = db.Column(db.Boolean)
     faculty_reviewed = db.Column(db.Boolean)
     starred = db.Column(db.Boolean)

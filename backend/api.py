@@ -31,29 +31,45 @@ def batches():
             cache.set('batches_list', batches_json)
     return batches_json
 
-@app.route('/api/v1/batch_ids/with_niceties_from_me')
+@app.route('/api/v1/niceties_to_print')
 @needs_authorization
-def batches_with_niceties_from_me():
+def niceties_to_print():
+    ret = {}    # Mapping from target_id to a list of niceties for that person
+    last_target = None
+    # Loop through all the Niceties that exist for the open batch
+    # The batch end date might be 6 weeks or more away, if you're doing a six week stint.
+    # So that means it won't be picked up by .. which means it won't appear in the list to print!
+    #
+    # batch['end_date'] is always 12 weeks after the start of the batch. But some people are doing
+    # 6 week stints.
+    #
+    # * people doing 12 week stint in that batch
+    # * people doing 6 week stint in that batch
+
+    for n in (Nicety.query
+                    .filter(Nicety.batch_id.in_([27, 28]))
+                    # .filter(Nicety.end_date)
+                    .order_by(Nicety.target_id)
+                    .all()):
+        # If this is a different target_id to the last one...
+        if n.target_id != last_target:
+            # ... set up the test for the next one
+            last_target = n.target_id
+            ret[n.target_id] = []  # initialize the dictionary
+
+        ret[n.target_id].append({
+            'author_id': n.author_id,
+            'anonymous': n.anonymous,
+            'text': n.text,
+        })
     return jsonify([
-        n.batch_id
-        for n in (
-                Nicety
-                .query
-                .filter(Nicety.author_id == current_user().id)
-                .all())
+        {
+            'to': k,
+            'niceties': v
+        }
+        for k, v in ret.items()
     ])
 
-@app.route('/api/v1/batch_ids/with_niceties_to_me')
-@needs_authorization
-def batches_with_niceties_to_me():
-    return jsonify([
-        n.batch_id
-        for n in (
-                Nicety
-                .query
-                .filter(Nicety.target_id == current_user().id)
-                .all())
-    ])
 
 @app.route('/api/v1/batches/<int:batch_id>/people')
 @needs_authorization
@@ -129,11 +145,6 @@ def exiting_batch():
     random.seed(current_user().random_seed)
     random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
-
-# So this is a function which takes in a function (called func), then defines a function
-# called f which does the check and calls func; and returns f.
-# So the way decorators work is they replace the function with what's returned from the
-# decorator.
 
 @app.route('/api/v1/people/<int:person_id>')
 @needs_authorization
@@ -238,7 +249,7 @@ class SiteSettingsAPI(MethodView):
         user = current_user()
         if user is None:
             return redirect(url_for('authorized'))
-        if False and not user.faculty:
+        if not user.faculty:
             return abort(403)
         return jsonify({c.key: config.to_frontend_value(c) for c in SiteConfiguration.query.all()})
 
