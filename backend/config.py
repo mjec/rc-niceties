@@ -28,6 +28,7 @@ CLOSING_TIME = 'when on the day before end of batch to stop accepting niceties (
 CLOSING_BUFFER = 'how long before closing to pretend niceties are closed (datetime.timedelta)'
 CACHE_TIMEOUT = 'default max age for cached data (datetime.timedelta)'
 INCLUDE_FACULTY = 'permit niceties to be left about faculty (boolean)'
+INCLUDE_RESIDENTS = 'permit niceties to be left about residents (boolean)'
 
 # Memo table for get() memoization
 memo = {}
@@ -86,6 +87,8 @@ def to_frontend_value(cfg):
         return cfg.value.total_seconds()
     elif cfg.key == INCLUDE_FACULTY:
         return cfg.value
+    elif cfg.key == INCLUDE_RESIDENTS:
+        return cfg.value
     else:
         return None
 
@@ -109,5 +112,19 @@ def from_frontend_value(key, value):
         return timedelta(seconds=value)
     elif key == INCLUDE_FACULTY:
         return value
+    elif key == INCLUDE_RESIDENTS:
+        return value
     else:
-        return None
+        raise ValueError('No such config key!')
+
+
+def set_to_default():
+    import datetime
+    set(CURRENTLY_ACCEPTING, [])
+    set(NICETIES_OPEN, datetime.timedelta(days=14))
+    set(CLOSING_TIME, datetime.time(14, 0))
+    set(CLOSING_BUFFER, datetime.timedelta(minutes=30))
+    set(CACHE_TIMEOUT, datetime.timedelta(days=7))
+    set(INCLUDE_FACULTY, False)
+    set(INCLUDE_RESIDENTS, False)
+    db.session.commit()

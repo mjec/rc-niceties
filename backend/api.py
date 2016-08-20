@@ -111,13 +111,18 @@ def exiting_batch():
                         latest_end_date = e
                 if (latest_end_date is not None and
                     util.end_date_within_range(latest_end_date) and
-                    ((not p['is_faculty']) or
-                        config.get(config.INCLUDE_FACULTY), False)):
+                    (   # Batchlings have   is_hacker_schooler = True,      is_faculty = False
+                        # Faculty have      is_hacker_schooler = ?,         is_faculty = True
+                        # Resdients have    is_hacker_schooler = False,     is_faculty = False
+                        (p['is_hacker_schooler'] and not p['is_faculty']) or
+                        (not p['is_faculty'] and not p['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
+                        (p['is_faculty'] and config.get(config.INCLUDE_FACULTY, False)))):
                     people.append({
                         'id': p['id'],
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
-                        'stints': p['stints']
+                        'stints': p['stints'],
+                        'raw': p,
                     })
         cache.set(cache_key, people)
     random.seed(current_user().random_seed)
@@ -229,10 +234,10 @@ app.add_url_rule(
 
 class SiteSettingsAPI(MethodView):
     def get(self):
-        if current_user() is None:
-            redirect(url_for('authorized'))
-            user = current_user()
-        if not user.faculty:
+        user = current_user()
+        if user is None:
+            return redirect(url_for('authorized'))
+        if False and not user.faculty:
             return abort(403)
         return jsonify({c.key: config.to_frontend_value(c) for c in SiteConfiguration.query.all()})
 
