@@ -68,6 +68,7 @@ def batch_people(batch_id):
                 'id': p['id'],
                 'name': util.name_from_rc_person(p),
                 'avatar_url': p['image'],
+                'stints': p['stints'],
             })
         cache.set(cache_key, people)
     random.seed(current_user().random_seed)
@@ -116,7 +117,7 @@ def exiting_batch():
                         'id': p['id'],
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
-                        'raw': p
+                        'stints': p['stints']
                     })
         cache.set(cache_key, people)
     random.seed(current_user().random_seed)
