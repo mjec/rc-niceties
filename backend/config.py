@@ -27,6 +27,7 @@ NICETIES_OPEN = 'how long before batch end to start accepting niceties (datetime
 CLOSING_TIME = 'when on the day before end of batch to stop accepting niceties (datetime.time)'
 CLOSING_BUFFER = 'how long before closing to pretend niceties are closed (datetime.timedelta)'
 CACHE_TIMEOUT = 'default max age for cached data (datetime.timedelta)'
+INCLUDE_FACULTY = 'permit niceties to be left about faculty (boolean)'
 
 # Memo table for get() memoization
 memo = {}
@@ -83,6 +84,8 @@ def to_frontend_value(cfg):
         return cfg.value.total_seconds() / 60
     elif cfg.key == CACHE_TIMEOUT:
         return cfg.value.total_seconds()
+    elif cfg.key == INCLUDE_FACULTY:
+        return cfg.value
     else:
         return None
 
@@ -104,5 +107,7 @@ def from_frontend_value(key, value):
     elif key == CACHE_TIMEOUT:
         from datetime import timedelta
         return timedelta(seconds=value)
+    elif key == INCLUDE_FACULTY:
+        return value
     else:
         return None

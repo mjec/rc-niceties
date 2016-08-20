@@ -1,6 +1,7 @@
-from flask import json, jsonify, session, request, abort, url_for, redirect
+from flask import json, jsonify, request, abort, url_for, redirect
 from flask.views import MethodView
 import random
+from datetime import datetime
 
 from backend import app, rc, db
 from backend.models import Nicety, SiteConfiguration
@@ -27,8 +28,8 @@ def batches():
     for batch in batches:
         if util.batch_is_open(batch['id'], batch['end_date']):
             batch['is_open'] = True
-            batch['closing_time'] = util.batch_closing_time(batch.end_date).isoformat()
-            batch['warning_time'] = util.batch_closing_warning_time(batch.end_date).isoformat()
+            batch['closing_time'] = util.batch_closing_time(batch['end_date']).isoformat()
+            batch['warning_time'] = util.batch_closing_warning_time(batch['end_date']).isoformat()
         else:
             batch['is_open'] = False
             batch['closing_time'] = None
@@ -80,12 +81,54 @@ def batch_people(batch_id):
             random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
 
+
+def get_open_batches():
+    try:
+        return cache.get('open_batches_list')
+    except cache.NotInCache:
+        pass
+    batches = rc.get('batches').data
+    for batch in batches:
+        if util.end_date_within_range(batch['end_date']):
+            batch['is_open'] = True
+            batch['closing_time'] = util.batch_closing_time(batch['end_date']).isoformat()
+            batch['warning_time'] = util.batch_closing_warning_time(batch['end_date']).isoformat()
+        else:
+            batch['is_open'] = False
+            batch['closing_time'] = None
+            batch['warning_time'] = None
+            cache.set('open_batches_list', batches)
+    return batches
+
 @needs_authorization
 @app.route('/api/v1/people')
-def exiting_batch(func):
-    def f():
-        func()
-        return f
+def exiting_batch():
+    cache_key = 'people_list'
+    try:
+        people = cache.get(cache_key)
+    except cache.NotInCache:
+        people = []
+        for open_batch in get_open_batches():
+            for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
+                latest_end_date = None
+                for stint in p['stints']:
+                    e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+                    if latest_end_date is None or e > latest_end_date:
+                        latest_end_date = e
+                if (latest_end_date is not None and
+                    util.end_date_within_range(latest_end_date) and
+                    (not p['is_faculty'] or
+                        config.get(config.INCLUDE_FACULTY), False)):
+                    people.append({
+                        'id': p['id'],
+                        'name': util.name_from_rc_person(p),
+                        'avatar_url': p['image'],
+                        'raw': p
+                    })
+        cache.set(cache_key, people)
+    random.seed(current_user().random_seed)
+    random.shuffle(people)  # This order will be random but consistent for the user
+    return jsonify(people)
 
 # So this is a function which takes in a function (called func), then defines a function
 # called f which does the check and calls func; and returns f.
