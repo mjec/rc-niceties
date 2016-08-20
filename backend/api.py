@@ -1,24 +1,17 @@
 from flask import json, jsonify, request, abort, url_for, redirect
 from flask.views import MethodView
-import random
 from datetime import datetime
+import random
 
 from backend import app, rc, db
 from backend.models import Nicety, SiteConfiguration
-from backend.auth import current_user
+from backend.auth import current_user, needs_authorization
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
 
-def needs_authorization(func):
-    def f():
-        if current_user() is None:
-            redirect(url_for('authorized'))
-        func()
-    return f
-
-@needs_authorization
 @app.route('/api/v1/batches')
+@needs_authorization
 def batches():
     try:
         return cache.get('batches_list')
@@ -38,8 +31,8 @@ def batches():
             cache.set('batches_list', batches_json)
     return batches_json
 
-@needs_authorization
 @app.route('/api/v1/batch_ids/with_niceties_from_me')
+@needs_authorization
 def batches_with_niceties_from_me():
     return jsonify([
         n.batch_id
@@ -50,8 +43,8 @@ def batches_with_niceties_from_me():
                 .all())
     ])
 
-@needs_authorization
 @app.route('/api/v1/batch_ids/with_niceties_to_me')
+@needs_authorization
 def batches_with_niceties_to_me():
     return jsonify([
         n.batch_id
@@ -62,8 +55,8 @@ def batches_with_niceties_to_me():
                 .all())
     ])
 
-@needs_authorization
 @app.route('/api/v1/batches/<int:batch_id>/people')
+@needs_authorization
 def batch_people(batch_id):
     try:
         cache_key = 'batches_people_list:{}'.format(batch_id)
@@ -75,10 +68,10 @@ def batch_people(batch_id):
                 'id': p['id'],
                 'name': util.name_from_rc_person(p),
                 'avatar_url': p['image'],
-                'stints' : p['stints'],
             })
-            random.seed(current_user().random_seed)
-            random.shuffle(people)  # This order will be random but consistent for the user
+        cache.set(cache_key, people)
+    random.seed(current_user().random_seed)
+    random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
 
 
@@ -100,8 +93,8 @@ def get_open_batches():
             cache.set('open_batches_list', batches)
     return batches
 
-@needs_authorization
 @app.route('/api/v1/people')
+@needs_authorization
 def exiting_batch():
     cache_key = 'people_list'
     try:
@@ -117,7 +110,7 @@ def exiting_batch():
                         latest_end_date = e
                 if (latest_end_date is not None and
                     util.end_date_within_range(latest_end_date) and
-                    (not p['is_faculty'] or
+                    ((not p['is_faculty']) or
                         config.get(config.INCLUDE_FACULTY), False)):
                     people.append({
                         'id': p['id'],
@@ -135,8 +128,8 @@ def exiting_batch():
 # So the way decorators work is they replace the function with what's returned from the
 # decorator.
 
-@needs_authorization
 @app.route('/api/v1/people/<int:person_id>')
+@needs_authorization
 def person(person_id):
     cache_key = 'person:{}'.format(person_id)
     try:

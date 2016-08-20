@@ -1,3 +1,4 @@
+import flask_oauthlib
 from flask import session, url_for, redirect, request
 from werkzeug.exceptions import HTTPException
 
@@ -57,20 +58,6 @@ def get_oauth_token():
 
 _current_user_memo = None
 
-# I think the exception shouldn't be raised on the server side, it should result in an error page.
-# We really want a friendlier error page than that -- because that indicates an unhandled
-# exception on the server.
-# I mean, it's not a particularly big deal, but
-# What will happen is the API endpoint will return a 500 status code, and the client
-# application will think the server has crashed; whereas it should return a 403 which
-# indicates the client needs to login, or a 404 meaning no such page etc etc.
-
-# It will also fill up the logs with stack traces.
-# sorry - i realized i have to go pick up my book
-
-# I Can do whenever, after hours. As an alum I'm not supposed to be in the space 10am - 6pm Mon - Wed.
-
-
 def current_user():
     global _current_user_memo
     if session.get('user_id', None) is None:
@@ -79,3 +66,13 @@ def current_user():
         _current_user_memo = User.query.get(session.get('user_id'))
         db.session.expunge(_current_user_memo)
     return _current_user_memo
+
+def needs_authorization(func):
+    def f():
+        try:
+            if current_user() is None:
+                return redirect(url_for('authorized'))
+            return func()
+        except flask_oauthlib.client.OAuthException:
+            return redirect(url_for('home'))
+    return f
