@@ -20,9 +20,7 @@ def batch_is_open(batch_id, end_date):
     return (
         int(batch_id) in config.get(config.CURRENTLY_ACCEPTING, []) and
         opening_time <= now and
-        closing_time > now
-    )
-
+        closing_time > now)
 
 def batch_closing_time(end_date):
     """Returns a datetime of the closing time."""
@@ -34,7 +32,6 @@ def batch_closing_time(end_date):
             config.get(config.CLOSING_TIME, time(hour=23, minute=0)))
     return batch_closing_time_memo[end_date]
 
-
 def batch_closing_warning_time(end_date):
     """Returns a datetime of the closing time less the relevant closing buffer."""
     if end_date not in batch_closing_warning_time_memo:
@@ -42,7 +39,6 @@ def batch_closing_warning_time(end_date):
             batch_closing_time(end_date) -
             config.get(config.CLOSING_BUFFER, timedelta(minutes=30)))
     return batch_closing_warning_time_memo[end_date]
-
 
 def name_from_rc_person(person):
     """Returns a name as a string from an RC person object."""

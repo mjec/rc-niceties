@@ -9,11 +9,16 @@ import backend.cache as cache
 import backend.config as config
 import backend.util as util
 
+def needs_authorization(func):
+    def f():
+        if current_user() is None:
+            redirect(url_for('authorized'))
+        func()
+    return f
+
 @needs_authorization
 @app.route('/api/v1/batches')
 def batches():
-    if current_user() is None:
-        redirect(url_for('authorized'))
     try:
         return cache.get('batches_list')
     except cache.NotInCache:
@@ -35,15 +40,14 @@ def batches():
 @needs_authorization
 @app.route('/api/v1/batch_ids/with_niceties_from_me')
 def batches_with_niceties_from_me():
-    if current_user() is None:
-        redirect(url_for('authorized'))
     return jsonify([
         n.batch_id
         for n in (
                 Nicety
                 .query
                 .filter(Nicety.author_id == current_user().id)
-                .all())])
+                .all())
+    ])
 
 @needs_authorization
 @app.route('/api/v1/batch_ids/with_niceties_to_me')
@@ -57,12 +61,11 @@ def batches_with_niceties_to_me():
                 .all())
     ])
 
+@needs_authorization
 @app.route('/api/v1/batches/<int:batch_id>/people')
 def batch_people(batch_id):
-    if current_user() is None:
-        redirect(url_for('authorized'))
-    cache_key = 'batches_people_list:{}'.format(batch_id)
     try:
+        cache_key = 'batches_people_list:{}'.format(batch_id)
         people = cache.get(cache_key)
     except cache.NotInCache:
         people = []
@@ -84,23 +87,11 @@ def exiting_batch(func):
         func()
         return f
 
-def needs_authorization(func):
-    def f():
-        if current_user() is None:
-            redirect(url_for('authorized'))
-        func()
-    return f
-
 # So this is a function which takes in a function (called func), then defines a function
 # called f which does the check and calls func; and returns f.
 # So the way decorators work is they replace the function with what's returned from the
 # decorator.
 
-# I think that @app.route() is something like this:
-# So that doesn't actually change the function, but it creates a side effect
-# Not really, other than to look up the occasional thing I was interested in.
-
-# I think this should work (!)
 @needs_authorization
 @app.route('/api/v1/people/<int:person_id>')
 def person(person_id):
@@ -117,7 +108,6 @@ def person(person_id):
         person_json = jsonify(person)
         cache.set(cache_key, person_json)
         return person_json
-
 
 class NicetyFromMeAPI(MethodView):
     def get(batch_id, person_id):

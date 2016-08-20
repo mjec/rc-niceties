@@ -7,7 +7,6 @@ from backend import db, config
 class NotInCache(Exception):
     pass
 
-
 def get(key, max_age=None):
     """Get a value from the cache, provided it is no  older than `max_age`, which
     can be a `datetime.timedelta` or a number of seconds. If the item is not in the
