@@ -105,10 +105,12 @@ def exiting_batch():
         for open_batch in get_open_batches():
             for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
                 latest_end_date = None
+                latest_batch_id = None
                 for stint in p['stints']:
                     e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
                     if latest_end_date is None or e > latest_end_date:
                         latest_end_date = e
+                        latest_batch_id = stint['batch_id']
                 if (latest_end_date is not None and
                     util.end_date_within_range(latest_end_date) and
                     (   # Batchlings have   is_hacker_schooler = True,      is_faculty = False
@@ -121,8 +123,7 @@ def exiting_batch():
                         'id': p['id'],
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
-                        'stints': p['stints'],
-                        'raw': p,
+                        'batch_id': latest_batch_id,
                     })
         cache.set(cache_key, people)
     random.seed(current_user().random_seed)
@@ -250,12 +251,10 @@ class SiteSettingsAPI(MethodView):
         key = request.form.get('key', None)
         value = request.form.get('value', None)
         try:
-            value = config.from_frontend_value(key, json.loads(value))
-            if value is not None:
-                SiteConfiguration.get(key).value = value
-                db.session.commit()
+            try:
+                config.set(key, config.from_frontend_value(key, json.loads(value)))
                 return jsonify({'status': 'OK'})
-            else:
+            except ValueError:
                 return abort(404)
         except:
             return abort(400)

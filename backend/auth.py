@@ -16,8 +16,8 @@ class AuthorizationFailed(HTTPException):
 
 @app.route('/login')
 def login():
-    print(url_for('authorized', _external=True))
     return rc.authorize(callback=url_for('authorized', _external=True))
+    # return rc.authorize(callback='urn:ietf:wg:oauth:2.0:oob')
 
 
 @app.route('/api/v1/logout')

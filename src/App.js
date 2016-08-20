@@ -10,13 +10,6 @@ var People = React.createClass({
         return (
             <div className="people">
               {this.props.data
-                  .filter(function(result) {
-                          var dateEnd = new Date(result.stints[0].end_date.toString());
-                          var timeDiff = dateEnd.getTime() - Date.now();
-                          var difference = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                          var diffDays = (difference > 0) ? difference : 0;
-                          return (diffDays != 0)
-                  })
                   .map(function(result) {
                   return <Person key={result.id} data={result} isChanged={false} pending={false}/>;
                   })
@@ -29,7 +22,7 @@ var People = React.createClass({
 var Person = React.createClass({
     saveCommentsToServer: function() {
         $.ajax({
-            url: 'api/v1/niceties/28/' + this.props.data.id,
+            url: 'api/v1/niceties/' + this.props.data.batch_id + '/' + this.props.data.id,
             dataType: 'json',
             type: 'POST',
             cache: false,
@@ -71,7 +64,7 @@ var Person = React.createClass({
         if (this.props.pending == false && this.props.isChanged) {
             this.setState({pending: true});
             $.ajax({
-                url: 'api/v1/niceties/28/' + this.props.data.id,
+                url: 'api/v1/niceties/' + this.props.data.batch_id + '/' + this.props.data.id,
                 dataType: 'json',
                 type: 'POST',
                 cache: false,
@@ -128,7 +121,8 @@ var App = React.createClass({
     },
     componentDidMount: function() {
         this.loadCommentsFromServer();
-        setInterval(this.loadCommentsFromServer, this.props.pollInterval);
+        // setInterval(this.loadCommentsFromServer, this.props.pollInterval);
+
     },
     render: function() {
         return (

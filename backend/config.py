@@ -22,7 +22,6 @@ from backend import db
 
 
 # Configuration keys
-CURRENTLY_ACCEPTING = 'batches IDs currently accepting niceties (list)'
 NICETIES_OPEN = 'how long before batch end to start accepting niceties (datetime.timedelta)'
 CLOSING_TIME = 'when on the day before end of batch to stop accepting niceties (datetime.time)'
 CLOSING_BUFFER = 'how long before closing to pretend niceties are closed (datetime.timedelta)'
@@ -75,9 +74,7 @@ def unset(key):
 def to_frontend_value(cfg):
     """Returns a JSON-serializable version of the value of the `SiteConfiguration`
     object `cfg`, applying any transformation reversed by from_frontend_value."""
-    if cfg.key == CURRENTLY_ACCEPTING:
-        return cfg.value
-    elif cfg.key == NICETIES_OPEN:
+    if cfg.key == NICETIES_OPEN:
         return cfg.value.total_seconds() / (60 * 60 * 24)
     elif cfg.key == CLOSING_TIME:
         return cfg.value.strftime('%H:%M')
@@ -96,9 +93,7 @@ def to_frontend_value(cfg):
 def from_frontend_value(key, value):
     """Returns a `SiteConfiguration` object value for the relevant `key` and
     JSON-serializable `value`, applying any transformation reversed by to_frontend_value."""
-    if key == CURRENTLY_ACCEPTING:
-        return value
-    elif key == NICETIES_OPEN:
+    if key == NICETIES_OPEN:
         from datetime import timedelta
         return timedelta(days=value)
     elif key == CLOSING_TIME:
