@@ -1,3 +1,4 @@
+from functools import wraps
 import flask_oauthlib
 from flask import session, url_for, redirect, request
 from werkzeug.exceptions import HTTPException
@@ -67,12 +68,13 @@ def current_user():
         db.session.expunge(_current_user_memo)
     return _current_user_memo
 
-def needs_authorization(func):
-    def f():
+def needs_authorization(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
         try:
             if current_user() is None:
                 return redirect(url_for('authorized'))
-            return func()
+            return f(*args, **kwargs)
         except flask_oauthlib.client.OAuthException:
             return redirect(url_for('home'))
-    return f
+    return decorated_function
