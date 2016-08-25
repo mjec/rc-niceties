@@ -184,21 +184,21 @@ class NicetyFromMeAPI(MethodView):
     def post(end_id, person_id):
         if current_user() is None:
             redirect(url_for('authorized'))
-            nicety = (
-                Nicety
-                .query
-                .filter_by(
-                    end_id=end_id,
-                    target_id=person_id,
-                    author_id=current_user().id)
-                .one())
-            nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
-            text = request.form.get("text").trim()
+        nicety = (
+            Nicety
+            .query
+            .filter_by(
+                end_id=end_id,
+                target_id=person_id,
+                author_id=current_user().id)
+            .one())
+        nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
+        text = request.form.get("text").trim()
         if '' == text:
             text = None
-            nicety.text = text
-            nicety.faculty_reviewed = False
-            db.session.commit()
+        nicety.text = text
+        nicety.faculty_reviewed = False
+        db.session.commit()
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
@@ -220,18 +220,18 @@ class PreferencesAPI(MethodView):
     def post(self):
         if current_user() is None:
             redirect(url_for('authorized'))
-            user = current_user()
-            user.anonymous_by_default = request.form.get(
-                'anonymous_by_default',
-                user.anonymous_by_default)
-            user.autosave_timeout = request.form.get(
-                'autosave_timeout',
-                user.autosave_timeout)
-            user.autosave_enabled = request.form.get(
-                'autosave_enabled',
-                user.autosave_enabled)
-            db.session.add(user)
-            db.sesison.commit()
+        user = current_user()
+        user.anonymous_by_default = request.form.get(
+            'anonymous_by_default',
+            user.anonymous_by_default)
+        user.autosave_timeout = request.form.get(
+            'autosave_timeout',
+            user.autosave_timeout)
+        user.autosave_enabled = request.form.get(
+            'autosave_enabled',
+            user.autosave_enabled)
+        db.session.add(user)
+        db.sesison.commit()
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
