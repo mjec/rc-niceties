@@ -17,6 +17,7 @@ def batches():
         return cache.get('batches_list')
     except cache.NotInCache:
         pass
+    # rc is a OAuth object. this accesses the "recurse.com/api/v1/batches" API endpoint.
     batches = rc.get('batches').data
     for batch in batches:
         if util.batch_is_open(batch['id'], batch['end_date']):
@@ -39,21 +40,14 @@ def niceties_to_print():
     # Loop through all the Niceties that exist for the open batch
     # The batch end date might be 6 weeks or more away, if you're doing a six week stint.
     # So that means it won't be picked up by .. which means it won't appear in the list to print!
-    #
-    # batch['end_date'] is always 12 weeks after the start of the batch. But some people are doing
-    # 6 week stints.
-    #
-    # * people doing 12 week stint in that batch
-    # * people doing 6 week stint in that batch
-
     for n in (Nicety.query
-                    .filter(Nicety.batch_id.in_([27, 28]))
-                    # .filter(Nicety.end_date)
+                    .filter(Nicety.end_date)
                     .order_by(Nicety.target_id)
                     .all()):
         # If this is a different target_id to the last one...
         if n.target_id != last_target:
             # ... set up the test for the next one
+
             last_target = n.target_id
             ret[n.target_id] = []  # initialize the dictionary
 
@@ -107,7 +101,7 @@ def get_open_batches():
             batch['is_open'] = False
             batch['closing_time'] = None
             batch['warning_time'] = None
-            cache.set('open_batches_list', batches)
+    cache.set('open_batches_list', batches)
     return batches
 
 @app.route('/api/v1/people')
@@ -116,12 +110,13 @@ def exiting_batch():
     cache_key = 'people_list'
     try:
         people = cache.get(cache_key)
+        print("cache hit on list")
     except cache.NotInCache:
+        print("cache miss on list")
         people = []
         for open_batch in get_open_batches():
             for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
                 latest_end_date = None
-                latest_batch_id = None
                 for stint in p['stints']:
                     e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
                     if latest_end_date is None or e > latest_end_date:
@@ -139,7 +134,7 @@ def exiting_batch():
                         'id': p['id'],
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
-                        'batch_id': latest_batch_id,
+                        'end_date': latest_end_date,
                     })
         cache.set(cache_key, people)
     random.seed(current_user().random_seed)
@@ -164,7 +159,7 @@ def person(person_id):
         return person_json
 
 class NicetyFromMeAPI(MethodView):
-    def get(batch_id, person_id):
+    def get(end_date, person_id):
         if current_user() is None:
             redirect(url_for('authorized'))
         try:
@@ -172,13 +167,13 @@ class NicetyFromMeAPI(MethodView):
                 Nicety
                 .query
                 .filter_by(
-                    batch_id=batch_id,
+                    end_date=end_date,
                     target_id=person_id,
                     author_id=current_user().id)
                 .one())
         except db.exc.NoResultFound:
             nicety = Nicety(
-                batch_id=batch_id,
+                end_date=end_date,
                 target_id=person_id,
                 author_id=current_user().id,
                 anonymous=current_user().anonymous_by_default)
@@ -186,14 +181,14 @@ class NicetyFromMeAPI(MethodView):
             db.session.commit()
         return jsonify(nicety.__dict__)
 
-    def post(batch_id, person_id):
+    def post(end_id, person_id):
         if current_user() is None:
             redirect(url_for('authorized'))
             nicety = (
                 Nicety
                 .query
                 .filter_by(
-                    batch_id=batch_id,
+                    end_id=end_id,
                     target_id=person_id,
                     author_id=current_user().id)
                 .one())
@@ -207,7 +202,7 @@ class NicetyFromMeAPI(MethodView):
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
-    '/api/v1/niceties/<int:batch_id>/<int:person_id>',
+    '/api/v1/niceties/<int:end_id>/<int:person_id>',
     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
 
 

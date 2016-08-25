@@ -8,7 +8,7 @@ batch_closing_warning_time_memo = {}
 
 def end_date_within_range(end_date):
     """Returns `True` if and only if the specified batch is currently accepting
-    niceties. The `batch_id` paramter should be an integer and `end_date` should
+    niceties. The `end_date` should
     be a datetime object or a string with format `%Y-%m-%d`."""
     if not isinstance(end_date, datetime):
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
@@ -22,9 +22,9 @@ def end_date_within_range(end_date):
         closing_time > now)
 
 
-def batch_is_open(batch_id, end_date):
+def batch_is_open(end_date):
     """Returns `True` if and only if the specified batch is currently accepting
-    niceties. The `batch_id` paramter should be an integer and `end_date` should
+    niceties. The `end_date` should
     be a datetime object or a string with format `%Y-%m-%d`."""
     return end_date_within_range(end_date)
 

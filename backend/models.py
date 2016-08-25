@@ -35,7 +35,6 @@ class Nicety(db.Model):
     __tablename__ = 'nicety'
 
     id = db.Column(db.Integer, primary_key=True)
-    batch_id = db.Column(db.Integer)  # RC batch ID  TODO: DELETE
     last_day = db.Column(db.Date)
     author_id = db.Column(db.ForeignKey('user.id'))  # RC user ID
     target_id = db.Column(db.Integer)  # RC user ID
@@ -46,8 +45,8 @@ class Nicety(db.Model):
 
     batch_author_target_unique = db.UniqueConstraint('batch', 'author', 'target')
 
-    def __init__(self, batch_id, author_id, target_id, **kwargs):
-        self.batch_id = batch_id
+    def __init__(self, last_day, author_id, target_id, **kwargs):
+        self.last_day = last_day
         self.author_id = author_id
         self.target_id = target_id
         self.anonymous = kwargs.get("anonymous", False)

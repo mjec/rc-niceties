@@ -17,11 +17,10 @@ def get(key, max_age=None):
         max_age = datetime.timedelta(seconds=max_age)
     db_row = Cache.query.filter(
         Cache.key == key,
-        Cache.last_updated >= (datetime.datetime.now() + max_age)).one_or_none()
+        Cache.last_updated >= (datetime.datetime.now() - max_age)).one_or_none()
     if db_row is None:
         raise NotInCache
     return db_row.value
-
 
 def set(key, value):
     """Set a value in the cache."""
@@ -33,7 +32,6 @@ def set(key, value):
         db_row.value = value
     db_row.last_updated = datetime.datetime.now()
     db.session.commit()
-
 
 def flush_expired(max_age=None):
     """Remove items from the cache which are older than `max_age`, which can be a
