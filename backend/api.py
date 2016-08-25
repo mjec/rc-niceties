@@ -181,14 +181,14 @@ class NicetyFromMeAPI(MethodView):
             db.session.commit()
         return jsonify(nicety.__dict__)
 
-    def post(end_id, person_id):
+    def post(end_date, person_id):
         if current_user() is None:
             redirect(url_for('authorized'))
         nicety = (
             Nicety
             .query
             .filter_by(
-                end_id=end_id,
+                end_date=end_date,
                 target_id=person_id,
                 author_id=current_user().id)
             .one())
@@ -202,7 +202,7 @@ class NicetyFromMeAPI(MethodView):
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
-    '/api/v1/niceties/<int:end_id>/<int:person_id>',
+    '/api/v1/niceties/<int:end_date>/<int:person_id>',
     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
 
 
