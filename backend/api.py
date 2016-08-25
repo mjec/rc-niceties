@@ -205,6 +205,58 @@ app.add_url_rule(
     '/api/v1/niceties/<int:end_date>/<int:person_id>',
     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
 
+@app.route('/api/v1/niceties')
+@needs_authorization
+def save_niceties():
+    """Expects JSON list like:
+    [
+        {
+            target_id: 0,   // target_id
+            end_date: "",
+            anonymous: true/false,
+            text: "",
+        },
+        {
+            target_id: int,
+            end_date: "",
+            anonymous: true/false,
+            text: "",
+        },
+        ...
+    ]
+    """
+    niceties_to_save = json.loads(request.form.get("niceties", "[]"))
+    for n in niceties_to_save:
+        nicety = (
+            Nicety
+            .query      # Query is always about getting Nicety objects from the database
+            .filter_by(
+                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date,
+                target_id=n.get("target_id"),
+                author_id=current_user().id)
+            .one_or_none())
+        if nicety is None:
+            nicety = Nicety(
+                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date,
+                target_id=n.get("target_id"),
+                author_id=current_user().id)
+            db.session.add(nicety)  # We need to add for the new one, but we don't need to add where we have used .query
+        # Now any change to the nicety object (variable) is tracked by the object
+        # so it knows what it will have to update.
+        # And then when we call db.session.commit() that knows about the object
+        # (beacuse Nicety.query... uses the db.session behind the scenes).
+        # So then db.session.commit() sends the update (or insert) for every object
+        # in the session. This includes every object created by a [model].query and
+        # everything added to the session with db.session.add().
+        nicety.anonymous = n.get("anonymous", current_user().anonymous_by_default)
+        text = n.get("text").trim()
+        if '' == text:
+            text = None
+        nicety.text = text
+        nicety.faculty_reviewed = False
+    db.session.commit()
+    return jsonify({'status': 'OK'})
+
 class SiteSettingsAPI(MethodView):
     def get(self):
         user = current_user()
