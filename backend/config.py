@@ -1,26 +1,6 @@
 from backend.models import SiteConfiguration
 from backend import db
 
-# You don't want to be downloading too much information to the front end only to discard it later.
-# But at the same time, the more processing you can do on the front end the better for the user.
-# I think the backend can send a list of batches to look at? Maybe the list of users?
-# This is genuinely the first time I've ever used emacs. It's interesting, I'm learning a lot.
-# You said something but I now can't remember what.
-# Sure thing.
-# Someone who looked at doing this before mentioned to me a bit of an issue with people who have
-# six week batches. So there are some people who appear in Fall 1 (only) who are finishing at the
-# end of the S2 bathc.
-# I think we need to look at the stints property, right?
-# I *think* what we need to do is (1) get a list of batches which are "finishing soon"
-# then get all the people, look at each person's stints property, determine if the last
-# end date of their stints is soon, and then that is the lsit of people we send to the frontend?
-# Yeah I figure we can make those configuration settings.
-# Yeah look it's easy enough just to make them values from the database, and then it can be
-# an extension project for the next batch to let the faculty confirgure.
-# Should be pretty simple I suspect. But the focus is user.
-# Yeah, easy enough to fix design later. CSS is great for that.
-
-
 # Configuration keys
 NICETIES_OPEN = 'how long before batch end to start accepting niceties (datetime.timedelta)'
 CLOSING_TIME = 'when on the day before end of batch to stop accepting niceties (datetime.time)'
