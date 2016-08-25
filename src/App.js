@@ -7,10 +7,52 @@ import './App.css';
 var People = React.createClass({
     saveAllComments: function() {
         this.setState({haveSavedAll: true});
+        var data_to_save = [];
         React.Children.forEach(this.props.children, function(child) {
-            this.setState
-            child.saveCommentsToServer();
+            // We need to save child.props.data to somewhere
+            // and then we will combine all of them and send them to the server
+            // in a single POST request to /api/v1/niceties
+            /* That JSON will look like this:
+
+            [
+                  {
+                      target_id: 0,
+                      end_date: "YYYY-mm-dd",
+                      anonymous: true,
+                      text: "My nice thing",
+                  },
+                  {
+                      target_id: 0,
+                      end_date: "YYYY-mm-dd",
+                      anonymous: false,
+                      text: "",
+                  },
+                  ...
+              ]
+            */
+            data_to_save.push(
+              {
+                target_id: child.props.data.id,
+                end_date: child.props.data.end_date,
+                anonymous: true,                      // TODO: fix anonymous
+                text: child.props.data.value,
+              }
+            );
         });
+        $.ajax({
+            url: 'api/v1/niceties',
+            data: data_to_save,
+            dataType: 'json',
+            type: 'POST',
+            cache: false,
+            success: function(data) {
+                // this.setState({haveSavedAll: true});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+                this.setState({haveSavedAll: false});
+            }.bind(this)
+          });
     },
 
     componentDidUpdate: function () {
@@ -32,38 +74,45 @@ var People = React.createClass({
 
 var SaveButton = React.createClass({
     render: function() {
+      if (this.props.state) {
         return (
-            <div className="button">
-              <button disabled={this.props.state}>{this.props.text}</button>
-            </div>
-              );
+          <div className="button">
+          <button disabled="disabled">{this.props.text}</button>
+          </div>
+        );
+      } else {
+        return (
+          <div className="button">
+          <button>{this.props.text}</button>
+          </div>
+        );
+      }
     }
 });
 
 var Person = React.createClass({
-    saveCommentsToServer: function() {
-        if (this.props.isSent) {
-            return;
-        }
-        this.setState({isSent: true});
-        $.ajax({
-            url: 'api/v1/niceties/' + this.props.data.end_date + '/' + this.props.data.id,
-            dataType: 'json',
-            type: 'POST',
-            cache: false,
-            success: function(data) {
-                this.setState({data: data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-                this.setState({isSent: false});
-            }.bind(this)
-        });
-    },
+    // saveCommentsToServer: function() {
+    //     if (this.props.isSent) {
+    //         return;
+    //     }
+    //     this.setState({isSent: true});
+    //     $.ajax({
+    //         url: 'api/v1/niceties/' + this.props.data.end_date + '/' + this.props.data.id,
+    //         dataType: 'json',
+    //         type: 'POST',
+    //         cache: false,
+    //         success: function(data) {
+    //             this.setState({data: data});
+    //         }.bind(this),
+    //         error: function(xhr, status, err) {
+    //             console.error(this.props.url, status, err.toString());
+    //             this.setState({isSent: false});
+    //         }.bind(this)
+    //     });
+    // },
 
     getInitialState: function() {
-        return {value: localStorage.getItem("nicety-" + this.props.data.id),
-                autosaveInterval: 10000, isSent: false};
+        return {value: localStorage.getItem("nicety-" + this.props.data.id)};
     },
 
     // set a flag that this component has changed
@@ -77,7 +126,6 @@ var Person = React.createClass({
     //   7. set pending to false
     handleChange: function(event) {
         this.setState({value: event.target.value});
-        this.setState({isSent: false});
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
         // handleChange is called for every letter typed into the input box.
         // Which might mean that you fire off hundreds of requests to the server.
@@ -101,8 +149,6 @@ var Person = React.createClass({
               </div>
               <form>
                 <input type="text" value={this.state.value} onChange={this.handleChange}/>
-                {this.props.pending ? '<img src="http://www.ajaxload.info/cache/FF/FF/FF/00/00/00/1-0.gif" alt="pending save..." />' : ''}
-                {this.props.isSent}
               </form>
             </div>
         );
