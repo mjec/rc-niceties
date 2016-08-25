@@ -21,7 +21,7 @@ def batches():
     batches = rc.get('batches').data
     for batch in batches:
         if util.batch_is_open(batch['id'], batch['end_date']):
-            batch['is_open'] = True
+            batch['is_open'] = Trues
             batch['closing_time'] = util.batch_closing_time(batch['end_date']).isoformat()
             batch['warning_time'] = util.batch_closing_warning_time(batch['end_date']).isoformat()
         else:
@@ -184,21 +184,21 @@ class NicetyFromMeAPI(MethodView):
     def post(end_date, person_id):
         if current_user() is None:
             redirect(url_for('authorized'))
-            nicety = (
-                Nicety
-                .query
-                .filter_by(
-                    end_date=end_date,
-                    target_id=person_id,
-                    author_id=current_user().id)
-                .one())
-            nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
-            text = request.form.get("text").trim()
+        nicety = (
+            Nicety
+            .query
+            .filter_by(
+                end_date=end_date,
+                target_id=person_id,
+                author_id=current_user().id)
+            .one())
+        nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
+        text = request.form.get("text").trim()
         if '' == text:
             text = None
-            nicety.text = text
-            nicety.faculty_reviewed = False
-            db.session.commit()
+        nicety.text = text
+        nicety.faculty_reviewed = False
+        db.session.commit()
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
