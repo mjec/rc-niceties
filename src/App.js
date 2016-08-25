@@ -5,6 +5,17 @@ import logo from './logo.svg';
 import './App.css';
 
 var People = React.createClass({
+    saveAllComments: function() {
+        this.setState({haveSavedAll: true});
+        React.Children.forEach(this.props.children, function(child) {
+            this.setState
+            child.saveCommentsToServer();
+        });
+    },
+
+    componentDidUpdate: function () {
+        this.setState({haveSavedAll: false});
+    },
 
     render: function() {
         return (
@@ -12,17 +23,31 @@ var People = React.createClass({
               {this.props.data
                   .map(function(result) {
                   return <Person key={result.id} data={result} isChanged={false} pending={false}/>;
-                  })
-              }
+                  })}
+              <SaveButton state={this.props.haveSavedAll} onClick={this.saveAllComments} text="Submit"/>
             </div>
         );
     }
 });
 
+var SaveButton = React.createClass({
+    render: function() {
+        return (
+            <div className="button">
+              <button disabled={this.props.state}>{this.props.text}</button>
+            </div>
+              );
+    }
+});
+
 var Person = React.createClass({
     saveCommentsToServer: function() {
+        if (this.props.isSent) {
+            return;
+        }
+        this.setState({isSent: true});
         $.ajax({
-            url: 'api/v1/niceties/' + this.props.data.batch_id + '/' + this.props.data.id,
+            url: 'api/v1/niceties/' + this.props.data.end_date + '/' + this.props.data.id,
             dataType: 'json',
             type: 'POST',
             cache: false,
@@ -31,13 +56,14 @@ var Person = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
+                this.setState({isSent: false});
             }.bind(this)
         });
     },
 
     getInitialState: function() {
         return {value: localStorage.getItem("nicety-" + this.props.data.id),
-                autosaveInterval: 10000};
+                autosaveInterval: 10000, isSent: false};
     },
 
     // set a flag that this component has changed
@@ -51,7 +77,7 @@ var Person = React.createClass({
     //   7. set pending to false
     handleChange: function(event) {
         this.setState({value: event.target.value});
-        this.setState({isChanged: true});
+        this.setState({isSent: false});
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
         // handleChange is called for every letter typed into the input box.
         // Which might mean that you fire off hundreds of requests to the server.
@@ -60,30 +86,10 @@ var Person = React.createClass({
         // I have seen this hpapen
     },
 
-    autosave: function() {
-        if (this.props.pending == false && this.props.isChanged) {
-            this.setState({pending: true});
-            $.ajax({
-                url: 'api/v1/niceties/' + this.props.data.batch_id + '/' + this.props.data.id,
-                dataType: 'json',
-                type: 'POST',
-                cache: false,
-                success: function(data) {
-                    this.setState({data: data});
-                }.bind(this),
-                error: function(xhr, status, err) {
-                    this.setState({isChanged: true});
-                    console.error(this.props.url, status, err.toString());
-                }.bind(this),
-                complete: function(xhr, status) {
-                    this.setState({pending: false});
-                }
-            });
-        }
-    },
+    // TODO: button for each person for anonymous option
 
     componentDidMount: function() {
-        setInterval(this.autosave, this.props.autosaveInterval);
+        // setInterval(this.autosave, this.props.autosaveInterval);
     },
 
     render: function() {
@@ -96,6 +102,7 @@ var Person = React.createClass({
               <form>
                 <input type="text" value={this.state.value} onChange={this.handleChange}/>
                 {this.props.pending ? '<img src="http://www.ajaxload.info/cache/FF/FF/FF/00/00/00/1-0.gif" alt="pending save..." />' : ''}
+                {this.props.isSent}
               </form>
             </div>
         );
@@ -129,7 +136,6 @@ var App = React.createClass({
             <div className="App">
               <h1>Comments</h1>
               <People data={this.state.data} />
-
             </div>
         );
     }

@@ -181,14 +181,14 @@ class NicetyFromMeAPI(MethodView):
             db.session.commit()
         return jsonify(nicety.__dict__)
 
-    def post(end_id, person_id):
+    def post(end_date, person_id):
         if current_user() is None:
             redirect(url_for('authorized'))
             nicety = (
                 Nicety
                 .query
                 .filter_by(
-                    end_id=end_id,
+                    end_date=end_date,
                     target_id=person_id,
                     author_id=current_user().id)
                 .one())
@@ -202,42 +202,8 @@ class NicetyFromMeAPI(MethodView):
         return jsonify({'status': 'OK'})
 
 app.add_url_rule(
-    '/api/v1/niceties/<int:end_id>/<int:person_id>',
+    '/api/v1/niceties/<int:end_date>/<int:person_id>',
     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
-
-
-class PreferencesAPI(MethodView):
-    def get(self):
-        if current_user() is None:
-            redirect(url_for('authorized'))
-            user = current_user()
-        return jsonify({
-            'anonymous_by_default': user.anonymous_by_default,
-            'autosave_timeout': user.autosave_timeout,
-            'autosave_enabled': user.autosave_enabled,
-        })
-
-    def post(self):
-        if current_user() is None:
-            redirect(url_for('authorized'))
-            user = current_user()
-            user.anonymous_by_default = request.form.get(
-                'anonymous_by_default',
-                user.anonymous_by_default)
-            user.autosave_timeout = request.form.get(
-                'autosave_timeout',
-                user.autosave_timeout)
-            user.autosave_enabled = request.form.get(
-                'autosave_enabled',
-                user.autosave_enabled)
-            db.session.add(user)
-            db.sesison.commit()
-        return jsonify({'status': 'OK'})
-
-app.add_url_rule(
-    '/api/v1/preferences',
-    view_func=PreferencesAPI.as_view('preferences'))
-
 
 class SiteSettingsAPI(MethodView):
     def get(self):
