@@ -21,7 +21,7 @@ def batches():
     batches = rc.get('batches').data
     for batch in batches:
         if util.batch_is_open(batch['id'], batch['end_date']):
-            batch['is_open'] = Trues
+            batch['is_open'] = True
             batch['closing_time'] = util.batch_closing_time(batch['end_date']).isoformat()
             batch['warning_time'] = util.batch_closing_warning_time(batch['end_date']).isoformat()
         else:
@@ -110,9 +110,7 @@ def exiting_batch():
     cache_key = 'people_list'
     try:
         people = cache.get(cache_key)
-        print("cache hit on list")
     except cache.NotInCache:
-        print("cache miss on list")
         people = []
         for open_batch in get_open_batches():
             for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
@@ -121,7 +119,6 @@ def exiting_batch():
                     e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
                     if latest_end_date is None or e > latest_end_date:
                         latest_end_date = e
-                        latest_batch_id = stint['batch_id']
                 if (latest_end_date is not None and
                     util.end_date_within_range(latest_end_date) and
                     (   # Batchlings have   is_hacker_schooler = True,      is_faculty = False
@@ -134,7 +131,7 @@ def exiting_batch():
                         'id': p['id'],
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
-                        'end_date': latest_end_date,
+                        'end_date': '{:%Y-%m-%d}'.format(latest_end_date),
                     })
         cache.set(cache_key, people)
     random.seed(current_user().random_seed)
@@ -193,7 +190,7 @@ class NicetyFromMeAPI(MethodView):
                 author_id=current_user().id)
             .one())
         nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
-        text = request.form.get("text").trim()
+        text = request.form.get("text").strip()
         if '' == text:
             text = None
         nicety.text = text
@@ -205,7 +202,7 @@ app.add_url_rule(
     '/api/v1/niceties/<int:end_date>/<int:person_id>',
     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
 
-@app.route('/api/v1/niceties')
+@app.route('/api/v1/niceties', methods=['POST'])
 @needs_authorization
 def save_niceties():
     """Expects JSON list like:
@@ -231,13 +228,13 @@ def save_niceties():
             Nicety
             .query      # Query is always about getting Nicety objects from the database
             .filter_by(
-                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date,
+                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
                 target_id=n.get("target_id"),
                 author_id=current_user().id)
             .one_or_none())
         if nicety is None:
             nicety = Nicety(
-                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date,
+                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
                 target_id=n.get("target_id"),
                 author_id=current_user().id)
             db.session.add(nicety)  # We need to add for the new one, but we don't need to add where we have used .query
@@ -249,7 +246,7 @@ def save_niceties():
         # in the session. This includes every object created by a [model].query and
         # everything added to the session with db.session.add().
         nicety.anonymous = n.get("anonymous", current_user().anonymous_by_default)
-        text = n.get("text").trim()
+        text = n.get("text").strip()
         if '' == text:
             text = None
         nicety.text = text

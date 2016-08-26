@@ -4,44 +4,29 @@ import Remarkable from 'remarkable';
 import logo from './logo.svg';
 import './App.css';
 
+var updated_niceties_spinlock = false;
+var updated_niceties = new Set();
+
 var People = React.createClass({
     saveAllComments: function() {
-        this.setState({haveSavedAll: true});
+        updated_niceties_spinlock = true;
         var data_to_save = [];
-        React.Children.forEach(this.props.children, function(child) {
-            // We need to save child.props.data to somewhere
-            // and then we will combine all of them and send them to the server
-            // in a single POST request to /api/v1/niceties
-            /* That JSON will look like this:
-
-            [
-                  {
-                      target_id: 0,
-                      end_date: "YYYY-mm-dd",
-                      anonymous: true,
-                      text: "My nice thing",
-                  },
-                  {
-                      target_id: 0,
-                      end_date: "YYYY-mm-dd",
-                      anonymous: false,
-                      text: "",
-                  },
-                  ...
-              ]
-            */
+        updated_niceties.forEach(function(e) {
+            var split_e = e.split(",");
             data_to_save.push(
               {
-                target_id: child.props.data.id,
-                end_date: child.props.data.end_date,
+                target_id: parseInt(split_e[0], 10),
+                end_date: split_e[1],
                 anonymous: true,                      // TODO: fix anonymous
-                text: child.props.data.value,
+                text: localStorage.getItem("nicety-" + split_e[0]),
               }
             );
-        });
+        })
+        updated_niceties.clear();
+        updated_niceties_spinlock = false;
         $.ajax({
             url: 'api/v1/niceties',
-            data: data_to_save,
+            data: {'niceties': JSON.stringify(data_to_save)},
             dataType: 'json',
             type: 'POST',
             cache: false,
@@ -50,13 +35,18 @@ var People = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
-                this.setState({haveSavedAll: false});
+                for (var i=0; i<data_to_save.length; i++){
+                    updated_niceties.add(data_to_save[i].target_id + "," + data_to_save[i].end_date);
+                }
             }.bind(this)
           });
     },
 
-    componentDidUpdate: function () {
-        this.setState({haveSavedAll: false});
+    getInitialState: function() {
+        return {
+            data: [],
+            haveSavedAll: true,
+        };
     },
 
     render: function() {
@@ -66,7 +56,11 @@ var People = React.createClass({
                   .map(function(result) {
                   return <Person key={result.id} data={result} isChanged={false} pending={false}/>;
                   })}
-              <SaveButton state={this.props.haveSavedAll} onClick={this.saveAllComments} text="Submit"/>
+              <SaveButton
+                  // disabled={ updated_niceties.size === 0 || updated_niceties_spinlock }
+                  disabled={false}
+                  onclick={this.saveAllComments}
+                  text="Save"/>
             </div>
         );
     }
@@ -74,7 +68,7 @@ var People = React.createClass({
 
 var SaveButton = React.createClass({
     render: function() {
-      if (this.props.state) {
+      if (this.props.disabled) {
         return (
           <div className="button">
           <button disabled="disabled">{this.props.text}</button>
@@ -83,7 +77,7 @@ var SaveButton = React.createClass({
       } else {
         return (
           <div className="button">
-          <button>{this.props.text}</button>
+          <button onClick={this.props.onclick}>{this.props.text}</button>
           </div>
         );
       }
@@ -127,6 +121,8 @@ var Person = React.createClass({
     handleChange: function(event) {
         this.setState({value: event.target.value});
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
+        while (updated_niceties_spinlock) {}
+        updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
         // handleChange is called for every letter typed into the input box.
         // Which might mean that you fire off hundreds of requests to the server.
         // The roundtrip on these is going to be long enough that it will interrupt your typing to see a failure/success.
@@ -143,7 +139,7 @@ var Person = React.createClass({
     render: function() {
         return (
             <div className="person">
-              <img src={this.props.data.avatar_url} className="img-responsive" />
+              <img src={this.props.data.avatar_url} role="presentation" className="img-responsive" />
               <div className="name">
                 <p>{this.props.data.name}</p>
               </div>
@@ -181,7 +177,7 @@ var App = React.createClass({
         return (
             <div className="App">
               <h1>Comments</h1>
-              <People data={this.state.data} />
+              <People data={this.state.data} haveSavedAll={true} />
             </div>
         );
     }
