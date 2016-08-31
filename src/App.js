@@ -49,18 +49,34 @@ var People = React.createClass({
         };
     },
 
+    generateRows: function() {
+        let dataList = [];
+        for (let i = 0; i < this.props.data.length; i +=4) {
+            let row = [];
+            for (let j = 0; j < 4; j++) {
+                if ((i + j) < this.props.data.length) {
+                    row.push(this.props.data[i + j]);                       
+                }
+            }
+            dataList.push(row);
+        }
+        //return dataList.map(function(result) { return <Row data={result}/>; }
+        return dataList;
+    },
+
     render: function() {
+        let list = this.generateRows();
         return (
             <div className="people">
-              {this.props.data
-                  .map(function(result) {
-                  return <Person key={result.id} data={result} isChanged={false} pending={false}/>;
-                  })}
-              <SaveButton
-                  // disabled={ updated_niceties.size === 0 || updated_niceties_spinlock }
-                  disabled={false}
-                  onclick={this.saveAllComments}
-                  text="Save"/>
+                 <SaveButton
+                      disabled={false}
+                      onclick={this.saveAllComments}
+                      text="Save"/>
+                {list.map(function(row) {
+                  return (
+                    <Row data={row}/>
+                  );
+                })}
             </div>
         );
     }
@@ -77,10 +93,23 @@ var SaveButton = React.createClass({
       } else {
         return (
           <div className="button">
-          <button onClick={this.props.onclick}>{this.props.text}</button>
+            <button onClick={this.props.onclick}>{this.props.text}</button>
           </div>
         );
       }
+    }
+});
+
+var Row = React.createClass({
+    render: function() { 
+        return (
+            <div className="row">
+                {this.props.data
+                      .map(function(result) {
+                      return <Person data={result}/>;
+                      })}
+            </div>
+        );
     }
 });
 
