@@ -1,8 +1,14 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+
+import { Grid, Row, Col, Image } from 'react-bootstrap';
+import ReactDOM, { findDOMNode } from 'react-dom';
+import Textarea from 'react-textarea-autosize';
 import React, { Component } from 'react';
-import $ from 'jquery';
+
 import Remarkable from 'remarkable';
 import logo from './logo.svg';
-import './App.css';
+import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
 var updated_niceties = new Set();
@@ -55,7 +61,7 @@ var People = React.createClass({
             let row = [];
             for (let j = 0; j < 4; j++) {
                 if ((i + j) < this.props.data.length) {
-                    row.push(this.props.data[i + j]);                       
+                    row.push(this.props.data[i + j]);
                 }
             }
             dataList.push(row);
@@ -68,18 +74,19 @@ var People = React.createClass({
         let list = this.generateRows();
         return (
             <div className="people">
-                 <SaveButton
-                      disabled={false}
-                      onclick={this.saveAllComments}
-                      text="Save"/>
+              <SaveButton
+                 disabled={false}
+                 onclick={this.saveAllComments}
+                 text="Save"/>
+              <Grid>
                 {list.map(function(row) {
-                  return (
-                    <Row data={row}/>
-                  );
+                    return (
+                        <PeopleRow data={row}/>
+                    );
                 })}
+              </Grid>
             </div>
-        );
-    }
+        );}
 });
 
 var SaveButton = React.createClass({
@@ -100,39 +107,22 @@ var SaveButton = React.createClass({
     }
 });
 
-var Row = React.createClass({
-    render: function() { 
+var PeopleRow = React.createClass({
+    render: function() {
         return (
-            <div className="row">
-                {this.props.data
-                      .map(function(result) {
-                      return <Person data={result}/>;
-                      })}
-            </div>
+            <Row>
+              {this.props.data
+                  .map(function(result) {
+                      return (<Col xs={3}>
+                              <Person data={result}/>
+                              </Col>);
+              })}
+            </Row>
         );
     }
 });
 
 var Person = React.createClass({
-    // saveCommentsToServer: function() {
-    //     if (this.props.isSent) {
-    //         return;
-    //     }
-    //     this.setState({isSent: true});
-    //     $.ajax({
-    //         url: 'api/v1/niceties/' + this.props.data.end_date + '/' + this.props.data.id,
-    //         dataType: 'json',
-    //         type: 'POST',
-    //         cache: false,
-    //         success: function(data) {
-    //             this.setState({data: data});
-    //         }.bind(this),
-    //         error: function(xhr, status, err) {
-    //             console.error(this.props.url, status, err.toString());
-    //             this.setState({isSent: false});
-    //         }.bind(this)
-    //     });
-    // },
 
     getInitialState: function() {
         return {value: localStorage.getItem("nicety-" + this.props.data.id)};
@@ -152,11 +142,6 @@ var Person = React.createClass({
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
         while (updated_niceties_spinlock) {}
         updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
-        // handleChange is called for every letter typed into the input box.
-        // Which might mean that you fire off hundreds of requests to the server.
-        // The roundtrip on these is going to be long enough that it will interrupt your typing to see a failure/success.
-        // Also it's likely to increase load on the server.
-        // I have seen this hpapen
     },
 
     // TODO: button for each person for anonymous option
@@ -166,15 +151,18 @@ var Person = React.createClass({
     },
 
     render: function() {
+        // <div className="name">
+        // <p>{this.props.data.name}</p>
+        // </div>
         return (
             <div className="person">
-              <img src={this.props.data.avatar_url} role="presentation" className="img-responsive" />
-              <div className="name">
-                <p>{this.props.data.name}</p>
-              </div>
-              <form>
-                <input type="text" value={this.state.value} onChange={this.handleChange}/>
-              </form>
+              <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
+              <Textarea
+                 minRows={3}
+                 maxRows={6}
+                 defaultValue={this.state.value}
+                 onChange={this.handleChange}
+                 />
             </div>
         );
     }
@@ -205,7 +193,6 @@ var App = React.createClass({
     render: function() {
         return (
             <div className="App">
-              <h1>Comments</h1>
               <People data={this.state.data} haveSavedAll={true} />
             </div>
         );
