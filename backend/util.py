@@ -5,7 +5,6 @@ import backend.config as config
 batch_closing_time_memo = {}
 batch_closing_warning_time_memo = {}
 
-
 def end_date_within_range(end_date):
     """Returns `True` if and only if the specified batch is currently accepting
     niceties. The `end_date` should
@@ -20,7 +19,6 @@ def end_date_within_range(end_date):
     return (
         opening_time <= now and
         closing_time > now)
-
 
 def batch_is_open(end_date):
     """Returns `True` if and only if the specified batch is currently accepting
