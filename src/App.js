@@ -175,7 +175,7 @@ var Person = React.createClass({
     }
 });
 
-var App = React.createClass({
+var NicetyInput = React.createClass({
     loadCommentsFromServer: function() {
         $.ajax({
             url: this.props.url,
@@ -206,4 +206,4 @@ var App = React.createClass({
     }
 });
 
-export default App;
+export default NicetyInput;

@@ -1,11 +1,13 @@
 from flask import json, jsonify, request, abort, url_for, redirect
 from flask.views import MethodView
-from datetime import datetime
 import random
 
 from backend import app, rc, db
 from backend.models import Nicety, SiteConfiguration
 from backend.auth import current_user, needs_authorization
+from datetime import datetime, timedelta
+from sqlalchemy import func
+
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
@@ -40,10 +42,15 @@ def niceties_to_print():
     # Loop through all the Niceties that exist for the open batch
     # The batch end date might be 6 weeks or more away, if you're doing a six week stint.
     # So that means it won't be picked up by .. which means it won't appear in the list to print!
-    for n in (Nicety.query
-                    .filter(Nicety.end_date)
-                    .order_by(Nicety.target_id)
-                    .all()):
+
+    # this might need to be improve, possibly
+    # 1) filter the niceties by the latest end_date
+    # 2) ..
+    two_weeks_from_now = datetime.now() - timedelta(days=14)
+    y = (Nicety.query
+              .filter(Nicety.end_date >= two_weeks_from_now)
+              .all())
+    for n in y:
         # If this is a different target_id to the last one...
         if n.target_id != last_target:
             # ... set up the test for the next one
@@ -125,7 +132,7 @@ def exiting_batch():
                     util.end_date_within_range(latest_end_date) and
                     (   # Batchlings have   is_hacker_schooler = True,      is_faculty = False
                         # Faculty have      is_hacker_schooler = ?,         is_faculty = True
-                        # Resdients have    is_hacker_schooler = False,     is_faculty = False
+                        # Residents have    is_hacker_schooler = False,     is_faculty = False
                         (p['is_hacker_schooler'] and not p['is_faculty']) or
                         (not p['is_faculty'] and not p['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
                         (p['is_faculty'] and config.get(config.INCLUDE_FACULTY, False)))):

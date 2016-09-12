@@ -34,6 +34,7 @@ def batch_closing_time(end_date):
         batch_closing_time_memo[end_date] = datetime.combine(
             (end_date - timedelta(days=1)).date(),
             config.get(config.CLOSING_TIME, time(hour=23, minute=0)))
+    print(batch_closing_time_memo[end_date])
     return batch_closing_time_memo[end_date]
 
 def batch_closing_warning_time(end_date):
