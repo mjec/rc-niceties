@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Grid, Row, Col, Image } from 'react-bootstrap';
+import { Grid, Row, Col, Image, Nav, NavItem } from 'react-bootstrap';
 import ReactDOM, { findDOMNode } from 'react-dom';
 import Textarea from 'react-textarea-autosize';
 import React, { Component } from 'react';
@@ -12,6 +12,7 @@ import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
 var updated_niceties = new Set();
+const components = { People, NicetyDisplay, NicetyPrint}
 
 var People = React.createClass({
     saveAllComments: function() {
@@ -20,24 +21,23 @@ var People = React.createClass({
         updated_niceties.forEach(function(e) {
             var split_e = e.split(",");
             data_to_save.push(
-              {
-                target_id: parseInt(split_e[0], 10),
-                end_date: split_e[1],
-                anonymous: true,                      // TODO: fix anonymous
-                text: localStorage.getItem("nicety-" + split_e[0]),
-              }
+                {
+                    target_id: parseInt(split_e[0], 10),
+                    end_date: split_e[1],
+                    anonymous: true,                      // TODO: fix anonymous
+                    text: localStorage.getItem("nicety-" + split_e[0]),
+                }
             );
         })
         updated_niceties.clear();
         updated_niceties_spinlock = false;
         $.ajax({
-            url: 'api/v1/niceties',
+            url: this.props.post_nicety_api,
             data: {'niceties': JSON.stringify(data_to_save)},
             dataType: 'json',
             type: 'POST',
             cache: false,
             success: function(data) {
-                // this.setState({haveSavedAll: true});
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -45,28 +45,26 @@ var People = React.createClass({
                     updated_niceties.add(data_to_save[i].target_id + "," + data_to_save[i].end_date);
                 }
             }.bind(this)
-          });
+        });
     },
 
     getInitialState: function() {
         return {
             data: [],
-            haveSavedAll: true,
         };
     },
 
     generateRows: function() {
         let dataList = [];
-        for (let i = 0; i < this.props.data.length; i +=4) {
+        for (let i = 0; i < this.props.people.length; i +=4) {
             let row = [];
             for (let j = 0; j < 4; j++) {
-                if ((i + j) < this.props.data.length) {
-                    row.push(this.props.data[i + j]);
+                if ((i + j) < this.props.people.length) {
+                    row.push(this.props.people[i + j]);
                 }
             }
             dataList.push(row);
         }
-        //return dataList.map(function(result) { return <Row data={result}/>; }
         return dataList;
     },
 
@@ -84,26 +82,26 @@ var People = React.createClass({
                         <PeopleRow data={row}/>
                     );
                 })}
-              </Grid>
-            </div>
+            </Grid>
+                </div>
         );}
 });
 
 var SaveButton = React.createClass({
     render: function() {
-      if (this.props.disabled) {
-        return (
-          <div className="button">
-          <button disabled="disabled">{this.props.text}</button>
-          </div>
-        );
-      } else {
-        return (
-          <div className="button">
-            <button onClick={this.props.onclick}>{this.props.text}</button>
-          </div>
-        );
-      }
+        if (this.props.disabled) {
+            return (
+                <div className="button">
+                  <button disabled="disabled">{this.props.text}</button>
+                </div>
+            );
+        } else {
+            return (
+                <div className="button">
+                  <button onClick={this.props.onclick}>{this.props.text}</button>
+                </div>
+            );
+        }
     }
 });
 
@@ -116,7 +114,7 @@ var PeopleRow = React.createClass({
                       return (<Col xs={3}>
                               <Person data={result}/>
                               </Col>);
-              })}
+                  })}
             </Row>
         );
     }
@@ -127,16 +125,6 @@ var Person = React.createClass({
     getInitialState: function() {
         return {value: localStorage.getItem("nicety-" + this.props.data.id)};
     },
-
-    // set a flag that this component has changed
-    // have a function running under setInterval that monitors that flag
-    // that function will:
-    //   1. if pending is true, do nothing
-    //   2. set pending to true
-    //   3. set flag to false
-    //   4. initiate save to server AJAX
-    //   5. on failure set flag to true
-    //   7. set pending to false
     handleChange: function(event) {
         this.setState({value: event.target.value});
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
@@ -147,7 +135,6 @@ var Person = React.createClass({
     // TODO: button for each person for anonymous option
 
     componentDidMount: function() {
-
         // setInterval(this.autosave, this.props.autosaveInterval);
     },
 
@@ -156,18 +143,14 @@ var Person = React.createClass({
     // but it seems like for this to work you need child.state.height (to figureo ut the new min rows)
 
     render: function() {
-        // <div className="name">
-        // <p>{this.props.data.name}</p>
-        // </div>
-
-        //this.state.value
         return (
             <div className="person">
               <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
+              <p>{this.props.data.name}</p>
               <Textarea
                  minRows={3}
                  maxRows={6}
-                 defaultValue={this.state.height}
+                 defaultValue={this.state.value}
                  onChange={this.handleChange}
                  />
             </div>
@@ -175,35 +158,81 @@ var Person = React.createClass({
     }
 });
 
-var NicetyInput = React.createClass({
-    loadCommentsFromServer: function() {
-        $.ajax({
-            url: this.props.url,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                this.setState({data: data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
-        });
-    },
-    getInitialState: function() {
-        return {data: []};
-    },
-    componentDidMount: function() {
-        this.loadCommentsFromServer();
-        // setInterval(this.loadCommentsFromServer, this.props.pollInterval);
-
-    },
+var NicetyPrint = React.createClass({
     render: function() {
         return (
-            <div className="App">
-              <People data={this.state.data} haveSavedAll={true} />
+            <div>
+              "xd"
             </div>
         );
     }
 });
 
-export default NicetyInput;
+var NicetyDisplay = React.createClass({
+    render: function() {
+        return (
+            <div>
+              "you are loved."
+            </div>
+        );
+    }
+});
+
+var App = React.createClass({
+    loadPeopleFromServer: function() {
+        $.ajax({
+            url: this.props.people_api,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                this.setState({people: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.people_api, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function() {
+        return {people: [],
+                currentview: "view-niceties"};
+    },
+    componentDidMount: function() {
+        this.loadPeopleFromServer();
+    },
+    handleSelect: function(eventKey) {
+        this.setState({currentview: eventKey});
+        console.log(eventKey);
+    },
+    selectComponent: function(idx) {
+        switch(idx) {
+        case "view-niceties":
+            return <NicetyPrint get_nicety_api={this.props.get_nicety_api} />;
+        case "write-niceties":
+            return <People people={this.state.people}
+                           post_nicety_api={this.props.post_nicety_api} />;
+        case "print-niceties":
+            return <NicetyDisplay get_nicety_api={this.props.get_nicety_api} />;
+        default:
+            return <People people={this.state.people}
+                           post_nicety_api={this.props.post_nicety_api} />;
+        }
+    },
+    render: function() {
+        let selectedComponent = this.selectComponent(this.state.currentview);
+        //console.log(selectedComponent);
+        //console.log(<NavItem eventKey="write-niceties">Write niceties!</NavItem>);
+        return (
+            <div className="App">
+              <Nav bsStyle="tabs" activeKey={this.state.currentview} onSelect={this.handleSelect}>
+                <NavItem eventKey="write-niceties">Write niceties!</NavItem>
+                <NavItem eventKey="view-niceties">See your niceties!</NavItem>
+                <NavItem eventKey="print-niceties">For Rachel! Print our niceties!</NavItem>
+              </Nav>
+
+              {selectedComponent}
+            </div>
+        );
+    }
+});
+
+export default App;

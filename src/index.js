@@ -1,15 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import NicetyDisplay from './App';
-import NicetyInput from './App';
+import App from './App';
 import './index.css';
 
 ReactDOM.render(
-        <NicetyInput url="/api/v1/people" pollInterval={2000} />,
-    document.getElementById('root')
-);
-
-ReactDOM.render(
-        <NicetyDisplay url="/api/v1/niceties_to_print" pollInterval={2000} />,
+    <App people_api="/api/v1/people"
+         post_nicety_api="/api/v1/post-niceties"
+         get_nicety_api="/api/v1/show-niceties"
+         print_nicety_api="/api/v1/niceties-to-print"
+         pollInterval={2000} />,
     document.getElementById('root')
 );

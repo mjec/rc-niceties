@@ -34,7 +34,7 @@ def batches():
             cache.set('batches_list', batches_json)
     return batches_json
 
-@app.route('/api/v1/niceties_to_print')
+@app.route('/api/v1/niceties-to-print')
 @needs_authorization
 def niceties_to_print():
     ret = {}    # Mapping from target_id to a list of niceties for that person
@@ -71,7 +71,6 @@ def niceties_to_print():
         for k, v in ret.items()
     ])
 
-
 @app.route('/api/v1/batches/<int:batch_id>/people')
 @needs_authorization
 def batch_people(batch_id):
@@ -91,7 +90,6 @@ def batch_people(batch_id):
     random.seed(current_user().random_seed)
     random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
-
 
 def get_open_batches():
     try:
@@ -211,7 +209,7 @@ app.add_url_rule(
     '/api/v1/niceties/<int:end_date>/<int:person_id>',
     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
 
-@app.route('/api/v1/niceties', methods=['POST'])
+@app.route('/api/v1/post-niceties', methods=['POST'])
 @needs_authorization
 def save_niceties():
     """Expects JSON list like:
@@ -246,14 +244,15 @@ def save_niceties():
                 end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
                 target_id=n.get("target_id"),
                 author_id=current_user().id)
-            db.session.add(nicety)  # We need to add for the new one, but we don't need to add where we have used .query
-        # Now any change to the nicety object (variable) is tracked by the object
-        # so it knows what it will have to update.
-        # And then when we call db.session.commit() that knows about the object
-        # (beacuse Nicety.query... uses the db.session behind the scenes).
-        # So then db.session.commit() sends the update (or insert) for every object
-        # in the session. This includes every object created by a [model].query and
-        # everything added to the session with db.session.add().
+            db.session.add(nicety)
+            # We need to add for the new one, but we don't need to add where we have used .query
+            # Now any change to the nicety object (variable) is tracked by the object
+            # so it knows what it will have to update.
+            # And then when we call db.session.commit() that knows about the object
+            # (beacuse Nicety.query... uses the db.session behind the scenes).
+            # So then db.session.commit() sends the update (or insert) for every object
+            # in the session. This includes every object created by a [model].query and
+            # everything added to the session with db.session.add().
         nicety.anonymous = n.get("anonymous", current_user().anonymous_by_default)
         text = n.get("text").strip()
         if '' == text:
