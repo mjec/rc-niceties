@@ -112,6 +112,7 @@ def exiting_batch():
         people = cache.get(cache_key)
     except cache.NotInCache:
         people = []
+        print(current_user)
         for open_batch in get_open_batches():
             for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
                 latest_end_date = None
@@ -121,6 +122,7 @@ def exiting_batch():
                         latest_end_date = e
                 if (latest_end_date is not None and
                     util.end_date_within_range(latest_end_date) and
+                    util.name_from_rc_person(p) != util.name_from_rc_person()
                     (   # Batchlings have   is_hacker_schooler = True,      is_faculty = False
                         # Faculty have      is_hacker_schooler = ?,         is_faculty = True
                         # Resdients have    is_hacker_schooler = False,     is_faculty = False

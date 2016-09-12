@@ -147,20 +147,27 @@ var Person = React.createClass({
     // TODO: button for each person for anonymous option
 
     componentDidMount: function() {
+
         // setInterval(this.autosave, this.props.autosaveInterval);
     },
+
+    // hold a callback in the parent and pass it to the child as a prop that gets called in onChange
+    // this callback would have the parent update its own min/max rows and pass this to all children
+    // but it seems like for this to work you need child.state.height (to figureo ut the new min rows)
 
     render: function() {
         // <div className="name">
         // <p>{this.props.data.name}</p>
         // </div>
+
+        //this.state.value
         return (
             <div className="person">
               <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
               <Textarea
                  minRows={3}
                  maxRows={6}
-                 defaultValue={this.state.value}
+                 defaultValue={this.state.height}
                  onChange={this.handleChange}
                  />
             </div>
