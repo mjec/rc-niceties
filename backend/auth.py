@@ -24,14 +24,13 @@ def login():
         return rc.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
     # return rc.authorize(callback='urn:ietf:wg:oauth:2.0:oob')
 
-
 @app.route('/logout')
 def logout():
     session.pop('rc_token', None)
     session.pop('user_id', None)
+    _current_user_memo = None
     print(session)
     return redirect(url_for('home'))
-
 
 @app.route('/login/authorized')
 def authorized():
@@ -47,7 +46,7 @@ def authorized():
     user = User.query.get(me['id'])
     if user is None:
         user = User(
-            id=me['id'],
+            id=me['id_current_user_memo'],
             name=util.name_from_rc_person(me),
             avatar_url=me['image'],
             is_faculty=me['is_faculty'])
