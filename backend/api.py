@@ -47,10 +47,10 @@ def niceties_to_print():
     # 1) filter the niceties by the latest end_date
     # 2) ..
     two_weeks_from_now = datetime.now() - timedelta(days=14)
-    y = (Nicety.query
+    valid_niceties = (Nicety.query
               .filter(Nicety.end_date >= two_weeks_from_now)
               .all())
-    for n in y:
+    for n in valid_niceties:
         # If this is a different target_id to the last one...
         if n.target_id != last_target:
             # ... set up the test for the next one
@@ -63,6 +63,7 @@ def niceties_to_print():
             'anonymous': n.anonymous,
             'text': n.text,
         })
+    print(ret)
     return jsonify([
         {
             'to': k,
@@ -74,6 +75,39 @@ def niceties_to_print():
 @app.route('/api/v1/show-niceties')
 @needs_authorization
 def get_niceties_for_current_user():
+    """Returns JSON list like:
+    [
+        {
+            author_id: 0,   // target_id
+            end_date: "",
+            anonymous: true/false,
+            text: "",
+        },
+        {
+            author_id: int,
+            end_date: "",
+            anonymous: true/false,
+            text: "",
+        },
+        ...
+    ]
+    """
+    ret = []
+    whoami = current_user().id
+    two_weeks_from_now = datetime.now() - timedelta(days=14)
+    valid_niceties = (Nicety.query
+                      #.filter(Nicety.end_date >= two_weeks_from_now)
+                      .filter(Nicety.target_id == whoami)
+                      .all())
+    for n in valid_niceties:
+        store = {
+            'author_id': n.author_id,
+            'end_date': n.end_date,
+            'anonymous': n.anonymous,
+            'text': n.text
+        }
+        ret.append(store)
+    return jsonify(ret)
     pass
 
 @app.route('/api/v1/batches/<int:batch_id>/people')
