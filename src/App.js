@@ -272,7 +272,7 @@ var App = React.createClass({
         return {
                 people: [],
                 niceties: [],
-                currentview: "view-niceties"};
+                currentview: "write-niceties"};
     },
     componentDidMount: function() {
         this.loadPeopleFromServer();

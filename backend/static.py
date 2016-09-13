@@ -9,6 +9,7 @@ def home():
     return send_file(os.path.realpath(os.path.join(app.static_folder, 'index.html')))
 
 @app.route('/<path:p>')
+@needs_authorization
 def serve_static_files(p, index_on_error=True):
     """Securely serve static files for the given path using send_file."""
 
