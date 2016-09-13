@@ -71,6 +71,8 @@ def niceties_to_print():
         for k, v in ret.items()
     ])
 
+@app.route
+
 @app.route('/api/v1/batches/<int:batch_id>/people')
 @needs_authorization
 def batch_people(batch_id):

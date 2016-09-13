@@ -50,7 +50,7 @@ var People = React.createClass({
 
     getInitialState: function() {
         return {
-            data: [],
+            data: []
         };
     },
 
@@ -73,7 +73,7 @@ var People = React.createClass({
         return (
             <div className="people">
               <SaveButton
-                 disabled={false}
+                 disabled={False}
                  onclick={this.saveAllComments}
                  text="Save"/>
               <Grid>
@@ -168,15 +168,62 @@ var NicetyPrint = React.createClass({
     }
 });
 
+var NicetyRow = React.createClass({
+    render: function() {
+        return (
+            <Row>
+              {this.props.data
+                  .map(function(result) {
+                      return (<Col xs={3}>
+                              <Nicety data={result}/>
+                              </Col>);
+                  })}
+            </Row>
+        );
+    }
+});
+
 var NicetyDisplay = React.createClass({
+    // get_nicety_api
+    loadNicetiesFromServer: function() {
+        $.ajax({
+            url: this.props.get_nicety_api,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                this.setState({niceties: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.get_nicety_api, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function() {
+        return {
+            niceties: []
+        };
+    },
+    componentDidMount: function() {
+        this.loadNicetiesFromServer();
+    },
     render: function() {
         return (
             <div>
-              "you are loved."
+              {this.state.niceties.map(function(nicety) {
+                  return (
+                      <Nicety data={nicety}/>
+                  );
+              })}
             </div>
         );
     }
 });
+
+var Nicety = React.createClass({
+    render: function(){
+
+    }
+})
 
 var App = React.createClass({
     loadPeopleFromServer: function() {
@@ -205,17 +252,15 @@ var App = React.createClass({
     },
     selectComponent: function(idx) {
         switch(idx) {
-        case "view-niceties":
+        case "print-niceties":
             return <NicetyPrint get_nicety_api={this.props.get_nicety_api} />;
         case "write-niceties":
             return <People people={this.state.people}
                            post_nicety_api={this.props.post_nicety_api} />;
-        case "print-niceties":
-            return <NicetyDisplay get_nicety_api={this.props.get_nicety_api} />;
+        case "view-niceties":
+            return <People get_nicety_api={this.props.get_nicety_api} />;
         default:
-            return <People people={this.state.people}
-                           post_nicety_api={this.props.post_nicety_api} />;
-        }
+        };
     },
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);
