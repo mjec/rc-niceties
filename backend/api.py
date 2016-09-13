@@ -100,12 +100,19 @@ def get_niceties_for_current_user():
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
-        store = {
-            'author_id': n.author_id,
-            'end_date': n.end_date,
-            'anonymous': n.anonymous,
-            'text': n.text
-        }
+        if n.anonymous == True:
+            store = {
+                'end_date': n.end_date,
+                'anonymous': n.anonymous,
+                'text': n.text
+            }
+        else:
+            store = {
+                'author_id': n.author_id,
+                'end_date': n.end_date,
+                'anonymous': n.anonymous,
+                'text': n.text
+            }
         ret.append(store)
     return jsonify(ret)
     pass
