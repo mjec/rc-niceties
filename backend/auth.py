@@ -18,9 +18,9 @@ class AuthorizationFailed(HTTPException):
 
 @app.route('/login')
 def login():
-    if os.environ['DEV'] == 'TRUE':
+    if app.config.get('DEV') == 'TRUE':
         return rc.authorize(callback=url_for('authorized', _external=True))
-    elif os.environ['DEV'] == 'FALSE':
+    elif app.config.get('DEV') == 'FALSE':
         return rc.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
     # return rc.authorize(callback='urn:ietf:wg:oauth:2.0:oob')
 

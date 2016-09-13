@@ -291,7 +291,7 @@ var App = React.createClass({
                            post_nicety_api={this.props.post_nicety_api} />;
         case "view-niceties":
             return <NicetyDisplay niceties={this.state.niceties}
-                           get_nicety_api={this.props.get_nicety_api} />;
+                                  get_nicety_api={this.props.get_nicety_api} />;
         default:
         };
     },

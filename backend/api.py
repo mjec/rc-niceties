@@ -93,7 +93,7 @@ def get_niceties_for_current_user():
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      #.filter(Nicety.end_date >= two_weeks_from_now)
+                      .filter(Nicety.end_date < datetime.now())
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:

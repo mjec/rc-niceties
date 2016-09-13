@@ -8,6 +8,8 @@ This application is pretty simple. It stores niceties as text and some metadata 
 
 The backend is in Flask, and is just a REST API. The frontend is in react + redux, because it's 2016 and that's the current hotness.
 
+All queries to the RC API is cached, and things
+
 ## Creating a development environment
 
 I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
