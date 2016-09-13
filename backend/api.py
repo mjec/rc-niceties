@@ -54,10 +54,8 @@ def niceties_to_print():
         # If this is a different target_id to the last one...
         if n.target_id != last_target:
             # ... set up the test for the next one
-
             last_target = n.target_id
             ret[n.target_id] = []  # initialize the dictionary
-
         ret[n.target_id].append({
             'author_id': n.author_id,
             'anonymous': n.anonymous,
@@ -108,6 +106,7 @@ def get_niceties_for_current_user():
             }
         else:
             store = {
+                'avatar_url': json.loads(person(n.author_id).data)['avatar_url'],
                 'author_id': n.author_id,
                 'end_date': n.end_date,
                 'anonymous': n.anonymous,
@@ -200,6 +199,7 @@ def person(person_id):
         return cache.get(cache_key)
     except cache.NotInCache:
         p = rc.get('people/{}'.format(person_id)).data
+        print(p)
         person = {
             'id': p['id'],
             'name': util.name_from_rc_person(p),
