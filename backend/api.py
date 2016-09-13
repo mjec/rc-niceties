@@ -61,7 +61,6 @@ def niceties_to_print():
             'anonymous': n.anonymous,
             'text': n.text,
         })
-    print(ret)
     return jsonify([
         {
             'to': k,
@@ -199,7 +198,6 @@ def person(person_id):
         return cache.get(cache_key)
     except cache.NotInCache:
         p = rc.get('people/{}'.format(person_id)).data
-        print(p)
         person = {
             'id': p['id'],
             'name': util.name_from_rc_person(p),
