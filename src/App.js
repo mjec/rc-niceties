@@ -228,14 +228,14 @@ var Nicety = React.createClass({
     render: function() {
         return (
             <div className="nicety">
-              <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
-              <p>{this.props.data.name}</p>
-              <Textarea
-                 minRows={3}
-                 maxRows={6}
-                 defaultValue={this.state.value}
-                 onChange={this.handleChange}
-                 />
+                <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
+                <p>{this.props.data.name}</p>
+                <Textarea
+                    minRows={3}
+                    maxRows={6}
+                    defaultValue={this.props.data.text}
+                    disable
+                />
             </div>
         );
     }
@@ -276,6 +276,7 @@ var App = React.createClass({
     },
     componentDidMount: function() {
         this.loadPeopleFromServer();
+        this.loadNicetiesFromServer();
     },
     handleSelect: function(eventKey) {
         this.setState({currentview: eventKey});
