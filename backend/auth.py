@@ -20,7 +20,7 @@ def login():
     # return rc.authorize(callback='urn:ietf:wg:oauth:2.0:oob')
 
 
-@app.route('/api/v1/logout')
+@app.route('/logout')
 def logout():
     session.pop('rc_token', None)
     session.pop('user_id', None)
