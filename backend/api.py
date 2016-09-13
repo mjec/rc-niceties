@@ -163,6 +163,7 @@ def exiting_batch():
     except cache.NotInCache:
         people = []
         for open_batch in get_open_batches():
+            print(open_batch)
             for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
                 latest_end_date = None
                 for stint in p['stints']:
@@ -170,7 +171,6 @@ def exiting_batch():
                     if latest_end_date is None or e > latest_end_date:
                         latest_end_date = e
                 if (latest_end_date is not None and
-                    p['id'] != current_user().id and
                     util.end_date_within_range(latest_end_date) and
                     (   # Batchlings have   is_hacker_schooler = True,      is_faculty = False
                         # Faculty have      is_hacker_schooler = ?,         is_faculty = True
@@ -185,7 +185,8 @@ def exiting_batch():
                         'end_date': '{:%Y-%m-%d}'.format(latest_end_date),
                     })
         cache.set(cache_key, people)
-    people.append({'whoami': current_user().id})
+    whoami = current_user().id
+    all_but_me = (person for person in people if person['id'] != whoami)
     random.seed(current_user().random_seed)
     random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
