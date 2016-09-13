@@ -12,7 +12,6 @@
     "react-redux": "^4.4.5",
     "react-router": "^2.6.1",
     "react-scripts": "0.2.1",
-    "react-textarea-autosize": "^4.0.5",
     "redux": "^3.5.2",
     "remarkable": "^1.6.2"
   },

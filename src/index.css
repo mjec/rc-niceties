@@ -5,9 +5,18 @@ body {
 }
 
 textarea {
-  resize: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	resize: none;
+
+	width: 100%;
 }
 
 .img-responsive {
   display: inline;
+}
+
+#save_button {
+	padding: 10px;
 }
