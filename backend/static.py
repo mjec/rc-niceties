@@ -1,7 +1,7 @@
 import os
 from flask import send_file, abort
 from backend import app
-from backend.auth import needs_authorization
+from backend.auth import current_user, needs_authorization
 
 
 @app.route('/')

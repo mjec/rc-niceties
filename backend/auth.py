@@ -16,7 +16,7 @@ class AuthorizationFailed(HTTPException):
 
 @app.route('/login')
 def login():
-    return rc.authorize(callback=url_for('authorized', _external=True))
+    return rc.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
     # return rc.authorize(callback='urn:ietf:wg:oauth:2.0:oob')
 
 
@@ -24,6 +24,7 @@ def login():
 def logout():
     session.pop('rc_token', None)
     session.pop('user_id', None)
+    print(session)
     return redirect(url_for('home'))
 
 
