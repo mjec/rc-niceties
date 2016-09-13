@@ -198,30 +198,53 @@ var NicetyDisplay = React.createClass({
             }.bind(this)
         });
     },
+
     getInitialState: function() {
         return {
             niceties: []
         };
     },
+
     componentDidMount: function() {
-        this.loadNicetiesFromServer();
+        //this.loadNicetiesFromServer();
     },
+
+    generateRows: function() {
+        let dataList = [];
+        for (let i = 0; i < this.props.people.length; i +=4) {
+            let row = [];
+            for (let j = 0; j < 4; j++) {
+                if ((i + j) < this.props.people.length) {
+                    row.push(this.props.people[i + j]);
+                }
+            }
+            dataList.push(row);
+        }
+        return dataList;
+    },
+
     render: function() {
+        let list = this.generateRows();
         return (
-            <div>
-              {this.state.niceties.map(function(nicety) {
-                  return (
-                      <Nicety data={nicety}/>
-                  );
-              })}
-            </div>
-        );
-    }
+            <div className="niceties">
+              <Grid>
+                {list.map(function(row) {
+                    return (
+                        <NicetyRow data={row}/>
+                    );
+                })}
+            </Grid>
+                </div>
+        );}
 });
 
 var Nicety = React.createClass({
-    render: function(){
-
+    render: function() {
+        return (
+            <div className="nicety">
+                stub
+            </div>
+        );
     }
 })
 
@@ -258,7 +281,7 @@ var App = React.createClass({
             return <People people={this.state.people}
                            post_nicety_api={this.props.post_nicety_api} />;
         case "view-niceties":
-            return <People people={this.state.people}
+            return <NicetyDisplay people={this.state.people}
                            get_nicety_api={this.props.get_nicety_api} />;
         default:
         };
