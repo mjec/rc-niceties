@@ -3,7 +3,6 @@ import './App.css';
 
 import { Grid, Row, Col, Image, Nav, NavItem } from 'react-bootstrap';
 import ReactDOM, { findDOMNode } from 'react-dom';
-import Textarea from 'react-textarea-autosize';
 import React, { Component } from 'react';
 
 import Remarkable from 'remarkable';
@@ -111,7 +110,7 @@ var PeopleRow = React.createClass({
             <Row>
               {this.props.data
                   .map(function(result) {
-                      return (<Col xs={3}>
+                      return (<Col lg ="3" md="4" sm="6" xs="12">
                               <Person data={result}/>
                               </Col>);
                   })}
@@ -145,14 +144,13 @@ var Person = React.createClass({
     render: function() {
         return (
             <div className="person">
-              <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
-              <p>{this.props.data.name}</p>
-              <Textarea
-                 minRows={3}
-                 maxRows={6}
-                 defaultValue={this.state.value}
-                 onChange={this.handleChange}
-                 />
+                <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
+                <p>{this.props.data.name}</p>
+              <textarea
+                defaultValue={this.state.value}
+                onChange={this.handleChange}
+                rows="6"
+                />
             </div>
         );
     }
@@ -167,14 +165,14 @@ var NicetyPrint = React.createClass({
         );
     }
 });
-
+    
 var NicetyRow = React.createClass({
     render: function() {
         return (
             <Row>
               {this.props.data
                   .map(function(result) {
-                      return (<Col xs={3}>
+                      return (<Col lg ="3" md="4" sm="6" xs="12">
                               <Nicety data={result}/>
                               </Col>);
                   })}
@@ -230,9 +228,7 @@ var Nicety = React.createClass({
             <div className="nicety">
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
                 <p>{this.props.data.name}</p>
-                <Textarea
-                    minRows={3}
-                    maxRows={6}
+                <textarea
                     defaultValue={this.props.data.text}
                     disable
                 />
