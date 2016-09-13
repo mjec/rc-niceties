@@ -185,7 +185,7 @@ def exiting_batch():
                     })
         cache.set(cache_key, people)
     whoami = current_user().id
-    all_but_me = (person for person in people if person['id'] != whoami)
+    all_but_me = list(person for person in people if person['id'] != whoami)
     random.seed(current_user().random_seed)
     random.shuffle(all_but_me)  # This order will be random but consistent for the user
     return jsonify(all_but_me)
