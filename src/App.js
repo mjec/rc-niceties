@@ -184,44 +184,60 @@ var NicetyRow = React.createClass({
 });
 
 var NicetyDisplay = React.createClass({
-    // get_nicety_api
-    loadNicetiesFromServer: function() {
-        $.ajax({
-            url: this.props.get_nicety_api,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                this.setState({niceties: data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.get_nicety_api, status, err.toString());
-            }.bind(this)
-        });
-    },
+
     getInitialState: function() {
         return {
             niceties: []
         };
     },
-    componentDidMount: function() {
-        this.loadNicetiesFromServer();
+
+    // componentDidMount: function() {
+    //     this.loadNicetiesFromServer();
+    // },
+
+    generateRows: function() {
+        let dataList = [];
+        for (let i = 0; i < this.props.niceties.length; i +=4) {
+            let row = [];
+            for (let j = 0; j < 4; j++) {
+                if ((i + j) < this.props.niceties.length) {
+                    row.push(this.props.niceties[i + j]);
+                }
+            }
+            dataList.push(row);
+        }
+        return dataList;
     },
+
     render: function() {
+        let list = this.generateRows();
         return (
-            <div>
-              {this.state.niceties.map(function(nicety) {
-                  return (
-                      <Nicety data={nicety}/>
-                  );
-              })}
-            </div>
-        );
-    }
+            <div className="niceties">
+              <Grid>
+                {list.map(function(row) {
+                    return (
+                        <NicetyRow data={row}/>
+                    );
+                })}
+            </Grid>
+                </div>
+        );}
 });
 
 var Nicety = React.createClass({
-    render: function(){
-
+    render: function() {
+        return (
+            <div className="nicety">
+              <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
+              <p>{this.props.data.name}</p>
+              <Textarea
+                 minRows={3}
+                 maxRows={6}
+                 defaultValue={this.state.value}
+                 onChange={this.handleChange}
+                 />
+            </div>
+        );
     }
 })
 
@@ -239,8 +255,23 @@ var App = React.createClass({
             }.bind(this)
         });
     },
+    loadNicetiesFromServer: function() {
+        $.ajax({
+            url: this.props.get_nicety_api,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                this.setState({niceties: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.niceties, status, err.toString());
+            }.bind(this)
+        });
+    },
     getInitialState: function() {
-        return {people: [],
+        return {
+                people: [],
+                niceties: [],
                 currentview: "view-niceties"};
     },
     componentDidMount: function() {
@@ -258,7 +289,7 @@ var App = React.createClass({
             return <People people={this.state.people}
                            post_nicety_api={this.props.post_nicety_api} />;
         case "view-niceties":
-            return <People people={this.state.people}
+            return <NicetyDisplay niceties={this.state.niceties}
                            get_nicety_api={this.props.get_nicety_api} />;
         default:
         };
