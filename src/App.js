@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Grid, Row, Col, Image, Nav, NavItem } from 'react-bootstrap';
+import { Button, Grid, Row, Col, Image, Nav, NavItem } from 'react-bootstrap';
 import ReactDOM, { findDOMNode } from 'react-dom';
 import React, { Component } from 'react';
 
@@ -71,10 +71,15 @@ var People = React.createClass({
         let list = this.generateRows();
         return (
             <div className="people">
-              <SaveButton
+            <div id="save_button">
+              <Button
+                 bsStyle="primary"
+                 bsSize="large" 
                  disabled={false}
-                 onclick={this.saveAllComments}
-                 text="Save"/>
+                 onclick={this.saveAllComments}>
+                 Save
+                 </Button>
+            </div>
               <Grid>
                 {list.map(function(row) {
                     return (

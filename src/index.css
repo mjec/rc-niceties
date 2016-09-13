@@ -16,3 +16,7 @@ textarea {
 .img-responsive {
   display: inline;
 }
+
+#save_button {
+	padding: 10px;
+}
