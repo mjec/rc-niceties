@@ -73,7 +73,7 @@ var People = React.createClass({
         return (
             <div className="people">
               <SaveButton
-                 disabled={False}
+                 disabled={false}
                  onclick={this.saveAllComments}
                  text="Save"/>
               <Grid>
@@ -258,7 +258,8 @@ var App = React.createClass({
             return <People people={this.state.people}
                            post_nicety_api={this.props.post_nicety_api} />;
         case "view-niceties":
-            return <People get_nicety_api={this.props.get_nicety_api} />;
+            return <People people={this.state.people}
+                           get_nicety_api={this.props.get_nicety_api} />;
         default:
         };
     },

@@ -71,7 +71,10 @@ def niceties_to_print():
         for k, v in ret.items()
     ])
 
-@app.route
+@app.route('/api/v1/show-niceties')
+@needs_authorization
+def get_niceties_for_current_user():
+    pass
 
 @app.route('/api/v1/batches/<int:batch_id>/people')
 @needs_authorization
@@ -95,7 +98,8 @@ def batch_people(batch_id):
 
 def get_open_batches():
     try:
-        return cache.get('open_batches_list')
+        cache_key = 'open_batches_list'
+        return cache.get(cache_key)
     except cache.NotInCache:
         pass
     batches = rc.get('batches').data
@@ -108,7 +112,7 @@ def get_open_batches():
             batch['is_open'] = False
             batch['closing_time'] = None
             batch['warning_time'] = None
-    cache.set('open_batches_list', batches)
+    cache.set(cache_key, batches)
     return batches
 
 @app.route('/api/v1/people')
