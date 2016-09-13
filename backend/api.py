@@ -91,7 +91,6 @@ def get_niceties_for_current_user():
     """
     ret = []
     whoami = current_user().id
-    print(current_user().id)
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
                       #.filter(Nicety.end_date >= two_weeks_from_now)
@@ -186,6 +185,7 @@ def exiting_batch():
                         'end_date': '{:%Y-%m-%d}'.format(latest_end_date),
                     })
         cache.set(cache_key, people)
+    people.append({'whoami': current_user().id})
     random.seed(current_user().random_seed)
     random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
