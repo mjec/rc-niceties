@@ -1,3 +1,5 @@
+import os
+
 from functools import wraps
 import flask_oauthlib
 from flask import session, url_for, redirect, request
@@ -16,7 +18,10 @@ class AuthorizationFailed(HTTPException):
 
 @app.route('/login')
 def login():
-    return rc.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
+    if os.environ['DEV'] == 'TRUE':
+        return rc.authorize(callback=url_for('authorized', _external=True))
+    elif os.environ['DEV'] == 'FALSE':
+        return rc.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
     # return rc.authorize(callback='urn:ietf:wg:oauth:2.0:oob')
 
 
