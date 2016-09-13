@@ -163,7 +163,6 @@ def exiting_batch():
     except cache.NotInCache:
         people = []
         for open_batch in get_open_batches():
-            print(open_batch)
             for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
                 latest_end_date = None
                 for stint in p['stints']:
@@ -188,8 +187,8 @@ def exiting_batch():
     whoami = current_user().id
     all_but_me = (person for person in people if person['id'] != whoami)
     random.seed(current_user().random_seed)
-    random.shuffle(people)  # This order will be random but consistent for the user
-    return jsonify(people)
+    random.shuffle(all_but_me)  # This order will be random but consistent for the user
+    return jsonify(all_but_me)
 
 @app.route('/api/v1/people/<int:person_id>')
 @needs_authorization
