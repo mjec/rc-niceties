@@ -163,7 +163,6 @@ def exiting_batch():
         people = cache.get(cache_key)
     except cache.NotInCache:
         people = []
-        current_id = current_user().id
         for open_batch in get_open_batches():
             for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
                 latest_end_date = None
@@ -172,7 +171,7 @@ def exiting_batch():
                     if latest_end_date is None or e > latest_end_date:
                         latest_end_date = e
                 if (latest_end_date is not None and
-                    p['id'] != current_id and
+                    p['id'] != current_user().id and
                     util.end_date_within_range(latest_end_date) and
                     (   # Batchlings have   is_hacker_schooler = True,      is_faculty = False
                         # Faculty have      is_hacker_schooler = ?,         is_faculty = True

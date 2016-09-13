@@ -46,7 +46,7 @@ def authorized():
     user = User.query.get(me['id'])
     if user is None:
         user = User(
-            id=me['id_current_user_memo'],
+            id=me['id'],
             name=util.name_from_rc_person(me),
             avatar_url=me['image'],
             is_faculty=me['is_faculty'])
