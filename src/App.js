@@ -7,6 +7,8 @@ import React, { Component } from 'react';
 
 import Remarkable from 'remarkable';
 import logo from './logo.svg';
+import octotie from './octotie.png'
+
 import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
@@ -315,6 +317,9 @@ var App = React.createClass({
         //console.log(<NavItem eventKey="write-niceties">Write niceties!</NavItem>);
         return (
             <div className="App">
+            <div id="logo">
+                <img id="octotie" src={octotie} height="175"/>
+            </div>
               <Nav bsStyle="tabs" activeKey={this.state.currentview} onSelect={this.handleSelect}>
                 <NavItem eventKey="write-niceties">Write niceties!</NavItem>
                 <NavItem eventKey="view-niceties">See your niceties!</NavItem>
