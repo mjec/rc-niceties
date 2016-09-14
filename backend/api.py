@@ -310,6 +310,7 @@ def save_niceties():
     ]
     """
     niceties_to_save = json.loads(request.form.get("niceties", "[]"))
+    print(niceties_to_save)
     for n in niceties_to_save:
         nicety = (
             Nicety

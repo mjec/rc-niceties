@@ -19,6 +19,7 @@ var People = React.createClass({
     saveAllComments: function() {
         updated_niceties_spinlock = true;
         var data_to_save = [];
+        console.log(updated_niceties);
         updated_niceties.forEach(function(e) {
             var split_e = e.split(",");
             data_to_save.push(
@@ -39,6 +40,7 @@ var People = React.createClass({
             type: 'POST',
             cache: false,
             success: function(data) {
+                console.log('sucessful post');
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -74,13 +76,11 @@ var People = React.createClass({
         return (
             <div className="people">
             <div id="save_button">
-              <Button
-                 bsStyle="primary"
-                 bsSize="large" 
+              <SaveButton 
                  disabled={false}
                  onclick={this.saveAllComments}>
                  Save
-                 </Button>
+                 </SaveButton>
             </div>
               <Grid>
                 {list.map(function(row) {
@@ -98,13 +98,20 @@ var SaveButton = React.createClass({
         if (this.props.disabled) {
             return (
                 <div className="button">
-                  <button disabled="disabled">{this.props.text}</button>
+                  <Button 
+                  bsStyle="primary"
+                 bsSize="large"
+                 disabled="disabled"
+                 >Save</Button>
                 </div>
             );
         } else {
             return (
                 <div className="button">
-                  <button onClick={this.props.onclick}>{this.props.text}</button>
+                  <Button 
+                  bsStyle="primary"
+                 bsSize="large"
+                 onClick={this.props.onclick}>Save</Button>
                 </div>
             );
         }
@@ -167,7 +174,13 @@ var NicetyPrint = React.createClass({
     render: function() {
         return (
             <div>
-              "xd"
+              {
+                this.props.data.filter((val, index, arr) => {
+                    return arr.indexOf(val) === index;
+                }).forEach((recurser) => {
+
+                })
+              }
             </div>
         );
     }
