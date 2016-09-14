@@ -172,15 +172,27 @@ var Person = React.createClass({
 
 var NicetyPrint = React.createClass({
     render: function() {
+        const recipients = this.props.printNiceties.map((recipient) => {
+            return (
+                <div id="recipient_page">
+                    <h4>{recipient.to}</h4>
+                    {
+                        recipient.niceties.map((nicety) => {
+                            if('name' in nicety) {
+                                return (<p>{nicety.text} -<strong>{nicety.name}</strong></p>);
+                            } else {
+                                return (<p>{nicety.text}</p>);
+                            }
+                        })
+                    }
+                </div>
+            );
+        });
+
+
         return (
             <div>
-              {
-                this.props.data.filter((val, index, arr) => {
-                    return arr.indexOf(val) === index;
-                }).forEach((recurser) => {
-
-                })
-              }
+                {recipients}
             </div>
         );
     }
@@ -306,6 +318,7 @@ var App = React.createClass({
     componentDidMount: function() {
         this.loadPeopleFromServer();
         this.loadNicetiesFromServer();
+        this.loadPrintFromServer();
     },
     handleSelect: function(eventKey) {
         this.setState({currentview: eventKey});
@@ -314,13 +327,11 @@ var App = React.createClass({
     selectComponent: function(idx) {
         switch(idx) {
         case "print-niceties":
-            return <NicetyPrint get_nicety_api={this.props.get_nicety_api} />;
+            return <NicetyPrint printNiceties={this.state.printNiceties} />
         case "write-niceties":
-            return <People people={this.state.people}
-                           post_nicety_api={this.props.post_nicety_api} />;
+            return <People people={this.state.people} />
         case "view-niceties":
-            return <NicetyDisplay niceties={this.state.niceties}
-                                  get_nicety_api={this.props.get_nicety_api} />;
+            return <NicetyDisplay niceties={this.state.niceties} />
         default:
         };
     },
