@@ -14,6 +14,8 @@ import backend.cache as cache
 import backend.config as config
 import backend.util as util
 
+import sys
+
 @app.route('/api/v1/niceties-to-print')
 @needs_authorization
 def niceties_to_print():
@@ -262,7 +264,12 @@ def display_people():
     for p in all_but_me:
         print(p['github'])
         if p['github'] is not None:
-            p['placeholder'] = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
+            try:
+                abc = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
+                p['placeholder'] = abc
+            except:
+                e = sys.exc_info()[0]
+                print(e)
         print("hiiiiii")
     return jsonify(all_but_me)
 
