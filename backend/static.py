@@ -5,6 +5,7 @@ from backend.auth import current_user, needs_authorization
 
 
 @app.route('/')
+@needs_authorization
 def home():
     return send_file(os.path.realpath(os.path.join(app.static_folder, 'index.html')))
 

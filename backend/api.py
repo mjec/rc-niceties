@@ -32,7 +32,6 @@ def niceties_to_print():
                           .order_by(Nicety.target_id)
                           .all())
         for n in valid_niceties:
-            print(n)
             if n.target_id != last_target:
                 # ... set up the test for the next one
                 last_target = n.target_id
@@ -82,7 +81,7 @@ def get_niceties_for_current_user():
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date < datetime.now())
+                      .filter(Nicety.end_date > datetime.now())
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
