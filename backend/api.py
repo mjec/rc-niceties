@@ -12,28 +12,6 @@ import backend.cache as cache
 import backend.config as config
 import backend.util as util
 
-@app.route('/api/v1/batches')
-@needs_authorization
-def batches():
-    try:
-        return cache.get('batches_list')
-    except cache.NotInCache:
-        pass
-    # rc is a OAuth object. this accesses the "recurse.com/api/v1/batches" API endpoint.
-    batches = rc.get('batches').data
-    for batch in batches:
-        if util.batch_is_open(batch['id'], batch['end_date']):
-            batch['is_open'] = True
-            batch['closing_time'] = util.batch_closing_time(batch['end_date']).isoformat()
-            batch['warning_time'] = util.batch_closing_warning_time(batch['end_date']).isoformat()
-        else:
-            batch['is_open'] = False
-            batch['closing_time'] = None
-            batch['warning_time'] = None
-            batches_json = jsonify(batches)
-            cache.set('batches_list', batches_json)
-    return batches_json
-
 @app.route('/api/v1/niceties-to-print')
 @needs_authorization
 def niceties_to_print():
@@ -46,28 +24,33 @@ def niceties_to_print():
     # this might need to be improve, possibly
     # 1) filter the niceties by the latest end_date
     # 2) ..
+    is_faculty = json.loads(person(current_user().id).data)['is_faculty']
     two_weeks_from_now = datetime.now() - timedelta(days=14)
-    valid_niceties = (Nicety.query
-              .filter(Nicety.end_date >= two_weeks_from_now)
-              .all())
-    for n in valid_niceties:
-        # If this is a different target_id to the last one...
-        if n.target_id != last_target:
-            # ... set up the test for the next one
-            last_target = n.target_id
-            ret[n.target_id] = []  # initialize the dictionary
-        ret[n.target_id].append({
-            'author_id': n.author_id,
-            'anonymous': n.anonymous,
-            'text': n.text,
-        })
-    return jsonify([
-        {
-            'to': k,
-            'niceties': v
-        }
-        for k, v in ret.items()
-    ])
+    if is_faculty == True:
+        valid_niceties = (Nicety.query
+                          .filter(Nicety.end_date >= two_weeks_from_now)
+                          .all())
+        for n in valid_niceties:
+            # If this is a different target_id to the last one...
+            if n.target_id != last_target:
+                # ... set up the test for the next one
+                last_target = n.target_id
+                ret[n.target_id] = []  # initialize the dictionary
+                ret[n.target_id].append({
+                    'author_id': n.author_id,
+                    'anonymous': n.anonymous,
+                    'text': n.text,
+                })
+        return jsonify([
+            {
+                'to': k,
+                'niceties': v
+            }
+            for k, v in ret.items()
+            ])
+    else:
+        return jsonify({'authorized': "false"})
+
 
 @app.route('/api/v1/show-niceties')
 @needs_authorization
@@ -154,6 +137,29 @@ def get_open_batches():
     cache.set(cache_key, batches)
     return batches
 
+@app.route('/api/v1/faculty')
+@needs_authorization
+def get_faculty():
+    ''' faculty will always appear in
+    the most recent batch!
+    '''
+    cache_key = 'faculty_list'
+    try:
+        faculty = cache.get(cache_key)
+    except cache.NotInCache:
+        faculty = []
+        for open_batch in get_open_batches():
+            for p in rc.get('batches/{}/people'.format(open_batch['id'])).data:
+                if p['is_faculty']:
+                    faculty.append({
+                        'id': p['id'],
+                        'name': util.name_from_rc_person(p),
+                        'avatar_url': p['image'],
+                        'stints': p['stints']
+                    })
+        cache.set(cache_key, faculty)
+    return jsonify(faculty)
+
 @app.route('/api/v1/people')
 @needs_authorization
 def exiting_batch():
@@ -202,6 +208,7 @@ def person(person_id):
             'id': p['id'],
             'name': util.name_from_rc_person(p),
             'avatar_url': p['image'],
+            'is_faculty': p['is_faculty']
         }
         person_json = jsonify(person)
         cache.set(cache_key, person_json)

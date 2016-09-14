@@ -78,7 +78,7 @@ def needs_authorization(f):
     def decorated_function(*args, **kwargs):
         try:
             if current_user() is None:
-                return redirect(url_for('authorized'))
+                return redirect(url_for('login'))
             return f(*args, **kwargs)
         except flask_oauthlib.client.OAuthException:
             return redirect(url_for('home'))
