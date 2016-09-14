@@ -24,7 +24,7 @@ def niceties_to_print():
     # this might need to be improve, possibly
     # 1) filter the niceties by the latest end_date
     # 2) ..
-    is_faculty = json.loads(person(current_user().id).data)['is_faculty']
+    is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     if is_faculty == True:
         valid_niceties = (Nicety.query
@@ -112,6 +112,13 @@ def batch_people(batch_id):
                 'name': util.name_from_rc_person(p),
                 'avatar_url': p['image'],
                 'stints': p['stints'],
+                'bio': p['bio'],
+                'interests': p['interests'],
+                'before_rc': p['before_rc'],
+                'during_rc': p['during_rc'],
+                'job': p['job'],
+                'twitter': p['twitter'],
+                'github': p['github'],
             })
         cache.set(cache_key, people)
     random.seed(current_user().random_seed)
@@ -155,7 +162,14 @@ def get_faculty():
                         'id': p['id'],
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
-                        'stints': p['stints']
+                        'stints': p['stints'],
+                        'bio': p['bio'],
+                        'interests': p['interests'],
+                        'before_rc': p['before_rc'],
+                        'during_rc': p['during_rc'],
+                        'job': p['job'],
+                        'twitter': p['twitter'],
+                        'github': p['github'],
                     })
         cache.set(cache_key, faculty)
     return jsonify(faculty)
@@ -188,6 +202,13 @@ def exiting_batch():
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
                         'end_date': '{:%Y-%m-%d}'.format(latest_end_date),
+                        'bio': p['bio'],
+                        'interests': p['interests'],
+                        'before_rc': p['before_rc'],
+                        'during_rc': p['during_rc'],
+                        'job': p['job'],
+                        'twitter': p['twitter'],
+                        'github': p['github'],
                     })
         cache.set(cache_key, people)
     whoami = current_user().id
@@ -208,7 +229,14 @@ def person(person_id):
             'id': p['id'],
             'name': util.name_from_rc_person(p),
             'avatar_url': p['image'],
-            'is_faculty': p['is_faculty']
+            'is_faculty': p['is_faculty'],
+            'bio': p['bio'],
+            'interests': p['interests'],
+            'before_rc': p['before_rc'],
+            'during_rc': p['during_rc'],
+            'job': p['job'],
+            'twitter': p['twitter'],
+            'github': p['github'],
         }
         person_json = jsonify(person)
         cache.set(cache_key, person_json)
