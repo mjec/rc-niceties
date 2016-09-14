@@ -263,7 +263,7 @@ def display_people():
     random.shuffle(all_but_me)  # This order will be random but consistent for the user
     for p in all_but_me:
         print(p['github'])
-        if p['github'] is not None:
+        if p['github'] is not None or p['github'] == "katur":
             try:
                 abc = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
                 p['placeholder'] = abc
@@ -273,7 +273,7 @@ def display_people():
         print("hiiiiii")
     return jsonify(all_but_me)
 
-@app.route('/api/v1/test')
+@app.route('/api/v1/github-repos')
 @needs_authorization
 def abc():
     return urlopen("https://api.github.com/users/katur/repos").read()
