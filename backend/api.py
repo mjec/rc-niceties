@@ -28,26 +28,32 @@ def niceties_to_print():
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     if is_faculty == True:
         valid_niceties = (Nicety.query
-                          .filter(Nicety.end_date >= two_weeks_from_now)
+                          #.filter(Nicety.end_date < two_weeks_from_now)
+                          .order_by(Nicety.target_id)
                           .all())
         for n in valid_niceties:
-            # If this is a different target_id to the last one...
+            print(n)
             if n.target_id != last_target:
                 # ... set up the test for the next one
                 last_target = n.target_id
                 ret[n.target_id] = []  # initialize the dictionary
+            if n.anonymous == False:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
-                    'anonymous': n.anonymous,
+                    'name': json.loads(person(n.author_id).data)['name'],
+                    'text': n.text,
+                })
+            else:
+                ret[n.target_id].append({
                     'text': n.text,
                 })
         return jsonify([
             {
-                'to': k,
+                'to': json.loads(person(k).data)['name'],
                 'niceties': v
             }
             for k, v in ret.items()
-            ])
+        ])
     else:
         return jsonify({'authorized': "false"})
 
