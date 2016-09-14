@@ -266,6 +266,11 @@ def display_people():
         print("hiiiiii")
     return jsonify(all_but_me)
 
+@app.route('/api/v1/test')
+@needs_authorization
+def abc():
+    return urlopen("https://api.github.com/users/katur/repos").read()
+
 @app.route('/api/v1/people/<int:person_id>')
 @needs_authorization
 def person(person_id):
