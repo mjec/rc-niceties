@@ -159,7 +159,7 @@ var Person = React.createClass({
         return (
             <div className="person">
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
-                <p>{this.props.data.name}</p>
+                <h3>{this.props.data.name}</h3>
               <textarea
                 defaultValue={this.state.value}
                 onChange={this.handleChange}
@@ -259,7 +259,7 @@ var Nicety = React.createClass({
         return (
             <div className="nicety">
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
-                <p>{this.props.data.name}</p>
+                <h3>{this.props.data.name}</h3>
                 <textarea
                     defaultValue={this.props.data.text}
                     disable
@@ -341,16 +341,17 @@ var App = React.createClass({
         //console.log(<NavItem eventKey="write-niceties">Write niceties!</NavItem>);
         return (
             <div className="App">
-            <div id="logo">
-                <img id="octotie" src={octotie} height="175"/>
-            </div>
-              <Nav bsStyle="tabs" activeKey={this.state.currentview} onSelect={this.handleSelect}>
-                <NavItem eventKey="write-niceties">Write niceties!</NavItem>
-                <NavItem eventKey="view-niceties">See your niceties!</NavItem>
-                <NavItem eventKey="print-niceties">For Rachel! Print our niceties!</NavItem>
-              </Nav>
-
-              {selectedComponent}
+                <div id="header">
+                    <img id="octotie" src={octotie} height="185"/>
+                    <Nav bsStyle="tabs" justified activeKey={this.state.currentview} onSelect={this.handleSelect}>
+                    <NavItem eventKey="write-niceties"><h3>Write</h3></NavItem>
+                    <NavItem eventKey="view-niceties"><h3>Read</h3></NavItem>
+                    <NavItem eventKey="print-niceties"><h3>Print</h3></NavItem>
+                  </Nav>
+                </div>
+              <div id="component_frame">  
+                {selectedComponent}
+              </div>
             </div>
         );
     }

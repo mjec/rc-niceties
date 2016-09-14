@@ -1,7 +1,8 @@
+
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: "Futura", sans-serif;
 }
 
 textarea {
@@ -9,7 +10,8 @@ textarea {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	resize: none;
-
+	border: none;
+	border-radius: 5px;
 	width: 100%;
 }
 
@@ -29,4 +31,8 @@ textarea {
 	size: 7in 9.25in;
   	margin: 27mm 16mm 27mm 16mm;
   	border: 1px;
+}
+
+#component_frame {
+	background-color: #efefef;
 }
