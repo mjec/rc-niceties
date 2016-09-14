@@ -252,7 +252,7 @@ var App = React.createClass({
                 this.setState({people: data});
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.people_api, status, err.toString());
+                console.error(this.props.people, status, err.toString());
             }.bind(this)
         });
     },
@@ -266,6 +266,19 @@ var App = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.niceties, status, err.toString());
+            }.bind(this)
+        });
+    },
+     loadPrintFromServer: function() {
+        $.ajax({
+            url: this.props.print_nicety_api,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                this.setState({printNiceties: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.printNiceties, status, err.toString());
             }.bind(this)
         });
     },
