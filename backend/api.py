@@ -265,7 +265,13 @@ def display_people():
         print(p['github'])
         if p['github'] is not None and p['github'] != "katur":
             try:
-                abc = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
+                repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+                placeholder = []
+                for repo in repos:
+                    placeholder.append({
+                        'name': repo['name'],
+                        'description': repo['description'],
+                    })
                 p['placeholder'] = abc
             except:
                 e = sys.exc_info()[:2]
