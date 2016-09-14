@@ -268,7 +268,7 @@ def display_people():
                 abc = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
                 p['placeholder'] = abc
             except:
-                e = sys.exc_info()[0]
+                e = sys.exc_info()[:2]
                 print(e)
         print("hiiiiii")
     return jsonify(all_but_me)
