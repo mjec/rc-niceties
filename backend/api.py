@@ -260,7 +260,9 @@ def display_people():
     random.seed(current_user().random_seed)
     random.shuffle(all_but_me)  # This order will be random but consistent for the user
     for p in all_but_me:
-        p['placeholder'] = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
+        print(p['github'])
+        if p['github'] is not None:
+            p['placeholder'] = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
         print("hiiiiii")
     return jsonify(all_but_me)
 
