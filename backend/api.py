@@ -263,7 +263,7 @@ def display_people():
     random.shuffle(all_but_me)  # This order will be random but consistent for the user
     for p in all_but_me:
         print(p['github'])
-        if p['github'] is not None or p['github'] == "katur":
+        if p['github'] is not None and p['github'] != "katur":
             try:
                 abc = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
                 p['placeholder'] = abc
