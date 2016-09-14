@@ -76,7 +76,7 @@ var People = React.createClass({
         return (
             <div className="people">
             <div id="save_button">
-              <SaveButton 
+              <SaveButton
                  disabled={false}
                  onclick={this.saveAllComments}>
                  Save
@@ -98,7 +98,7 @@ var SaveButton = React.createClass({
         if (this.props.disabled) {
             return (
                 <div className="button">
-                  <Button 
+                  <Button
                   bsStyle="primary"
                  bsSize="large"
                  disabled="disabled"
@@ -108,7 +108,7 @@ var SaveButton = React.createClass({
         } else {
             return (
                 <div className="button">
-                  <Button 
+                  <Button
                   bsStyle="primary"
                  bsSize="large"
                  onClick={this.props.onclick}>Save</Button>
@@ -164,6 +164,7 @@ var Person = React.createClass({
                 defaultValue={this.state.value}
                 onChange={this.handleChange}
                 rows="6"
+                 placeholder={this.props.data.placeholder}
                 />
             </div>
         );
@@ -185,7 +186,7 @@ var NicetyPrint = React.createClass({
         );
     }
 });
-    
+
 var NicetyRow = React.createClass({
     render: function() {
         return (

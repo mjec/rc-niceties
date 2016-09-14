@@ -8,6 +8,8 @@ from backend.auth import current_user, needs_authorization
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
+
+from urllib.request import Request, urlopen
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
@@ -130,25 +132,6 @@ def batch_people(batch_id):
     random.shuffle(people)  # This order will be random but consistent for the user
     return jsonify(people)
 
-def get_open_batches():
-    try:
-        cache_key = 'open_batches_list'
-        return cache.get(cache_key)
-    except cache.NotInCache:
-        pass
-    batches = rc.get('batches').data
-    for batch in batches:
-        if util.end_date_within_range(batch['end_date']):
-            batch['is_open'] = True
-            batch['closing_time'] = util.batch_closing_time(batch['end_date']).isoformat()
-            batch['warning_time'] = util.batch_closing_warning_time(batch['end_date']).isoformat()
-        else:
-            batch['is_open'] = False
-            batch['closing_time'] = None
-            batch['warning_time'] = None
-    cache.set(cache_key, batches)
-    return batches
-
 @app.route('/api/v1/faculty')
 @needs_authorization
 def get_faculty():
@@ -179,9 +162,64 @@ def get_faculty():
         cache.set(cache_key, faculty)
     return jsonify(faculty)
 
+def get_users(batches):
+    batches = rc.get('batches').data
+    return [person for batch in batches for person in rc.get('batches/{}/people'.format(batch['id'])).data]
+
+# private function
+def get_current_batches():
+    batches = rc.get('batches').data
+    return [batch for batch in batches if util.end_date_within_range(batch['end_date'])]
+
+def get_current_users():
+    return get_users(get_current_batches())
+
+# return tuple (X,Y), where X is people about to leave, Y is all else
+def partition_current_users(users):
+    ret = {}
+    earliest_date = datetime.now()
+    for u in users:
+        print(u)
+        for stint in u['stints']:
+            user_date = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+            if user_date < earliest_date:
+                earliest_date = user_date
+        if user_date in ret:
+            ret[user_date].append(u)
+        elif user_date != None:
+            ret[user_date] = [u]
+    ret.pop(earliest_date)
+    return ret
+
+@app.route('/api/v1/test')
+def test():
+    return jsonify(partition_current_users(get_current_users()))
+
+# return tuple (X,Y), where X is people about to leave, Y is current people not about to leave
+def partition_users():
+    users = get_users()
+    pass
+
+def get_current_batches():
+    try:
+        cache_key = 'open_batches_list'
+        return cache.get(cache_key)
+    except cache.NotInCache:
+        batches = rc.get('batches').data
+        print(batches)
+        ret = []
+        for batch in batches:
+            if util.end_date_within_range(batch['end_date']):
+                print(batch)
+                batch['closing_time'] = util.batch_closing_time(batch['end_date']).isoformat()
+                batch['warning_time'] = util.batch_closing_warning_time(batch['end_date']).isoformat()
+                ret.append(batch)
+        cache.set(cache_key, ret)
+    return ret
+
 @app.route('/api/v1/people')
 @needs_authorization
-def exiting_batch():
+def display_people():
     cache_key = 'people_list'
     try:
         people = cache.get(cache_key)
@@ -207,19 +245,23 @@ def exiting_batch():
                         'name': util.name_from_rc_person(p),
                         'avatar_url': p['image'],
                         'end_date': '{:%Y-%m-%d}'.format(latest_end_date),
+                        'job': p['job'],
+                        'twitter': p['twitter'],
+                        'github': p['github'],
                         'bio': p['bio'],
                         'interests': p['interests'],
                         'before_rc': p['before_rc'],
                         'during_rc': p['during_rc'],
-                        'job': p['job'],
-                        'twitter': p['twitter'],
-                        'github': p['github'],
                     })
         cache.set(cache_key, people)
     whoami = current_user().id
+    #am_i_leaving =
     all_but_me = list(person for person in people if person['id'] != whoami)
     random.seed(current_user().random_seed)
     random.shuffle(all_but_me)  # This order will be random but consistent for the user
+    for p in all_but_me:
+        p['placeholder'] = urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read()
+        print("hiiiiii")
     return jsonify(all_but_me)
 
 @app.route('/api/v1/people/<int:person_id>')
@@ -315,7 +357,6 @@ def save_niceties():
     ]
     """
     niceties_to_save = json.loads(request.form.get("niceties", "[]"))
-    print(niceties_to_save)
     for n in niceties_to_save:
         nicety = (
             Nicety
