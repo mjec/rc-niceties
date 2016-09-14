@@ -272,7 +272,7 @@ def display_people():
                         'name': repo['name'],
                         'description': repo['description'],
                     })
-                p['placeholder'] = abc
+                p['placeholder'] = placeholder
             except:
                 e = sys.exc_info()[:2]
                 print(e)
