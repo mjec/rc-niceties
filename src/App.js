@@ -20,6 +20,10 @@ if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === 
     localStorage.setItem("saved", "true");
 }
 
+if (localStorage.getItem("first_load") === null || localStorage.getItem("first_load") === "undefined") {
+    localStorage.setItem("first_load", "true");
+}
+
 var People = React.createClass({
     saveAllComments: function() {
         updated_niceties_spinlock = true;
@@ -116,7 +120,7 @@ var People = React.createClass({
               <Grid>
                 {list.map(function(row) {
                     return (
-                        <PeopleRow data={row} saveReady={savePass}/>
+                        <PeopleRow people={this.props.people} data={row} saveReady={savePass}/>
                     );
                 }.bind(this))}
             </Grid>
@@ -169,10 +173,35 @@ var PeopleRow = React.createClass({
 var Person = React.createClass({
 
     getInitialState: function() {
-        return {
-            textValue: localStorage.getItem("nicety-" + this.props.data.id),
-            checkValue: localStorage.getItem("anonymous-" + this.props.data.id)
-        };
+        // if (localStorage.getItem("first_load") === "true") {
+        //     let textValue = '';
+        //     let checkValue = false;
+        //     let dataPerson;
+        //     for (var i = 0; i < this.props.people.length; i++) {
+        //         if (this.props.people[i].id === this.props.data.id) {
+        //             dataPerson = this.props.people[i];
+        //             break;
+        //         }
+        //     }
+        //     if () {
+        //         localStorage.setItem("nicety-" + this.props.data.id, datePerson.);
+        //         textValue = ;
+        //     } 
+        //     if () {
+        //         localStorage.setItem("anonymous-" + this.props.data.id, '');
+        //         checkValue = ;
+        //     } 
+        //     return {
+        //         textValue: textValue,
+        //         checkValue: checkValue
+        //     }
+        //     localStorage.setItem("first_load", "false");
+        // } else {
+             return {
+                textValue: localStorage.getItem("nicety-" + this.props.data.id),
+                checkValue: localStorage.getItem("anonymous-" + this.props.data.id)
+            };
+        //}
     },
     textareaChange: function(event) {
         this.setState({textValue: event.target.value});
