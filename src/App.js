@@ -26,7 +26,7 @@ var People = React.createClass({
                 {
                     target_id: parseInt(split_e[0], 10),
                     end_date: split_e[1],
-                    anonymous: true,                      // TODO: fix anonymous
+                    anonymous: localStorage.getItem("anonymous-" + split_e[0]),                      // TODO: fix anonymous
                     text: localStorage.getItem("nicety-" + split_e[0]),
                 }
             );
@@ -136,11 +136,20 @@ var PeopleRow = React.createClass({
 var Person = React.createClass({
 
     getInitialState: function() {
-        return {textValue: localStorage.getItem("nicety-" + this.props.data.id)};
+        return { 
+            textValue: localStorage.getItem("nicety-" + this.props.data.id),
+            checkValue: localStorage.getItem("anonymous-" + this.props.data.id)
+        };
     },
     textareaChange: function(event) {
         this.setState({textValue: event.target.value});
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
+        while (updated_niceties_spinlock) {}
+        updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
+    },
+    checkboxChange: function(event) {
+        this.setState({checkValue: event.target.checked});
+        localStorage.setItem("anonymous-" + this.props.data.id, event.target.checkd);
         while (updated_niceties_spinlock) {}
         updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
     },
@@ -161,11 +170,12 @@ var Person = React.createClass({
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
                 <h3>{this.props.data.name}</h3>
             <textarea
-                defaultValue={this.state.value}
+                defaultValue={this.state.textValue}
                 onChange={this.textareaChange}
                 rows="6"
             />
             <Checkbox
+                checked={this.state.checkValue}
                 onChange={this.checkboxChange}
             >
                 Submit Anonymously
