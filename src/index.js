@@ -9,6 +9,7 @@ ReactDOM.render(
          post_nicety_api="/api/v1/post-niceties"
          get_nicety_api="/api/v1/show-niceties"
          print_nicety_api="/api/v1/niceties-to-print"
+         load_nicety_api="/api/v1/load-niceties"
          pollInterval={2000} />,
     document.getElementById('root')
 );

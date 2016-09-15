@@ -60,7 +60,6 @@ var People = React.createClass({
             type: 'POST',
             cache: false,
             success: function(data) {
-                console.log('sucessful post');
                 this.setState({noSave: true});
                 localStorage.setItem("saved", "true");
             }.bind(this),
@@ -87,13 +86,13 @@ var People = React.createClass({
         };
     },
 
-    generateRows: function() {
+    generateRows: function(inputArray) {
         let dataList = [];
-        for (let i = 0; i < this.props.people.length; i +=4) {
+        for (let i = 0; i < inputArray.length; i +=4) {
             let row = [];
             for (let j = 0; j < 4; j++) {
-                if ((i + j) < this.props.people.length) {
-                    row.push(this.props.people[i + j]);
+                if ((i + j) < inputArray.length) {
+                    row.push(inputArray.people[i + j]);
                 }
             }
             dataList.push(row);
@@ -106,7 +105,9 @@ var People = React.createClass({
     },
 
     render: function() {
-        let list = this.generateRows();
+        let leaving = this.generateRows(this.props.people.leaving);
+        let staying = this.generateRows(this.props.people.staying);
+        let special = this.generateRows(this.props.people.special);
         const savePass = this.saveReady.bind(this);
         return (
             <div className="people">
@@ -118,9 +119,22 @@ var People = React.createClass({
                 </SaveButton>
             </div>
               <Grid>
-                {list.map(function(row) {
+                <h3>Leaving</h3>
+                {leaving.map(function(row) {
                     return (
-                        <PeopleRow people={this.props.people} data={row} saveReady={savePass}/>
+                        <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                    );
+                }.bind(this))}
+                <h3>Staying</h3>
+                {staying.map(function(row) {
+                    return (
+                        <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                    );
+                }.bind(this))}
+                <h3>Special</h3>
+                {special.map(function(row) {
+                    return (
+                        <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                     );
                 }.bind(this))}
             </Grid>
@@ -162,7 +176,7 @@ var PeopleRow = React.createClass({
               {this.props.data
                   .map(function(result) {
                       return (<Col lg ="3" md="4" sm="6" xs="12">
-                              <Person data={result} saveReady={this.props.saveReady} saveButton={saveButton}/>
+                              <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} saveButton={saveButton}/>
                               </Col>);
                   }.bind(this))}
             </Row>
@@ -173,35 +187,37 @@ var PeopleRow = React.createClass({
 var Person = React.createClass({
 
     getInitialState: function() {
-        // if (localStorage.getItem("first_load") === "true") {
-        //     let textValue = '';
-        //     let checkValue = false;
-        //     let dataPerson;
-        //     for (var i = 0; i < this.props.people.length; i++) {
-        //         if (this.props.people[i].id === this.props.data.id) {
-        //             dataPerson = this.props.people[i];
-        //             break;
-        //         }
-        //     }
-        //     if () {
-        //         localStorage.setItem("nicety-" + this.props.data.id, datePerson.);
-        //         textValue = ;
-        //     } 
-        //     if () {
-        //         localStorage.setItem("anonymous-" + this.props.data.id, '');
-        //         checkValue = ;
-        //     } 
-        //     return {
-        //         textValue: textValue,
-        //         checkValue: checkValue
-        //     }
-        //     localStorage.setItem("first_load", "false");
-        // } else {
+        if (localStorage.getItem("first_load") === "true") {
+            let textValue = '';
+            let checkValue = false;
+            let dataPerson;
+            let foundPerson = false;
+            for (var i = 0; i < this.props.fromMe.length; i++) {
+                if (this.props.fromMe[i].targe_id === this.props.data.id) {
+                    dataPerson = this.props.fromMe[i];
+                    foundPerson = true;
+                    break;
+                }
+            }
+            if (foundPerson) {
+                localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
+                textValue = dataPerson.text;
+                //localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous);
+                //checkValue = dataPerson.anonymous;
+                localStorage.setItem("anonymous-" + this.props.data.id, false);
+                checkValue = false;
+            }
+            return {
+                textValue: textValue,
+                checkValue: checkValue
+            }
+            localStorage.setItem("first_load", "false");
+        } else {
              return {
                 textValue: localStorage.getItem("nicety-" + this.props.data.id),
                 checkValue: localStorage.getItem("anonymous-" + this.props.data.id)
             };
-        //}
+        }
     },
     textareaChange: function(event) {
         this.setState({textValue: event.target.value});
@@ -348,6 +364,7 @@ var App = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
+                console.log('server data', data);
                 this.setState({people: data});
             }.bind(this),
             error: function(xhr, status, err) {
@@ -386,10 +403,11 @@ var App = React.createClass({
                 nicetiesFromMe: [],
                 people: [],
                 niceties: [],
-                currentview: "write-niceties"};
+                currentview: "view-niceties"};
     },
     componentDidMount: function() {
         this.loadPeopleFromServer();
+        this.loadNicetiesFromMe();
         this.loadNicetiesForMe();
     },
     handleSelect: function(eventKey) {
@@ -400,6 +418,7 @@ var App = React.createClass({
         switch(idx) {
         case "write-niceties":
             return <People people={this.state.people}
+                            fromMe={this.state.nicetiesFromMe}
                             post_nicety_api={this.props.post_nicety_api} />
         case "view-niceties":
             return <NicetyDisplay niceties={this.state.niceties} />
