@@ -98,6 +98,7 @@ def get_niceties_for_current_user():
         else:
             store = {
                 'avatar_url': json.loads(person(n.author_id).data)['avatar_url'],
+                'name': json.loads(person(n.author_id).data)['name'],
                 'author_id': n.author_id,
                 'end_date': n.end_date,
                 'anonymous': n.anonymous,
