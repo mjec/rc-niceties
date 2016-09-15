@@ -85,7 +85,7 @@ def get_niceties_for_current_user():
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date > datetime.now())
+                      .filter(Nicety.end_date < datetime.now()) # only show niceties that have a later date than now (i.e. future niceties)
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
@@ -226,7 +226,7 @@ def partition_current_users(users):
                 'id': u['id'],
                 'name': util.name_from_rc_person(u),
                 'avatar_url': u['image'],
-                'end_date': user_date,
+                'end_date': '{:%Y-%m-%d}'.format(user_date),
                 'job': u['job'],
                 'twitter': u['twitter'],
                 'github': u['github'],
