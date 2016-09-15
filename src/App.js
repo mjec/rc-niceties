@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Button, Grid, Row, Col, Image, Nav, NavItem } from 'react-bootstrap';
+import { Button, Grid, Row, Col, Image, Nav, NavItem, Checkbox } from 'react-bootstrap';
 import ReactDOM, { findDOMNode } from 'react-dom';
 import React, { Component } from 'react';
 
@@ -136,10 +136,10 @@ var PeopleRow = React.createClass({
 var Person = React.createClass({
 
     getInitialState: function() {
-        return {value: localStorage.getItem("nicety-" + this.props.data.id)};
+        return {textValue: localStorage.getItem("nicety-" + this.props.data.id)};
     },
-    handleChange: function(event) {
-        this.setState({value: event.target.value});
+    textareaChange: function(event) {
+        this.setState({textValue: event.target.value});
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
         while (updated_niceties_spinlock) {}
         updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
@@ -157,14 +157,19 @@ var Person = React.createClass({
 
     render: function() {
         return (
-            <div className="person">
+            <div className="person"> 
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
                 <h3>{this.props.data.name}</h3>
-              <textarea
+            <textarea
                 defaultValue={this.state.value}
-                onChange={this.handleChange}
+                onChange={this.textareaChange}
                 rows="6"
-                />
+            />
+            <Checkbox
+                onChange={this.checkboxChange}
+            >
+                Submit Anonymously
+            </Checkbox>
             </div>
         );
     }
