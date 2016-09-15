@@ -64,6 +64,6 @@ def print_niceties():
                 'to': json.loads(person(k).data)['name'],
                 'niceties': v
             })
-        return render_template(os.path.realpath(os.path.join(app.static_folder, 'print-niceties.html')), data=data)
+        return render_template('printniceties.html', data=data)
     else:
         return redirect(url_for(home()))
