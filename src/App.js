@@ -13,7 +13,7 @@ import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
 var updated_niceties = new Set();
-const components = { People, NicetyDisplay, NicetyPrint}
+const components = { People, NicetyDisplay }
 
 var People = React.createClass({
     saveAllComments: function() {
@@ -159,29 +159,13 @@ var Person = React.createClass({
         return (
             <div className="person">
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
-                <p>{this.props.data.name}</p>
+                <h3>{this.props.data.name}</h3>
               <textarea
                 defaultValue={this.state.value}
                 onChange={this.handleChange}
                 rows="6"
                  placeholder={this.props.data.placeholder}
                 />
-            </div>
-        );
-    }
-});
-
-var NicetyPrint = React.createClass({
-    render: function() {
-        return (
-            <div>
-              {
-                this.props.data.filter((val, index, arr) => {
-                    return arr.indexOf(val) === index;
-                }).forEach((recurser) => {
-
-                })
-              }
             </div>
         );
     }
@@ -248,7 +232,7 @@ var Nicety = React.createClass({
         return (
             <div className="nicety">
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
-                <p>{this.props.data.name}</p>
+                <h3>{this.props.data.name}</h3>
                 <textarea
                     defaultValue={this.props.data.text}
                     disable
@@ -285,19 +269,6 @@ var App = React.createClass({
             }.bind(this)
         });
     },
-     loadPrintFromServer: function() {
-        $.ajax({
-            url: this.props.print_nicety_api,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                this.setState({printNiceties: data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.printNiceties, status, err.toString());
-            }.bind(this)
-        });
-    },
     getInitialState: function() {
         return {
                 people: [],
@@ -314,14 +285,10 @@ var App = React.createClass({
     },
     selectComponent: function(idx) {
         switch(idx) {
-        case "print-niceties":
-            return <NicetyPrint get_nicety_api={this.props.get_nicety_api} />;
         case "write-niceties":
-            return <People people={this.state.people}
-                           post_nicety_api={this.props.post_nicety_api} />;
+            return <People people={this.state.people} />
         case "view-niceties":
-            return <NicetyDisplay niceties={this.state.niceties}
-                                  get_nicety_api={this.props.get_nicety_api} />;
+            return <NicetyDisplay niceties={this.state.niceties} />
         default:
         };
     },
@@ -331,16 +298,18 @@ var App = React.createClass({
         //console.log(<NavItem eventKey="write-niceties">Write niceties!</NavItem>);
         return (
             <div className="App">
-            <div id="logo">
-                <img id="octotie" src={octotie} height="175"/>
-            </div>
-              <Nav bsStyle="tabs" activeKey={this.state.currentview} onSelect={this.handleSelect}>
-                <NavItem eventKey="write-niceties">Write niceties!</NavItem>
-                <NavItem eventKey="view-niceties">See your niceties!</NavItem>
-                <NavItem eventKey="print-niceties">For Rachel! Print our niceties!</NavItem>
-              </Nav>
-
-              {selectedComponent}
+                <div id="header">
+                    <div id="logo">
+                        <img id="octotie" src={octotie} height="185"/>
+                    </div>
+                    <Nav bsStyle="tabs" justified activeKey={this.state.currentview} onSelect={this.handleSelect}>
+                    <NavItem eventKey="write-niceties"><h3>Write</h3></NavItem>
+                    <NavItem eventKey="view-niceties"><h3>Read</h3></NavItem>
+                  </Nav>
+                </div>
+              <div id="component_frame">
+                {selectedComponent}
+              </div>
             </div>
         );
     }
