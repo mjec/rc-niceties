@@ -69,7 +69,8 @@ def load_unsent_niceties():
                 .all())
     ret = [{
         'target_id': n.target_id,
-        'text': n.text
+        'text': n.text,
+        'anonymous': n.anonymous
     } for n in niceties]
     return jsonify(ret)
 
@@ -120,8 +121,6 @@ def get_niceties_for_current_user():
     return jsonify(ret)
     pass
 
-@app.route('/api/v1/batches/<int:batch_id>/people')
-@needs_authorization
 def batch_people(batch_id):
     try:
         cache_key = 'batches_people_list:{}'.format(batch_id)
@@ -129,8 +128,32 @@ def batch_people(batch_id):
     except cache.NotInCache:
         people = []
         for p in rc.get('batches/{}/people'.format(batch_id)).data:
+            if p['github'] is not None:
+                try:
+                    repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+                    repo_info = []
+                    for repo in repos:
+                        repo_info.append({
+                            'name': repo['name'],
+                            'description': repo['description'],
+                        })
+                except:
+                    repo_info = []
+                    e = sys.exc_info()[:2]
+            if p['interests'] is not None:
+                placeholder = util.name_from_rc_person(p) + " has got the following interests: " + p['interests']
+            else:
+                placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
+
+            user_date = None
+            for stint in p['stints']:
+                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+                if user_date is None or e > user_date:
+                    user_date = e
             people.append({
                 'id': p['id'],
+                'is_faculty': p['is_faculty'],
+                'is_hacker_schooler': p['is_hacker_schooler'],
                 'name': util.name_from_rc_person(p),
                 'avatar_url': p['image'],
                 'stints': p['stints'],
@@ -141,9 +164,11 @@ def batch_people(batch_id):
                 'job': p['job'],
                 'twitter': p['twitter'],
                 'github': p['github'],
+                'repos': repo_info,
+                'end_date': user_date
             })
         cache.set(cache_key, people)
-    return jsonify(people)
+    return (people)
 
 @app.route('/api/v1/faculty')
 @needs_authorization
@@ -157,25 +182,13 @@ def get_current_faculty():
     '''
     faculty = []
     for batch in get_current_batches():
-        for p in rc.get('batches/{}/people'.format(batch['id'])).data:
-            if p['is_faculty']:
-                faculty.append({
-                    'id': p['id'],
-                    'name': p['first_name'],
-                    'avatar_url': p['image'],
-                    'stints': p['stints'],
-                    'bio': p['bio'],
-                    'interests': p['interests'],
-                    'before_rc': p['before_rc'],
-                    'during_rc': p['during_rc'],
-                    'job': p['job'],
-                    'twitter': p['twitter'],
-                    'github': p['github'],
-                })
+        for p in batch_people(batch['id']):
+            if p['is_faculty'] == True:
+                faculty.append(p)
     return faculty
 
 def get_users(batches):
-    return [person for batch in batches for person in rc.get('batches/{}/people'.format(batch['id'])).data]
+    return [person for batch in batches for person in batch_people(batch['id'])]
 
 def get_current_batches():
     try:
@@ -183,7 +196,7 @@ def get_current_batches():
         return cache.get(cache_key)
     except cache.NotInCache:
         batches = rc.get('batches').data
-        ret = [batch for batch in batches if util.end_date_within_range(batch['end_date'])]
+        ret = [batch for batch in batches if util.latest_batches(batch['end_date'])]
         cache.set(cache_key, ret)
         return ret
 
@@ -216,58 +229,17 @@ def partition_current_users(users):
         if ((u['is_hacker_schooler'] and not u['is_faculty']) or
             (not u['is_faculty'] and not u['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
             (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
-            user_date = None
-            for stint in u['stints']:
-                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                if user_date is None or e > user_date:
-                    user_date = e
-            if u['github'] is not None:
-                try:
-                    repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(u['github'])).read())
-                    repo_info = []
-                    for repo in repos:
-                        repo_info.append({
-                            'name': repo['name'],
-                            'description': repo['description'],
-                        })
-                except:
-                    repo_info = []
-                    e = sys.exc_info()[:2]
-            if u['interests'] is not None:
-                placeholder = util.name_from_rc_person(u) + " is interested in the following: " + u['interests']
-            else:
-                placeholder = "Say something nice about " + util.name_from_rc_person(u) + "!"
-            relevant_info = {
-                'id': u['id'],
-                'name': util.name_from_rc_person(u),
-                'avatar_url': u['image'],
-                'end_date': '{:%Y-%m-%d}'.format(user_date),
-                'job': u['job'],
-                'twitter': u['twitter'],
-                'github': u['github'],
-                'bio': u['bio'],
-                'interests': u['interests'],
-                'before_rc': u['before_rc'],
-                'during_rc': u['during_rc'],
-                'repos': repo_info,
-                'placeholder': placeholder,
-            }
-            if user_date == staying_date:
-                ret['staying'].append(relevant_info)
-            elif user_date == leaving_date:
-                ret['leaving'].append(relevant_info)
+            if u['end_date'] == staying_date:
+                ret['staying'].append(u)
+            elif u['end_date'] == leaving_date:
+                ret['leaving'].append(u)
     return ret
 
 
 @app.route('/api/v1/people2')
 @needs_authorization
 def display_people():
-    cache_key = 'people_list2'
-    try:
-        people = cache.get(cache_key)
-    except cache.NotInCache:
-        people = partition_current_users(get_current_users())
-        cache.set(cache_key, people)
+    people = partition_current_users(get_current_users())
     user_id = current_user().id
     current_user_leaving = False
     leaving = []
