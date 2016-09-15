@@ -15,13 +15,7 @@ def end_date_within_range(end_date):
         (end_date - timedelta(days=1)).date(),
         config.get(config.CLOSING_TIME, time(hour=23, minute=0)))
     now = datetime.now()
-    print(closing_time)
-    return closing_time > now
-
-
-
-
-
+    return (closing_time > now)
 
 def batch_is_open(end_date):
     """Returns `True` if and only if the specified batch is currently accepting
