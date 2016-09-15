@@ -16,22 +16,37 @@ var updated_niceties_spinlock = false;
 var updated_niceties = new Set();
 const components = { People, NicetyDisplay }
 
+if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === "undefined") {
+    localStorage.setItem("saved", "true");
+}
+
 var People = React.createClass({
     saveAllComments: function() {
         updated_niceties_spinlock = true;
         var data_to_save = [];
-        console.log(updated_niceties);
         updated_niceties.forEach(function(e) {
             var split_e = e.split(",");
+            let anonymous;
+            if (localStorage.getItem("anonymous-" + split_e[0]) === "undefined" || localStorage.getItem("anonymous-" + split_e[0]) === null) {
+                anonymous = false;
+            } else {
+                anonymous = localStorage.getItem("anonymous-" + split_e[0]);
+            }
+            let text;
+            if (localStorage.getItem("nicety-" + split_e[0]) === "undefined" || localStorage.getItem("nicety-" + split_e[0]) === null) {
+                text = '';
+            } else {
+                text = localStorage.getItem("nicety-" + split_e[0]);
+            }
             data_to_save.push(
                 {
                     target_id: parseInt(split_e[0], 10),
                     end_date: split_e[1],
-                    anonymous: localStorage.getItem("anonymous-" + split_e[0]),                      // TODO: fix anonymous
-                    text: localStorage.getItem("nicety-" + split_e[0]),
+                    anonymous: anonymous,
+                    text: text,
                 }
             );
-        })
+        });
         updated_niceties.clear();
         updated_niceties_spinlock = false;
         $.ajax({
@@ -42,6 +57,8 @@ var People = React.createClass({
             cache: false,
             success: function(data) {
                 console.log('sucessful post');
+                this.setState({noSave: true});
+                localStorage.setItem("saved", "true");
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -53,8 +70,16 @@ var People = React.createClass({
     },
 
     getInitialState: function() {
-        return {
-            data: []
+        if (localStorage.getItem("saved") === "true") {
+            return {
+                data: [],
+                noSave: true
+            }
+        } else if (localStorage.getItem("saved") === "false") {
+            return {
+                data: [],
+                noSave: false
+            }
         };
     },
 
@@ -72,52 +97,53 @@ var People = React.createClass({
         return dataList;
     },
 
+    saveReady: function () {
+        this.setState({noSave: false});
+    },
+
     render: function() {
         let list = this.generateRows();
-        const saveButton = (
-            <SaveButton
-                disabled={true}
-                onClick={this.saveAllComments}>
-                Save
-            </SaveButton>
-        );
-        this.props.saveButton = saveButton;
+        const savePass = this.saveReady.bind(this);
         return (
             <div className="people">
             <div id="save_button">
-                {this.props.saveButton}
+                <SaveButton
+                    noSave={this.state.noSave}
+                    onClick={this.saveAllComments}>
+                    Save
+                </SaveButton>
             </div>
               <Grid>
                 {list.map(function(row) {
                     return (
-                        <PeopleRow data={row} saveButton={saveButton}/>
+                        <PeopleRow data={row} saveReady={savePass}/>
                     );
-                })}
-              </Grid>
-            </div>
+                }.bind(this))}
+            </Grid>
+                </div>
         );}
 });
 
 var SaveButton = React.createClass({
 
     render: function() {
-        if (this.props.disabled) {
+        if (this.props.noSave === true) {
             return (
                 <div className="button">
-                  <Button
-                  bsStyle="primary"
-                 bsSize="large"
-                 disabled="disabled"
-                 >Save</Button>
+                <Button
+                bsStyle="primary"
+                bsSize="large"
+                disabled
+                >Save</Button>
                 </div>
             );
         } else {
             return (
                 <div className="button">
-                  <Button
-                  bsStyle="primary"
-                 bsSize="large"
-                 onClick={this.props.onClick}>Save</Button>
+                <Button
+                bsStyle="primary"
+                bsSize="large"
+                onClick={this.props.onClick}>Save</Button>
                 </div>
             );
         }
@@ -132,9 +158,9 @@ var PeopleRow = React.createClass({
               {this.props.data
                   .map(function(result) {
                       return (<Col lg ="3" md="4" sm="6" xs="12">
-                              <Person data={result} saveButton={saveButton}/>
+                              <Person data={result} saveReady={this.props.saveReady} saveButton={saveButton}/>
                               </Col>);
-                  })}
+                  }.bind(this))}
             </Row>
         );
     }
@@ -152,17 +178,23 @@ var Person = React.createClass({
         this.setState({textValue: event.target.value});
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
         while (updated_niceties_spinlock) {}
-        updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
-        this.props.saveButton.props.disabled = false;
-        console.log(this.props.saveButton);
+        const addString = this.props.data.id + "," + this.props.data.end_date;
+        if (!(addString in updated_niceties)) {
+            updated_niceties.add(addString);
+        }
+        localStorage.setItem("saved", "false");
+        this.props.saveReady();
     },
     checkboxChange: function(event) {
         this.setState({checkValue: event.target.checked});
-        localStorage.setItem("anonymous-" + this.props.data.id, event.target.checkd);
+        localStorage.setItem("anonymous-" + this.props.data.id, event.target.checked);
         while (updated_niceties_spinlock) {}
-        updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
-        this.props.saveButton.props.disabled = false;
-        console.log(this.props.saveButton);
+        const addString = this.props.data.id + "," + this.props.data.end_date;
+        if (!(addString in updated_niceties)) {
+            updated_niceties.add(addString);
+        }
+        localStorage.setItem("saved", "false");
+        this.props.saveReady();
     },
 
     // TODO: button for each person for anonymous option
@@ -338,7 +370,8 @@ var App = React.createClass({
     selectComponent: function(idx) {
         switch(idx) {
         case "write-niceties":
-            return <People people={this.state.people} />
+            return <People people={this.state.people}
+                            post_nicety_api={this.props.post_nicety_api} />
         case "view-niceties":
             return <NicetyDisplay niceties={this.state.niceties} />
         default:
