@@ -74,19 +74,23 @@ var People = React.createClass({
 
     render: function() {
         let list = this.generateRows();
+        const saveButton = (
+            <SaveButton
+                disabled={true}
+                onClick={this.saveAllComments}>
+                Save
+            </SaveButton>
+        );
+        this.props.saveButton = saveButton;
         return (
             <div className="people">
             <div id="save_button">
-              <SaveButton
-                 disabled={false}
-                 onclick={this.saveAllComments}>
-                 Save
-                 </SaveButton>
+                {this.props.saveButton}
             </div>
               <Grid>
                 {list.map(function(row) {
                     return (
-                        <PeopleRow data={row}/>
+                        <PeopleRow data={row} saveButton={saveButton}/>
                     );
                 })}
             </Grid>
@@ -95,6 +99,7 @@ var People = React.createClass({
 });
 
 var SaveButton = React.createClass({
+
     render: function() {
         if (this.props.disabled) {
             return (
@@ -112,7 +117,7 @@ var SaveButton = React.createClass({
                   <Button
                   bsStyle="primary"
                  bsSize="large"
-                 onClick={this.props.onclick}>Save</Button>
+                 onClick={this.props.onClick}>Save</Button>
                 </div>
             );
         }
@@ -121,12 +126,13 @@ var SaveButton = React.createClass({
 
 var PeopleRow = React.createClass({
     render: function() {
+        const saveButton = this.props.saveButton;
         return (
             <Row>
               {this.props.data
                   .map(function(result) {
                       return (<Col lg ="3" md="4" sm="6" xs="12">
-                              <Person data={result}/>
+                              <Person data={result} saveButton={saveButton}/>
                               </Col>);
                   })}
             </Row>
@@ -147,12 +153,16 @@ var Person = React.createClass({
         localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
         while (updated_niceties_spinlock) {}
         updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
+        this.props.saveButton.props.disabled = false;
+        console.log(this.props.saveButton);
     },
     checkboxChange: function(event) {
         this.setState({checkValue: event.target.checked});
         localStorage.setItem("anonymous-" + this.props.data.id, event.target.checkd);
         while (updated_niceties_spinlock) {}
         updated_niceties.add(this.props.data.id + "," + this.props.data.end_date);
+        this.props.saveButton.props.disabled = false;
+        console.log(this.props.saveButton);
     },
 
     // TODO: button for each person for anonymous option
