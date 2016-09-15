@@ -11,14 +11,11 @@ def end_date_within_range(end_date):
     be a datetime object or a string with format `%Y-%m-%d`."""
     if not isinstance(end_date, datetime):
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    opening_time = end_date - config.get(config.NICETIES_OPEN, timedelta(days=14))
     closing_time = datetime.combine(
         (end_date - timedelta(days=1)).date(),
         config.get(config.CLOSING_TIME, time(hour=23, minute=0)))
     now = datetime.now()
-    return (
-        opening_time <= now and
-        closing_time > now)
+    return (closing_time > now)
 
 def batch_is_open(end_date):
     """Returns `True` if and only if the specified batch is currently accepting
