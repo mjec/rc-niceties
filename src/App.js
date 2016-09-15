@@ -282,7 +282,7 @@ var NicetyDisplay = React.createClass({
     },
 
     // componentDidMount: function() {
-    //     this.loadNicetiesFromServer();
+    //     this.loadNicetiesForMe();
     // },
 
     generateRows: function() {
@@ -355,7 +355,20 @@ var App = React.createClass({
             }.bind(this)
         });
     },
-    loadNicetiesFromServer: function() {
+    loadNicetiesFromMe: function() {
+        $.ajax({
+            url: this.props.load_nicety_api,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                this.setState({nicetiesFromMe: data});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.niceties, status, err.toString());
+            }.bind(this)
+        });
+    },
+    loadNicetiesForMe: function() {
         $.ajax({
             url: this.props.get_nicety_api,
             dataType: 'json',
@@ -370,13 +383,14 @@ var App = React.createClass({
     },
     getInitialState: function() {
         return {
+                nicetiesFromMe: [],
                 people: [],
                 niceties: [],
                 currentview: "write-niceties"};
     },
     componentDidMount: function() {
         this.loadPeopleFromServer();
-        this.loadNicetiesFromServer();
+        this.loadNicetiesForMe();
     },
     handleSelect: function(eventKey) {
         this.setState({currentview: eventKey});
