@@ -60,6 +60,22 @@ def niceties_to_print():
     else:
         return jsonify({'authorized': "false"})
 
+@app.route('/api/v1/load-niceties')
+@needs_authorization
+def load_unsent_niceties():
+    user_id = current_user().id
+    niceties = (Nicety.query
+                .filter(Nicety.end_date > datetime.now())
+                .filter(Nicety.author_id == user_id)
+                .all())
+    ret = [{
+        'target_id': n.target_id,
+        'text': n.text
+    } for n in niceties]
+    print(ret)
+    return jsonify(ret)
+    pass
+
 
 @app.route('/api/v1/show-niceties')
 @needs_authorization
