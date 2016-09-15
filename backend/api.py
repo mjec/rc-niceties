@@ -218,7 +218,6 @@ def partition_current_users(users):
                 except:
                     repo_info = []
                     e = sys.exc_info()[:2]
-                    print(e)
             if u['interests'] is not None:
                 placeholder = util.name_from_rc_person(u) + " is interested in the following: " + u['interests']
             else:
@@ -242,8 +241,6 @@ def partition_current_users(users):
                 ret['staying'].append(relevant_info)
             elif user_date == leaving_date:
                 ret['leaving'].append(relevant_info)
-            else:
-                print(user_date, u)
     return ret
 
 def get_current_batches():
@@ -255,7 +252,6 @@ def get_current_batches():
         ret = []
         for batch in batches:
             if util.end_date_within_range(batch['end_date']):
-                print(batch)
                 ret.append(batch)
         cache.set(cache_key, ret)
     return ret
@@ -272,19 +268,28 @@ def display_people():
     user_id = current_user().id
     current_user_leaving = False
     leaving = []
+    to_display = None
     for person in people['leaving']:
         if person['id'] == user_id:
             current_user_leaving = True
         else:
             leaving.append(person)
     staying = list(person for person in people['staying'])
+    random.seed(current_user().random_seed)
+    random.shuffle(staying)
+    random.shuffle(leaving)
     if current_user_leaving == True:
+        to_display = {
+            'staying': staying,
+            'leaving': leaving
+        }
         to_display = staying + leaving
     else:
+        to_display = {
+            'leaving': leaving
+        }
         to_display = leaving
-
-    random.seed(current_user().random_seed)
-    random.shuffle(to_display)  # This order will be random but consistent for the user
+  # This order will be random but consistent for the user
     return jsonify(to_display)
 
 
