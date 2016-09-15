@@ -13,7 +13,7 @@ import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
 var updated_niceties = new Set();
-const components = { People, NicetyDisplay, NicetyPrint}
+const components = { People, NicetyDisplay }
 
 var People = React.createClass({
     saveAllComments: function() {
@@ -169,34 +169,6 @@ var Person = React.createClass({
         );
     }
 });
-
-var NicetyPrint = React.createClass({
-    render: function() {
-        const recipients = this.props.printNiceties.map((recipient) => {
-            return (
-                <div id="recipient_page">
-                    <h4>{recipient.to}</h4>
-                    {
-                        recipient.niceties.map((nicety) => {
-                            if('name' in nicety) {
-                                return (<p>{nicety.text} -<strong>{nicety.name}</strong></p>);
-                            } else {
-                                return (<p>{nicety.text}</p>);
-                            }
-                        })
-                    }
-                </div>
-            );
-        });
-
-
-        return (
-            <div>
-                {recipients}
-            </div>
-        );
-    }
-});
     
 var NicetyRow = React.createClass({
     render: function() {
@@ -296,19 +268,6 @@ var App = React.createClass({
             }.bind(this)
         });
     },
-     loadPrintFromServer: function() {
-        $.ajax({
-            url: this.props.print_nicety_api,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                this.setState({printNiceties: data});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.error(this.props.printNiceties, status, err.toString());
-            }.bind(this)
-        });
-    },
     getInitialState: function() {
         return {
                 people: [],
@@ -318,7 +277,6 @@ var App = React.createClass({
     componentDidMount: function() {
         this.loadPeopleFromServer();
         this.loadNicetiesFromServer();
-        this.loadPrintFromServer();
     },
     handleSelect: function(eventKey) {
         this.setState({currentview: eventKey});
@@ -326,8 +284,6 @@ var App = React.createClass({
     },
     selectComponent: function(idx) {
         switch(idx) {
-        case "print-niceties":
-            return <NicetyPrint printNiceties={this.state.printNiceties} />
         case "write-niceties":
             return <People people={this.state.people} />
         case "view-niceties":
@@ -342,11 +298,12 @@ var App = React.createClass({
         return (
             <div className="App">
                 <div id="header">
-                    <img id="octotie" src={octotie} height="185"/>
+                    <div id="logo">
+                        <img id="octotie" src={octotie} height="185"/>
+                    </div>
                     <Nav bsStyle="tabs" justified activeKey={this.state.currentview} onSelect={this.handleSelect}>
                     <NavItem eventKey="write-niceties"><h3>Write</h3></NavItem>
                     <NavItem eventKey="view-niceties"><h3>Read</h3></NavItem>
-                    <NavItem eventKey="print-niceties"><h3>Print</h3></NavItem>
                   </Nav>
                 </div>
               <div id="component_frame">  

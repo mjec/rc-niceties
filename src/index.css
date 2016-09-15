@@ -34,5 +34,10 @@ textarea {
 }
 
 #component_frame {
-	background-color: #efefef;
+	background-color: #e5e5e5;
+	padding:15px;
+}
+
+#logo {
+	margin: 10px;
 }
