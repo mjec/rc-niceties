@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import Remarkable from 'remarkable';
 import logo from './logo.svg';
 import octotie from './octotie.png'
+import suittie from './suittie.png'
 
 import $ from 'jquery';
 
@@ -244,10 +245,22 @@ var NicetyDisplay = React.createClass({
 
 var Nicety = React.createClass({
     render: function() {
+        let photo;
+        if (this.props.data.anonymous) {
+            photo = suittie;
+        } else {
+            photo = this.props.data.avatar_url;
+        }
+        let name;
+        if ('name' in this.props.data) {
+            name = this.props.data.name;
+        } else {
+            name = '';
+        }
         return (
             <div className="nicety">
-                <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
-                <h3>{this.props.data.name}</h3>
+                <Image responsive={true} src={photo} circle={true} />
+                <h3>{name}</h3>
                 <textarea
                     defaultValue={this.props.data.text}
                     disable
