@@ -60,6 +60,22 @@ def niceties_to_print():
     else:
         return jsonify({'authorized': "false"})
 
+@app.route('/api/v1/load-niceties')
+@needs_authorization
+def load_unsent_niceties():
+    user_id = current_user().id
+    niceties = (Nicety.query
+                .filter(Nicety.end_date > datetime.now())
+                .filter(Nicety.author_id == user_id)
+                .all())
+    ret = [{
+        'target_id': n.target_id,
+        'text': n.text
+    } for n in niceties]
+    print(ret)
+    return jsonify(ret)
+    pass
+
 
 @app.route('/api/v1/show-niceties')
 @needs_authorization
@@ -85,7 +101,7 @@ def get_niceties_for_current_user():
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date > datetime.now())
+                      .filter(Nicety.end_date < datetime.now()) # only show niceties that have a later date than now (i.e. future niceties)
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
@@ -218,7 +234,6 @@ def partition_current_users(users):
                 except:
                     repo_info = []
                     e = sys.exc_info()[:2]
-                    print(e)
             if u['interests'] is not None:
                 placeholder = util.name_from_rc_person(u) + " is interested in the following: " + u['interests']
             else:
@@ -227,7 +242,7 @@ def partition_current_users(users):
                 'id': u['id'],
                 'name': util.name_from_rc_person(u),
                 'avatar_url': u['image'],
-                'end_date': user_date,
+                'end_date': '{:%Y-%m-%d}'.format(user_date),
                 'job': u['job'],
                 'twitter': u['twitter'],
                 'github': u['github'],
@@ -242,8 +257,6 @@ def partition_current_users(users):
                 ret['staying'].append(relevant_info)
             elif user_date == leaving_date:
                 ret['leaving'].append(relevant_info)
-            else:
-                print(user_date, u)
     return ret
 
 def get_current_batches():
@@ -255,7 +268,6 @@ def get_current_batches():
         ret = []
         for batch in batches:
             if util.end_date_within_range(batch['end_date']):
-                print(batch)
                 ret.append(batch)
         cache.set(cache_key, ret)
     return ret
@@ -272,19 +284,28 @@ def display_people():
     user_id = current_user().id
     current_user_leaving = False
     leaving = []
+    to_display = None
     for person in people['leaving']:
         if person['id'] == user_id:
             current_user_leaving = True
         else:
             leaving.append(person)
     staying = list(person for person in people['staying'])
+    random.seed(current_user().random_seed)
+    random.shuffle(staying)
+    random.shuffle(leaving)
     if current_user_leaving == True:
+        to_display = {
+            'staying': staying,
+            'leaving': leaving
+        }
         to_display = staying + leaving
     else:
+        to_display = {
+            'leaving': leaving
+        }
         to_display = leaving
-
-    random.seed(current_user().random_seed)
-    random.shuffle(to_display)  # This order will be random but consistent for the user
+  # This order will be random but consistent for the user
     return jsonify(to_display)
 
 

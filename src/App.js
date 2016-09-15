@@ -169,7 +169,7 @@ var PeopleRow = React.createClass({
 var Person = React.createClass({
 
     getInitialState: function() {
-        return { 
+        return {
             textValue: localStorage.getItem("nicety-" + this.props.data.id),
             checkValue: localStorage.getItem("anonymous-" + this.props.data.id)
         };
@@ -209,7 +209,7 @@ var Person = React.createClass({
 
     render: function() {
         return (
-            <div className="person"> 
+            <div className="person">
                 <Image responsive={true} src={this.props.data.avatar_url} circle={true} />
                 <h3>{this.props.data.name}</h3>
             <textarea
