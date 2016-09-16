@@ -32,7 +32,7 @@ var People = React.createClass({
             var split_e = e.split(",");
             let anonymous;
             if (localStorage.getItem("anonymous-" + split_e[0]) === "undefined" || localStorage.getItem("anonymous-" + split_e[0]) === null) {
-                anonymous = false;
+                anonymous = "false";
             } else {
                 anonymous = localStorage.getItem("anonymous-" + split_e[0]);
             }
@@ -42,17 +42,25 @@ var People = React.createClass({
             } else {
                 text = localStorage.getItem("nicety-" + split_e[0]);
             }
+            let noRead;
+            if (localStorage.getItem("no_read-" + split_e[0]) === "undefined" || localStorage.getItem("no_read-" + split_e[0]) === null) {
+                noRead = "false";
+            } else {
+                noRead = localStorage.getItem("no_read-" + split_e[0]);
+            }
             data_to_save.push(
                 {
                     target_id: parseInt(split_e[0], 10),
                     end_date: split_e[1],
                     anonymous: anonymous.toString(),
                     text: text,
+                    no_read: noRead.toString()
                 }
             );
         });
         updated_niceties.clear();
         updated_niceties_spinlock = false;
+        console.log(data_to_save);
         $.ajax({
             url: this.props.post_nicety_api,
             data: {'niceties': JSON.stringify(data_to_save)},
@@ -104,11 +112,6 @@ var People = React.createClass({
 
     saveReady: function () {
         this.setState({noSave: false});
-    },
-
-    checkboxChange: function(event) {
-        localStorage.setItem("saved", "false");
-        this.props.saveReady();
     },
 
     render: function() {
@@ -199,6 +202,7 @@ var Person = React.createClass({
         if (localStorage.getItem("first_load") === "true") {
             let textValue = '';
             let checkValue = "false";
+            let noReadValue = "false";
             let dataPerson;
             let foundPerson = false;
             for (var i = 0; i < this.props.fromMe.length; i++) {
@@ -213,11 +217,14 @@ var Person = React.createClass({
                 textValue = dataPerson.text;
                 localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
                 checkValue = dataPerson.anonymous.toString();
-                console.log('initial checkValue:', checkValue);
+                localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
+                noReadValue = dataPerson.no_read.toString();
+                console.log(dataPerson);
             }
             return {
                 textValue: textValue,
-                checkValue: checkValue
+                checkValue: checkValue,
+                noReadValue: noReadValue
             }
         } else {
             let textValue;
@@ -233,9 +240,17 @@ var Person = React.createClass({
             } else {
                 checkValue = localStorage.getItem("anonymous-" + this.props.data.id);
             }
+
+            let noReadValue;
+            if (localStorage.getItem("no_read-" + this.props.data.id) === null || localStorage.getItem("no_read-" + this.props.data.id) === "undefined") {
+                noReadValue= "false";
+            } else {
+                noReadValue = localStorage.getItem("no_read-" + this.props.data.id);
+            }
             return {
                 textValue: textValue,
-                checkValue: checkValue
+                checkValue: checkValue,
+                noReadValue: noReadValue
             }
         }
     },
@@ -250,9 +265,20 @@ var Person = React.createClass({
         localStorage.setItem("saved", "false");
         this.props.saveReady();
     },
-    checkboxChange: function(event) {
+    anonymousChange: function(event) {
         this.setState({checkValue: event.target.checked.toString()});
         localStorage.setItem("anonymous-" + this.props.data.id, event.target.checked.toString());
+        while (updated_niceties_spinlock) {}
+        const addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
+        if (!(addString in updated_niceties)) {
+            updated_niceties.add(addString);
+        }
+        localStorage.setItem("saved", "false");
+        this.props.saveReady();
+    },
+    noReadChange: function(event) {
+        this.setState({noReadValue: event.target.checked.toString()});
+        localStorage.setItem("no_read-" + this.props.data.id, event.target.checked.toString());
         while (updated_niceties_spinlock) {}
         const addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
         if (!(addString in updated_niceties)) {
@@ -273,23 +299,42 @@ var Person = React.createClass({
     // but it seems like for this to work you need child.state.height (to figureo ut the new min rows)
 
     render: function() {
-        let checkboxRender;
-        console.log(this.state.checkValue)
+        let anonymousRender;
         if (this.state.checkValue === "true") {
-            checkboxRender = (
+            anonymousRender = (
                 <Checkbox
                     checked
-                    onChange={this.checkboxChange}
+                    onChange={this.anonymousChange}
                 >
                     Submit Anonymously
                 </Checkbox>
             );
         } else if (this.state.checkValue === "false") {
-            checkboxRender = (
+            anonymousRender = (
                 <Checkbox
-                    onChange={this.checkboxChange}
+                    onChange={this.anonymousChange}
                 >
                     Submit Anonymously
+                </Checkbox>
+            );
+        }
+
+        let noReadRender;
+        if (this.state.noReadValue === "true") {
+            noReadRender = (
+                <Checkbox
+                    checked
+                    onChange={this.noReadChange}
+                >
+                    Don't Read At Ceremony
+                </Checkbox>
+            );
+        } else if (this.state.noReadValue === "false") {
+            noReadRender = (
+                <Checkbox
+                    onChange={this.noReadChange}
+                >
+                    Don't Read At Ceremony
                 </Checkbox>
             );
         }
@@ -302,7 +347,8 @@ var Person = React.createClass({
                 onChange={this.textareaChange}
                 rows="6"
             />
-            {checkboxRender}
+            {anonymousRender}
+            {noReadRender}
             </div>
         );
     }

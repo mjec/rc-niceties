@@ -70,7 +70,8 @@ def load_unsent_niceties():
     ret = [{
         'target_id': n.target_id,
         'text': n.text,
-        'anonymous': n.anonymous
+        'anonymous': n.anonymous,
+        'no_read': n.no_read
     } for n in niceties]
     return jsonify(ret)
 
@@ -106,6 +107,7 @@ def get_niceties_for_current_user():
             store = {
                 'end_date': n.end_date,
                 'anonymous': n.anonymous,
+                'no_read': n.no_read,
                 'text': n.text
             }
         else:
@@ -115,6 +117,7 @@ def get_niceties_for_current_user():
                 'author_id': n.author_id,
                 'end_date': n.end_date,
                 'anonymous': n.anonymous,
+                'no_read': n.no_read,
                 'text': n.text
             }
         ret.append(store)
@@ -320,7 +323,8 @@ class NicetyFromMeAPI(MethodView):
                 end_date=end_date,
                 target_id=person_id,
                 author_id=current_user().id,
-                anonymous=current_user().anonymous_by_default)
+                anonymous=current_user().anonymous_by_default,
+                no_read=current_user().read_by_default)
             db.session.add(nicety)
             db.session.commit()
         return jsonify(nicety.__dict__)
@@ -337,6 +341,7 @@ class NicetyFromMeAPI(MethodView):
                 author_id=current_user().id)
             .one())
         nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
+        nicety.no_read = request.form.get("no_read", current_user().read_by_default)
         text = request.form.get("text").strip()
         if '' == text:
             text = None
@@ -399,6 +404,7 @@ def save_niceties():
             text = None
         nicety.text = text
         nicety.faculty_reviewed = False
+        nicety.no_read = n.get("no_read")
     db.session.commit()
     return jsonify({'status': 'OK'})
 
