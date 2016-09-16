@@ -88,14 +88,16 @@ var People = React.createClass({
 
     generateRows: function(inputArray) {
         let dataList = [];
-        for (let i = 0; i < inputArray.length; i +=4) {
-            let row = [];
-            for (let j = 0; j < 4; j++) {
-                if ((i + j) < inputArray.length) {
-                    row.push(inputArray.people[i + j]);
+        if (inputArray !== undefined) {
+            for (let i = 0; i < inputArray.length; i +=4) {
+                let row = [];
+                for (let j = 0; j < 4; j++) {
+                    if ((i + j) < inputArray.length) {
+                        row.push(inputArray[i + j]);
+                    }
                 }
+                dataList.push(row);
             }
-            dataList.push(row);
         }
         return dataList;
     },
@@ -187,13 +189,14 @@ var PeopleRow = React.createClass({
 var Person = React.createClass({
 
     getInitialState: function() {
+        console.log(localStorage.getItem("first_load"));
         if (localStorage.getItem("first_load") === "true") {
             let textValue = '';
             let checkValue = false;
             let dataPerson;
             let foundPerson = false;
             for (var i = 0; i < this.props.fromMe.length; i++) {
-                if (this.props.fromMe[i].targe_id === this.props.data.id) {
+                if (this.props.fromMe[i].target_id === this.props.data.id) {
                     dataPerson = this.props.fromMe[i];
                     foundPerson = true;
                     break;
@@ -202,16 +205,14 @@ var Person = React.createClass({
             if (foundPerson) {
                 localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
                 textValue = dataPerson.text;
-                //localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous);
-                //checkValue = dataPerson.anonymous;
-                localStorage.setItem("anonymous-" + this.props.data.id, false);
-                checkValue = false;
+                localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous);
+                checkValue = dataPerson.anonymous;
+                localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous);
             }
             return {
                 textValue: textValue,
                 checkValue: checkValue
             }
-            localStorage.setItem("first_load", "false");
         } else {
              return {
                 textValue: localStorage.getItem("nicety-" + this.props.data.id),
@@ -358,57 +359,62 @@ var Nicety = React.createClass({
 })
 
 var App = React.createClass({
-    loadPeopleFromServer: function() {
+    loadPeopleFromServer: function(callback) {
         $.ajax({
             url: this.props.people_api,
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log('server data', data);
-                this.setState({people: data});
-            }.bind(this),
+                callback(data);
+            },
             error: function(xhr, status, err) {
                 console.error(this.props.people, status, err.toString());
             }.bind(this)
         });
     },
-    loadNicetiesFromMe: function() {
+    loadNicetiesFromMe: function(callback) {
         $.ajax({
             url: this.props.load_nicety_api,
             dataType: 'json',
             cache: false,
             success: function(data) {
-                this.setState({nicetiesFromMe: data});
-            }.bind(this),
+                callback(data);
+            },
             error: function(xhr, status, err) {
                 console.error(this.props.niceties, status, err.toString());
             }.bind(this)
         });
     },
-    loadNicetiesForMe: function() {
+    loadNicetiesForMe: function(callback) {
         $.ajax({
             url: this.props.get_nicety_api,
             dataType: 'json',
             cache: false,
             success: function(data) {
-                this.setState({niceties: data});
-            }.bind(this),
+                callback(data);
+            },
             error: function(xhr, status, err) {
                 console.error(this.props.niceties, status, err.toString());
             }.bind(this)
         });
     },
+
     getInitialState: function() {
         return {
-                nicetiesFromMe: [],
+                fromMe: [],
                 people: [],
                 niceties: [],
-                currentview: "view-niceties"};
+                currentview: "write-niceties"};
     },
     componentDidMount: function() {
-        this.loadPeopleFromServer();
-        this.loadNicetiesFromMe();
-        this.loadNicetiesForMe();
+        this.loadNicetiesFromMe(function (data1) {
+            this.loadPeopleFromServer(function (data2) {
+                this.loadNicetiesForMe(function (data3) {
+                    this.setState({niceties: data3, people: data2, fromMe: data1});
+                    localStorage.setItem("first_load", "false");
+                }.bind(this));
+            }.bind(this));
+        }.bind(this));
     },
     handleSelect: function(eventKey) {
         this.setState({currentview: eventKey});
@@ -418,7 +424,7 @@ var App = React.createClass({
         switch(idx) {
         case "write-niceties":
             return <People people={this.state.people}
-                            fromMe={this.state.nicetiesFromMe}
+                            fromMe={this.state.fromMe}
                             post_nicety_api={this.props.post_nicety_api} />
         case "view-niceties":
             return <NicetyDisplay niceties={this.state.niceties} />
@@ -427,8 +433,6 @@ var App = React.createClass({
     },
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);
-        //console.log(selectedComponent);
-        //console.log(<NavItem eventKey="write-niceties">Write niceties!</NavItem>);
         return (
             <div className="App">
                 <div id="header">
@@ -436,8 +440,8 @@ var App = React.createClass({
                         <img id="octotie" src={octotie} height="185"/>
                     </div>
                     <Nav bsStyle="tabs" justified activeKey={this.state.currentview} onSelect={this.handleSelect}>
-                    <NavItem eventKey="write-niceties"><h3>Write</h3></NavItem>
-                    <NavItem eventKey="view-niceties"><h3>Read</h3></NavItem>
+                    <NavItem eventKey="write-niceties"><h3>Write Niceties</h3></NavItem>
+                    <NavItem eventKey="view-niceties"><h3>Niceties For You</h3></NavItem>
                   </Nav>
                 </div>
               <div id="component_frame">
