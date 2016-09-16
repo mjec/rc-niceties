@@ -517,6 +517,7 @@ var App = React.createClass({
     },
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);
+        // Add this back to nav when it's working
         return (
             <div className="App">
                 <Navbar fixedTop id="main_nav">
@@ -529,7 +530,7 @@ var App = React.createClass({
                 </Navbar.Header>
                     <Nav activeKey={this.state.currentview} onSelect={this.handleSelect}>
                         <NavItem eventKey="write-niceties"><h4>Write Niceties</h4></NavItem>
-                        <NavItem eventKey="view-niceties"><h4>Niceties About You</h4></NavItem>
+                        <NavItem eventKey="view-niceties" disabled><h4>Niceties About You</h4></NavItem>
                     </Nav>
                 </Navbar>
               <div id="component_frame">
