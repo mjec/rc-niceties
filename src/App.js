@@ -213,13 +213,16 @@ var Person = React.createClass({
                 }
             }
             if (foundPerson) {
-                localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
-                textValue = dataPerson.text;
+                if (dataPerson.text !== '' && dataPerson.text !== null) {
+                    localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
+                    textValue = dataPerson.text;
+                } else {
+                    textValue = '';
+                }
                 localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
                 checkValue = dataPerson.anonymous.toString();
                 localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
                 noReadValue = dataPerson.no_read.toString();
-                console.log(dataPerson);
             }
             return {
                 textValue: textValue,
