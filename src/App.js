@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Button, Grid, Row, Col, Image, Nav, NavItem, Checkbox } from 'react-bootstrap';
+import { Button, Grid, Row, Col, Image, Nav, NavItem, Navbar, Checkbox } from 'react-bootstrap';
 import ReactDOM, { findDOMNode } from 'react-dom';
 import React, { Component } from 'react';
 
@@ -131,19 +131,22 @@ var People = React.createClass({
                 </SaveButton>
             </div>
               <Grid>
-                <h3>Leaving</h3>
+                <hr />
+                <h3>Leaving Soon</h3>
                 {leaving.map(function(row) {
                     return (
                         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                     );
                 }.bind(this))}
-                <h3>Staying</h3>
+                <hr />
+                <h3>In-Batch</h3>
                 {staying.map(function(row) {
                     return (
                         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                     );
                 }.bind(this))}
-                <h3>Special</h3>
+                <hr />
+                <h3>Staff</h3>
                 {special.map(function(row) {
                     return (
                         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
@@ -500,7 +503,6 @@ var App = React.createClass({
     },
     handleSelect: function(eventKey) {
         this.setState({currentview: eventKey});
-        console.log(eventKey);
     },
     selectComponent: function(idx) {
         switch(idx) {
@@ -517,15 +519,19 @@ var App = React.createClass({
         let selectedComponent = this.selectComponent(this.state.currentview);
         return (
             <div className="App">
-                <div id="header">
+                <Navbar fixedTop id="main_nav">
+                 <Navbar.Header>
+                  <Navbar.Brand>
                     <div id="logo">
-                        <img id="octotie" src={octotie} height="185"/>
-                    </div>
-                    <Nav bsStyle="tabs" justified activeKey={this.state.currentview} onSelect={this.handleSelect}>
-                    <NavItem eventKey="write-niceties"><h3>Write Niceties</h3></NavItem>
-                    <NavItem eventKey="view-niceties"><h3>Niceties For You</h3></NavItem>
-                  </Nav>
-                </div>
+                     <img id="octotie" src={octotie} height="153"/>
+                    </div>                
+                     </Navbar.Brand>
+                </Navbar.Header>
+                    <Nav activeKey={this.state.currentview} onSelect={this.handleSelect}>
+                        <NavItem eventKey="write-niceties"><h4>Write Niceties</h4></NavItem>
+                        <NavItem eventKey="view-niceties"><h4>Niceties About You</h4></NavItem>
+                    </Nav>
+                </Navbar>
               <div id="component_frame">
                 {selectedComponent}
               </div>
