@@ -120,6 +120,13 @@ var People = React.createClass({
         let staying = this.generateRows(this.props.people.staying);
         let special = this.generateRows(this.props.people.special);
         const savePass = this.saveReady.bind(this);
+
+        let maybeHeader  = '';
+        let maybeHR = '';
+        if (staying.length > 0) {
+            maybeHeader = (<h3>In-Batch</h3>);
+            maybeHR = (<hr />);
+        }
         return (
             <div className="people">
 
@@ -139,13 +146,13 @@ var People = React.createClass({
                     );
                 }.bind(this))}
                 <hr />
-                <h3>In-Batch</h3>
+                {maybeHeader}
                 {staying.map(function(row) {
                     return (
                         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                     );
                 }.bind(this))}
-                <hr />
+                {maybeHR}
                 <h3>Staff</h3>
                 {special.map(function(row) {
                     return (
