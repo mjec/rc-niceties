@@ -9,7 +9,6 @@ import Remarkable from 'remarkable';
 import logo from './logo.svg';
 import octotie from './octotie.png'
 import suittie from './suittie.png'
-
 import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
@@ -514,10 +513,14 @@ var App = React.createClass({
     selectComponent: function(idx) {
         switch(idx) {
         case "write-niceties":
+            $('.dropdown a').text('Write Niceties');
+            $('.dropdown a').append('<span class="caret"></span>');
             return <People people={this.state.people}
                             fromMe={this.state.fromMe}
                             post_nicety_api={this.props.post_nicety_api} />
         case "view-niceties":
+            $('.dropdown a').text('Niceties About You');
+            $('.dropdown a').append('<span class="caret"></span>');
             return <NicetyDisplay niceties={this.state.niceties} />
         default:
         };
@@ -535,9 +538,9 @@ var App = React.createClass({
                 </div>
                 <img id="octotie" src={octotie} height="153"/>
                     <Nav activeKey={this.state.currentview} onSelect={this.handleSelect}>
-                        <NavDropdown title="placeholder">
-                            <MenuItem eventKey="write-niceties">Write Niceties</MenuItem>
-                            <MenuItem eventKey="view-niceties" disabled>Niceties About You</MenuItem>
+                        <NavDropdown>
+                            <MenuItem eventKey="write-niceties" >Write Niceties</MenuItem>
+                            <MenuItem eventKey="view-niceties" disabled >Niceties About You</MenuItem>
                         </NavDropdown>
                     </Nav>
                 </Navbar>
