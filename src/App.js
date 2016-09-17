@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Button, Grid, Row, Col, Image, Nav, NavItem, Navbar, Checkbox } from 'react-bootstrap';
+import { Button, Grid, Row, Col, Image, Nav, NavItem, Navbar, NavDropdown, MenuItem, Checkbox } from 'react-bootstrap';
 import ReactDOM, { findDOMNode } from 'react-dom';
 import React, { Component } from 'react';
 
@@ -528,16 +528,17 @@ var App = React.createClass({
         return (
             <div className="App">
                 <Navbar fixedTop id="main_nav">
-                 <Navbar.Header>
-                  <Navbar.Brand>
-                    <div id="logo">
-                     <img id="octotie" src={octotie} height="153"/>
-                    </div>                
-                     </Navbar.Brand>
-                </Navbar.Header>
+                <div id="title">
+                    recurse<br />
+                    nice-<br />
+                    ties
+                </div>
+                <img id="octotie" src={octotie} height="153"/>
                     <Nav activeKey={this.state.currentview} onSelect={this.handleSelect}>
-                        <NavItem eventKey="write-niceties"><h4>Write Niceties</h4></NavItem>
-                        <NavItem eventKey="view-niceties" disabled><h4>Niceties About You</h4></NavItem>
+                        <NavDropdown title="placeholder">
+                            <MenuItem eventKey="write-niceties">Write Niceties</MenuItem>
+                            <MenuItem eventKey="view-niceties" disabled>Niceties About You</MenuItem>
+                        </NavDropdown>
                     </Nav>
                 </Navbar>
               <div id="component_frame">

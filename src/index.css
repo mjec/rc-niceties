@@ -27,11 +27,6 @@ hr {
 	padding: 10px;
 }
 
-#logo {
-	padding: 10px;
-	margin: 10px;
-}
-
 #recipient_page {
 	size: 7in 9.25in;
   	margin: 27mm 16mm 27mm 16mm;
@@ -41,9 +36,63 @@ hr {
 #component_frame {
 	background-color: #E7E7E7;
 	padding:15px;
-	padding-top: 130px;
+	padding-top: 109px;
 }
 
 #main_nav {
 	padding: 10px;
+}
+
+#octotie {
+    position: absolute;
+    left: 25px;
+    bottom: -93px;
+}
+
+#title {
+    text-align: left;
+    position: absolute;
+    left: 95px;
+    bottom: 4px;
+    font-size: 105%;
+}
+
+.navbar-nav {
+    float: right;
+    height: 40px;
+    margin: 0px;
+    margin-right: 7px;
+}
+
+.navbar-nav>li>a {
+    height: 40px;
+    padding-top: auto;
+    padding-bottom: auto;
+}
+
+@media (min-width: 768px) {
+	.navbar-nav>li>a {
+	    padding-top: 10px;
+	    padding-bottom: 10px;
+	}
+	.container {
+    	width: inherit;
+	}	
+}
+
+@media (min-width: 992px) {
+	.container {
+		width: inherit;
+	}
+}
+
+.container {
+    padding-bottom: 9px;
+    padding-top: 10px;
+    margin: 0px;
+}
+
+.dropdown-menu {
+	right: 0px;
+	left: auto;
 }
