@@ -96,3 +96,33 @@ hr {
 	right: 0px;
 	left: auto;
 }
+
+.btn-primary {
+    background-color: #ED6C26;
+    border-color: #C65B21;
+}
+
+.btn-primary:active {
+    background-color: #C65B21;
+    border-color: #ED6C26;
+}
+
+.btn-primary:focus {
+    background-color: #C65B21;
+    border-color: #ED6C26;
+}
+
+.btn-primary:active:focus {
+    background-color: #C65B21;
+    border-color: #ED6C26;
+}
+
+.btn-primary:hover {
+	background-color: #C65B21;
+	border-color: #AA4E1D;
+}
+
+.btn-primary:hover:disabled {
+	background-color: #C65B21;
+	border-color: #AA4E1D;
+}
