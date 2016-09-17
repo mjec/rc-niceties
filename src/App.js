@@ -57,7 +57,6 @@ var People = React.createClass({
                 }
             );
         });
-        updated_niceties.clear();
         updated_niceties_spinlock = false;
         console.log(data_to_save);
         $.ajax({
@@ -69,6 +68,7 @@ var People = React.createClass({
             success: function(data) {
                 this.setState({noSave: true});
                 localStorage.setItem("saved", "true");
+                updated_niceties.clear();
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
