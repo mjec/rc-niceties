@@ -45,6 +45,7 @@ class Nicety(db.Model):
     starred = db.Column(db.Boolean)
     text = db.Column(db.Text, nullable=True)
     no_read = db.Column(db.Boolean)
+    date_updated = db.Column(db.DateTime)
 
     batch_author_target_unique = db.UniqueConstraint('batch', 'author', 'target')
 
@@ -57,6 +58,7 @@ class Nicety(db.Model):
         self.starred = kwargs.get("starred", False)
         self.text = kwargs.get("text", None)
         self.no_read = kwargs.get("no_read", False)
+        self.date_updated = kwargs.get("date_updated", datetime.utcnow())
 
     def __repr__(self):
         return '<Nicety:{}>'.format(self.id)

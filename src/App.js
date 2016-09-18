@@ -58,7 +58,6 @@ var People = React.createClass({
             );
         });
         updated_niceties_spinlock = false;
-        console.log(data_to_save);
         $.ajax({
             url: this.props.post_nicety_api,
             data: {'niceties': JSON.stringify(data_to_save)},
@@ -471,6 +470,7 @@ var App = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
+                console.log('people data', data);
                 callback(data);
             },
             error: function(xhr, status, err) {
@@ -484,6 +484,7 @@ var App = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
+                console.log('from me data', data);
                 callback(data);
             },
             error: function(xhr, status, err) {
@@ -497,6 +498,7 @@ var App = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
+                console.log('for me data', data);
                 callback(data);
             },
             error: function(xhr, status, err) {

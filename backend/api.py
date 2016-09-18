@@ -71,7 +71,8 @@ def load_unsent_niceties():
         'target_id': n.target_id,
         'text': n.text,
         'anonymous': n.anonymous,
-        'no_read': n.no_read
+        'no_read': n.no_read,
+        'date_updated': n.date_updated
     } for n in niceties]
     return jsonify(ret)
 
@@ -107,8 +108,9 @@ def get_niceties_for_current_user():
             store = {
                 'end_date': n.end_date,
                 'anonymous': n.anonymous,
+                'text': n.text,
                 'no_read': n.no_read,
-                'text': n.text
+                'date_updated': n.date_updated
             }
         else:
             store = {
@@ -117,8 +119,10 @@ def get_niceties_for_current_user():
                 'author_id': n.author_id,
                 'end_date': n.end_date,
                 'anonymous': n.anonymous,
+                'text': n.text,
                 'no_read': n.no_read,
-                'text': n.text
+                'date_updated': n.date_updated
+
             }
         ret.append(store)
     return jsonify(ret)
@@ -324,7 +328,8 @@ class NicetyFromMeAPI(MethodView):
                 target_id=person_id,
                 author_id=current_user().id,
                 anonymous=current_user().anonymous_by_default,
-                no_read=current_user().read_by_default)
+                no_read=current_user().read_by_default,
+                date_update=datetime.utcnow())
             db.session.add(nicety)
             db.session.commit()
         return jsonify(nicety.__dict__)
@@ -342,6 +347,7 @@ class NicetyFromMeAPI(MethodView):
             .one())
         nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
         nicety.no_read = request.form.get("no_read", current_user().read_by_default)
+        nicety.date_updated = datetime.utcnow()
         text = request.form.get("text").strip()
         if '' == text:
             text = None
@@ -405,6 +411,7 @@ def save_niceties():
         nicety.text = text
         nicety.faculty_reviewed = False
         nicety.no_read = n.get("no_read")
+        nicety.date_updated = datetime.utcnow()
     db.session.commit()
     return jsonify({'status': 'OK'})
 
