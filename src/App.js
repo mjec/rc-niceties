@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Button, Grid, Row, Col, Image, Nav, NavItem, Navbar, NavDropdown, MenuItem, Checkbox } from 'react-bootstrap';
+import { Button, Grid, Row, Col, Image, Nav, NavItem, Navbar, NavDropdown, MenuItem, Checkbox, Modal } from 'react-bootstrap';
 import ReactDOM, { findDOMNode } from 'react-dom';
 import React, { Component } from 'react';
 
@@ -67,6 +67,7 @@ var People = React.createClass({
             cache: false,
             success: function(data) {
                 this.setState({noSave: true});
+                this.setState({justSaved: true});
                 localStorage.setItem("saved", "true");
                 updated_niceties.clear();
             }.bind(this),
@@ -83,12 +84,14 @@ var People = React.createClass({
         if (localStorage.getItem("saved") === "true") {
             return {
                 data: [],
-                noSave: true
+                noSave: true,
+                justSaved: false
             }
         } else if (localStorage.getItem("saved") === "false") {
             return {
                 data: [],
-                noSave: false
+                noSave: false,
+                justSaved: false
             }
         };
     },
@@ -113,6 +116,12 @@ var People = React.createClass({
         this.setState({noSave: false});
     },
 
+    alertTimer: function() {
+        setTimeout(function () {
+            this.setState({justSaved: false});
+        }.bind(this), 3000);
+    },
+
     render: function() {
         let noReadRender;
         let leaving = this.generateRows(this.props.people.leaving);
@@ -126,9 +135,16 @@ var People = React.createClass({
             maybeHeader = (<h3>In-Batch</h3>);
             maybeHR = (<hr />);
         }
+        if (this.state.justSaved) {
+            this.alertTimer();
+        }
         return (
             <div className="people">
-
+             <Modal show={this.state.justSaved}>
+                <Modal.Body>
+                    Niceties Saved!
+                </Modal.Body>
+            </Modal>
             <div id="save_button">
                 <SaveButton
                     noSave={this.state.noSave}
@@ -164,25 +180,24 @@ var People = React.createClass({
 });
 
 var SaveButton = React.createClass({
-
     render: function() {
         if (this.props.noSave === true) {
             return (
                 <div className="button">
-                <Button
-                bsStyle="primary"
-                bsSize="large"
-                disabled
-                >Save</Button>
+                    <Button
+                    bsStyle="primary"
+                    bsSize="large"
+                    disabled
+                    >Save</Button>
                 </div>
             );
         } else {
             return (
                 <div className="button">
-                <Button
-                bsStyle="primary"
-                bsSize="large"
-                onClick={this.props.onClick}>Save</Button>
+                    <Button
+                    bsStyle="primary"
+                    bsSize="large"
+                    onClick={this.props.onClick}>Save</Button>
                 </div>
             );
         }

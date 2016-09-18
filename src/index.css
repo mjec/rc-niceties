@@ -140,3 +140,18 @@ textarea:focus {
 	background-color: #C65B21;
 	border-color: #AA4E1D;
 }
+
+.fade.in {
+    opacity: .8;
+    display: block;
+}
+
+.modal-dialog {
+    position: absolute;
+    width: auto;
+    margin: 10px;
+    top: 50%;
+    left: 25%;
+    right: 25%;
+    text-align: center;
+}
