@@ -309,56 +309,55 @@ def person(person_id):
         cache.set(cache_key, person_json)
         return person_json
 
-class NicetyFromMeAPI(MethodView):
-    def get(end_date, person_id):
-        if current_user() is None:
-            redirect(url_for('authorized'))
-        try:
-            nicety = (
-                Nicety
-                .query
-                .filter_by(
-                    end_date=end_date,
-                    target_id=person_id,
-                    author_id=current_user().id)
-                .one())
-        except db.exc.NoResultFound:
-            nicety = Nicety(
-                end_date=end_date,
-                target_id=person_id,
-                author_id=current_user().id,
-                anonymous=current_user().anonymous_by_default,
-                no_read=current_user().read_by_default,
-                date_update=datetime.utcnow())
-            db.session.add(nicety)
-            db.session.commit()
-        return jsonify(nicety.__dict__)
+# class NicetyFromMeAPI(MethodView):
+#     def get(end_date, person_id):
+#         if current_user() is None:
+#             redirect(url_for('authorized'))
+#         try:
+#             nicety = (
+#                 Nicety
+#                 .query
+#                 .filter_by(
+#                     end_date=end_date,
+#                     target_id=person_id,
+#                     author_id=current_user().id)
+#                 .one())
+#         except db.exc.NoResultFound:
+#             nicety = Nicety(
+#                 end_date=end_date,
+#                 target_id=person_id,
+#                 author_id=current_user().id,
+#                 anonymous=current_user().anonymous_by_default,
+#                 no_read=current_user().read_by_default,
+#             db.session.add(nicety)
+#             db.session.commit()
+#         return jsonify(nicety.__dict__)
 
-    def post(end_date, person_id):
-        if current_user() is None:
-            redirect(url_for('authorized'))
-        nicety = (
-            Nicety
-            .query
-            .filter_by(
-                end_date=end_date,
-                target_id=person_id,
-                author_id=current_user().id)
-            .one())
-        nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
-        nicety.no_read = request.form.get("no_read", current_user().read_by_default)
-        nicety.date_updated = datetime.utcnow()
-        text = request.form.get("text").strip()
-        if '' == text:
-            text = None
-        nicety.text = text
-        nicety.faculty_reviewed = False
-        db.session.commit()
-        return jsonify({'status': 'OK'})
+#     def post(end_date, person_id):
+#         if current_user() is None:
+#             redirect(url_for('authorized'))
+#         nicety = (
+#             Nicety
+#             .query
+#             .filter_by(
+#                 end_date=end_date,
+#                 target_id=person_id,
+#                 author_id=current_user().id)
+#             .one())
+#         nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
+#         nicety.no_read = request.form.get("no_read", current_user().read_by_default)
+#         nicety.date_updated = datetime.utcnow()
+#         text = request.form.get("text").strip()
+#         if '' == text:
+#             text = None
+#         nicety.text = text
+#         nicety.faculty_reviewed = False
+#         db.session.commit()
+#         return jsonify({'status': 'OK'})
 
-app.add_url_rule(
-    '/api/v1/niceties/<int:end_date>/<int:person_id>',
-    view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
+# app.add_url_rule(
+#     '/api/v1/niceties/<int:end_date>/<int:person_id>',
+#     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
 
 @app.route('/api/v1/post-niceties', methods=['POST'])
 @needs_authorization
@@ -411,7 +410,7 @@ def save_niceties():
         nicety.text = text
         nicety.faculty_reviewed = False
         nicety.no_read = n.get("no_read")
-        nicety.date_updated = datetime.utcnow()
+        nicety.date_updated = n.get("date_updated")
     db.session.commit()
     return jsonify({'status': 'OK'})
 

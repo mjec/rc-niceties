@@ -19,14 +19,12 @@ if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === 
     localStorage.setItem("saved", "true");
 }
 
-if (localStorage.getItem("first_load") === null || localStorage.getItem("first_load") === "undefined") {
-    localStorage.setItem("first_load", "true");
-}
-
 var People = React.createClass({
     saveAllComments: function() {
         updated_niceties_spinlock = true;
         var data_to_save = [];
+        const dateUpdated = new Date(Date.now());
+        const dateUpdatedStr = dateUpdated.toUTCString();
         updated_niceties.forEach(function(e) {
             var split_e = e.split(",");
             let anonymous;
@@ -53,7 +51,8 @@ var People = React.createClass({
                     end_date: split_e[1],
                     anonymous: anonymous.toString(),
                     text: text,
-                    no_read: noRead.toString()
+                    no_read: noRead.toString(),
+                    date_updated: dateUpdatedStr
                 }
             );
         });
@@ -68,10 +67,13 @@ var People = React.createClass({
                 this.setState({noSave: true});
                 this.setState({justSaved: true});
                 localStorage.setItem("saved", "true");
+                updated_niceties.forEach(function(e) {
+                    const split_e = e.split(",");
+                    localStorage.setItem("date_updated-" + split_e[0], dateUpdatedStr);
+                });
                 updated_niceties.clear();
             }.bind(this),
             error: function(xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
                 for (var i=0; i<data_to_save.length; i++){
                     updated_niceties.add(data_to_save[i].target_id + "," + data_to_save[i].end_date);
                 }
@@ -222,20 +224,26 @@ var PeopleRow = React.createClass({
 var Person = React.createClass({
 
     getInitialState: function() {
-        if (localStorage.getItem("first_load") === "true") {
-            let textValue = '';
-            let checkValue = "false";
-            let noReadValue = "false";
-            let dataPerson;
-            let foundPerson = false;
-            for (var i = 0; i < this.props.fromMe.length; i++) {
-                if (this.props.fromMe[i].target_id === this.props.data.id) {
-                    dataPerson = this.props.fromMe[i];
-                    foundPerson = true;
-                    break;
-                }
+        let textValue = '';
+        let checkValue = "false";
+        let noReadValue = "false";
+        let dataPerson;
+        let foundPerson = false;
+        for (var i = 0; i < this.props.fromMe.length; i++) {
+            if (this.props.fromMe[i].target_id === this.props.data.id) {
+                dataPerson = this.props.fromMe[i];
+                foundPerson = true;
+                break;
             }
-            if (foundPerson) {
+        }
+        if (foundPerson) {
+            let dateUpdated;
+            if (dataPerson.date_updated === null) {
+                dateUpdated = '';
+            } else {
+                dateUpdated = dataPerson.date_updated;
+            }
+            if (localStorage.getItem("date_updated-" + this.props.data.id) === null || localStorage.getItem("date_updated-" + this.props.data.id) === "undefined") {
                 if (dataPerson.text !== '' && dataPerson.text !== null) {
                     localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
                     textValue = dataPerson.text;
@@ -246,38 +254,29 @@ var Person = React.createClass({
                 checkValue = dataPerson.anonymous.toString();
                 localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
                 noReadValue = dataPerson.no_read.toString();
-            }
-            return {
-                textValue: textValue,
-                checkValue: checkValue,
-                noReadValue: noReadValue
-            }
-        } else {
-            let textValue;
-            if (localStorage.getItem("nicety-" + this.props.data.id) === null || localStorage.getItem("nicety-" + this.props.data.id) === "undefined") {
-                textValue = '';
+                localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
+            } else if (localStorage.getItem("date_updated-" + this.props.data.id) !== dateUpdated) {
+                if (dataPerson.text !== '' && dataPerson.text !== null) {
+                    localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
+                    textValue = dataPerson.text;
+                } else {
+                    textValue = '';
+                }
+                localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
+                checkValue = dataPerson.anonymous.toString();
+                localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
+                noReadValue = dataPerson.no_read.toString();
+                localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
             } else {
                 textValue = localStorage.getItem("nicety-" + this.props.data.id);
-            }
-
-            let checkValue;
-            if (localStorage.getItem("anonymous-" + this.props.data.id) === null || localStorage.getItem("anonymous-" + this.props.data.id) === "undefined") {
-                checkValue = "false";
-            } else {
                 checkValue = localStorage.getItem("anonymous-" + this.props.data.id);
-            }
-
-            let noReadValue;
-            if (localStorage.getItem("no_read-" + this.props.data.id) === null || localStorage.getItem("no_read-" + this.props.data.id) === "undefined") {
-                noReadValue= "false";
-            } else {
                 noReadValue = localStorage.getItem("no_read-" + this.props.data.id);
             }
-            return {
-                textValue: textValue,
-                checkValue: checkValue,
-                noReadValue: noReadValue
-            }
+        }
+        return {
+            textValue: textValue,
+            checkValue: checkValue,
+            noReadValue: noReadValue,
         }
     },
     textareaChange: function(event) {
@@ -470,7 +469,6 @@ var App = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log('people data', data);
                 callback(data);
             },
             error: function(xhr, status, err) {
@@ -484,7 +482,6 @@ var App = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log('from me data', data);
                 callback(data);
             },
             error: function(xhr, status, err) {
@@ -498,7 +495,6 @@ var App = React.createClass({
             dataType: 'json',
             cache: false,
             success: function(data) {
-                console.log('for me data', data);
                 callback(data);
             },
             error: function(xhr, status, err) {
@@ -519,7 +515,6 @@ var App = React.createClass({
             this.loadPeopleFromServer(function (data2) {
                 this.loadNicetiesForMe(function (data3) {
                     this.setState({niceties: data3, people: data2, fromMe: data1});
-                    localStorage.setItem("first_load", "false");
                 }.bind(this));
             }.bind(this));
         }.bind(this));
