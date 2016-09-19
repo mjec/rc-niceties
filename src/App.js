@@ -237,43 +237,40 @@ var Person = React.createClass({
             }
         }
         if (foundPerson) {
-            let dateUpdated;
+            console.log(foundPerson);
+        }
+        let dateUpdated;
+        if (foundPerson) {
             if (dataPerson.date_updated === null) {
                 dateUpdated = '';
             } else {
                 dateUpdated = dataPerson.date_updated;
             }
-            if (localStorage.getItem("date_updated-" + this.props.data.id) === null || localStorage.getItem("date_updated-" + this.props.data.id) === "undefined") {
-                if (dataPerson.text !== '' && dataPerson.text !== null) {
-                    localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
-                    textValue = dataPerson.text;
-                } else {
-                    textValue = '';
-                }
-                localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
-                checkValue = dataPerson.anonymous.toString();
-                localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
-                noReadValue = dataPerson.no_read.toString();
-                localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
-            } else if (localStorage.getItem("date_updated-" + this.props.data.id) !== dateUpdated) {
-                if (dataPerson.text !== '' && dataPerson.text !== null) {
-                    localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
-                    textValue = dataPerson.text;
-                } else {
-                    textValue = '';
-                }
-                localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
-                checkValue = dataPerson.anonymous.toString();
-                localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
-                noReadValue = dataPerson.no_read.toString();
-                localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
+        }
+        if (foundPerson && localStorage.getItem("date_updated-" + this.props.data.id) === null || localStorage.getItem("date_updated-" + this.props.data.id) === "undefined") {
+            if (dataPerson.text !== '' && dataPerson.text !== null) {
+                localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
+                textValue = dataPerson.text;
             } else {
-                textValue = localStorage.getItem("nicety-" + this.props.data.id);
-                checkValue = localStorage.getItem("anonymous-" + this.props.data.id);
-                console.log('checkValue: ', checkValue);
-                noReadValue = localStorage.getItem("no_read-" + this.props.data.id);
-                console.log('noReadValue: ', noReadValue);
+                textValue = '';
             }
+            localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
+            checkValue = dataPerson.anonymous.toString();
+            localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
+            noReadValue = dataPerson.no_read.toString();
+            localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
+        } else if (foundPerson && localStorage.getItem("date_updated-" + this.props.data.id) !== dateUpdated) {
+            if (dataPerson.text !== '' && dataPerson.text !== null) {
+                localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
+                textValue = dataPerson.text;
+            } else {
+                textValue = '';
+            }
+            localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
+            checkValue = dataPerson.anonymous.toString();
+            localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
+            noReadValue = dataPerson.no_read.toString();
+            localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
         } else {
             if (localStorage.getItem("nicety-" + this.props.data.id) !== null) {
                 textValue = localStorage.getItem("nicety-" + this.props.data.id);
