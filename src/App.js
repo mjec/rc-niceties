@@ -288,38 +288,34 @@ var Person = React.createClass({
             noReadValue: noReadValue,
         }
     },
-    textareaChange: function(event) {
-        this.setState({textValue: event.target.value});
-        localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
+    updateSave: function(event) {
         while (updated_niceties_spinlock) {}
-        const addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
+        let addString;
+        if (this.props.data.stints.length > 0) {
+            addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
+        } else {
+            addString = this.props.data.id + ",2016-11-03";
+        }
         if (!(addString in updated_niceties)) {
             updated_niceties.add(addString);
         }
         localStorage.setItem("saved", "false");
         this.props.saveReady();
+    },
+    textareaChange: function(event) {
+        this.setState({textValue: event.target.value});
+        localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
+        this.updateSave();
     },
     anonymousChange: function(event) {
         this.setState({checkValue: event.target.checked.toString()});
         localStorage.setItem("anonymous-" + this.props.data.id, event.target.checked.toString());
-        while (updated_niceties_spinlock) {}
-        const addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
-        if (!(addString in updated_niceties)) {
-            updated_niceties.add(addString);
-        }
-        localStorage.setItem("saved", "false");
-        this.props.saveReady();
+        this.updateSave();
     },
     noReadChange: function(event) {
         this.setState({noReadValue: event.target.checked.toString()});
         localStorage.setItem("no_read-" + this.props.data.id, event.target.checked.toString());
-        while (updated_niceties_spinlock) {}
-        const addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
-        if (!(addString in updated_niceties)) {
-            updated_niceties.add(addString);
-        }
-        localStorage.setItem("saved", "false");
-        this.props.saveReady();
+        this.updateSave();
     },
 
     // TODO: button for each person for anonymous option
