@@ -270,6 +270,18 @@ var Person = React.createClass({
             } else {
                 textValue = localStorage.getItem("nicety-" + this.props.data.id);
                 checkValue = localStorage.getItem("anonymous-" + this.props.data.id);
+                console.log('checkValue: ', checkValue);
+                noReadValue = localStorage.getItem("no_read-" + this.props.data.id);
+                console.log('noReadValue: ', noReadValue);
+            }
+        } else {
+            if (localStorage.getItem("nicety-" + this.props.data.id) !== null) {
+                textValue = localStorage.getItem("nicety-" + this.props.data.id);
+            }
+            if (localStorage.getItem("anonymous-" + this.props.data.id) !== null) {
+                checkValue = localStorage.getItem("anonymous-" + this.props.data.id);
+            }
+            if (localStorage.getItem("no_read-" + this.props.data.id) !== null) {
                 noReadValue = localStorage.getItem("no_read-" + this.props.data.id);
             }
         }
