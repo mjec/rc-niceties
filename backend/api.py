@@ -20,13 +20,6 @@ import sys
 def niceties_to_print():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
-    # Loop through all the Niceties that exist for the open batch
-    # The batch end date might be 6 weeks or more away, if you're doing a six week stint.
-    # So that means it won't be picked up by .. which means it won't appear in the list to print!
-
-    # this might need to be improve, possibly
-    # 1) filter the niceties by the latest end_date
-    # 2) ..
     is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     if is_faculty == True:
@@ -59,6 +52,7 @@ def niceties_to_print():
     else:
         return jsonify({'authorized': "false"})
 
+# load-my-niceties
 @app.route('/api/v1/load-niceties')
 @needs_authorization
 def load_unsent_niceties():
@@ -76,6 +70,7 @@ def load_unsent_niceties():
     } for n in niceties]
     return jsonify(ret)
 
+# show-my-niceties
 @app.route('/api/v1/show-niceties')
 @needs_authorization
 def get_niceties_for_current_user():
@@ -100,7 +95,7 @@ def get_niceties_for_current_user():
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date < datetime.now()) # only show niceties that have a later date than now (i.e. future niceties)
+                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # only show niceties that have a later date than now (i.e. future niceties)
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
@@ -308,56 +303,6 @@ def person(person_id):
         person_json = jsonify(person)
         cache.set(cache_key, person_json)
         return person_json
-
-# class NicetyFromMeAPI(MethodView):
-#     def get(end_date, person_id):
-#         if current_user() is None:
-#             redirect(url_for('authorized'))
-#         try:
-#             nicety = (
-#                 Nicety
-#                 .query
-#                 .filter_by(
-#                     end_date=end_date,
-#                     target_id=person_id,
-#                     author_id=current_user().id)
-#                 .one())
-#         except db.exc.NoResultFound:
-#             nicety = Nicety(
-#                 end_date=end_date,
-#                 target_id=person_id,
-#                 author_id=current_user().id,
-#                 anonymous=current_user().anonymous_by_default,
-#                 no_read=current_user().read_by_default,
-#             db.session.add(nicety)
-#             db.session.commit()
-#         return jsonify(nicety.__dict__)
-
-#     def post(end_date, person_id):
-#         if current_user() is None:
-#             redirect(url_for('authorized'))
-#         nicety = (
-#             Nicety
-#             .query
-#             .filter_by(
-#                 end_date=end_date,
-#                 target_id=person_id,
-#                 author_id=current_user().id)
-#             .one())
-#         nicety.anonymous = request.form.get("anonymous", current_user().anonymous_by_default)
-#         nicety.no_read = request.form.get("no_read", current_user().read_by_default)
-#         nicety.date_updated = datetime.utcnow()
-#         text = request.form.get("text").strip()
-#         if '' == text:
-#             text = None
-#         nicety.text = text
-#         nicety.faculty_reviewed = False
-#         db.session.commit()
-#         return jsonify({'status': 'OK'})
-
-# app.add_url_rule(
-#     '/api/v1/niceties/<int:end_date>/<int:person_id>',
-#     view_func=NicetyFromMeAPI.as_view('nicety_from_me'))
 
 @app.route('/api/v1/post-niceties', methods=['POST'])
 @needs_authorization
