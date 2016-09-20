@@ -36,16 +36,20 @@ def all_niceties():
                 ret[n.target_id].append({
                     'author_id': n.author_id,
                     'name': json.loads(person(n.author_id).data)['name'],
+                    'to_name': json.loads(person(k).data)['name'],
+                    'to_id': json.loads(person(k).data)['id'],
+                    'no_read': n.no_read,
                     'text': n.text,
                 })
             else:
                 ret[n.target_id].append({
+                    'to_name': json.loads(person(k).data)['name'],
+                    'to_id': json.loads(person(k).data)['id'],
+                    'no_read': n.no_read,
                     'text': n.text,
                 })
         return jsonify([
             {
-                'to_name': json.loads(person(k).data)['name'],
-                'to_id': json.loads(person(k).data)['id'],
                 'niceties': v
             }
             for k, v in ret.items()
