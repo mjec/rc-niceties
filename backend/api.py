@@ -59,6 +59,44 @@ def niceties_to_print():
     else:
         return jsonify({'authorized': "false"})
 
+@app.route('/api/v1/all-niceties')
+@needs_authorization
+def all_niceties():
+    ret = {}    # Mapping from target_id to a list of niceties for that person
+    last_target = None
+    is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
+    two_weeks_from_now = datetime.now() - timedelta(days=14)
+    if is_faculty == True:
+        valid_niceties = (Nicety.query
+                          #.filter(Nicety.end_date < two_weeks_from_now)
+                          .order_by(Nicety.target_id)
+                          .all())
+        for n in valid_niceties:
+            if n.target_id != last_target:
+                # ... set up the test for the next one
+                last_target = n.target_id
+                ret[n.target_id] = []  # initialize the dictionary
+            if n.anonymous == False:
+                ret[n.target_id].append({
+                    'author_id': n.author_id,
+                    'name': json.loads(person(n.author_id).data)['name'],
+                    'text': n.text,
+                })
+            else:
+                ret[n.target_id].append({
+                    'text': n.text,
+                })
+        data = []
+        for k, v in ret.items():
+            data.append({
+                'to_name': json.loads(person(k).data)['name'],
+                'to_id': json.loads(person(k).data)['id'],
+                'niceties': v
+            })
+        return jsonify(data)
+    else:
+        return redirect(url_for(home()))
+
 @app.route('/api/v1/load-niceties')
 @needs_authorization
 def load_unsent_niceties():
