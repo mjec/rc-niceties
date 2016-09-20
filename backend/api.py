@@ -17,7 +17,7 @@ import sys
 
 @app.route('/api/v1/all-niceties')
 @needs_authorization
-def niceties_for_editing():
+def all_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
     is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
@@ -44,7 +44,8 @@ def niceties_for_editing():
                 })
         return jsonify([
             {
-                'to': json.loads(person(k).data)['name'],
+                'to_name': json.loads(person(k).data)['name'],
+                'to_id': json.loads(person(k).data)['id'],
                 'niceties': v
             }
             for k, v in ret.items()
