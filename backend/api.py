@@ -35,7 +35,7 @@ def all_niceties():
             if n.anonymous == False:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
-                    'name': json.loads(person(n.author_id).data)['name'],
+                    'name': json.loads(person(n.author_id).data)['full_name'],
                     'no_read': n.no_read,
                     'text': n.text,
                 })
@@ -46,7 +46,7 @@ def all_niceties():
                 })
         return jsonify([
             {
-                'to_name': json.loads(person(k).data)['name'],
+                'to_name': json.loads(person(k).data)['full_name'],
                 'to_id': json.loads(person(k).data)['id'],
                 'niceties': v
             }
@@ -159,6 +159,7 @@ def batch_people(batch_id):
                 'is_faculty': p['is_faculty'],
                 'is_hacker_schooler': p['is_hacker_schooler'],
                 'name': util.name_from_rc_person(p),
+                'full_name': util.full_name_from_rc_person(p),
                 'avatar_url': p['image'],
                 'stints': p['stints'],
                 'bio': p['bio'],
@@ -292,6 +293,7 @@ def person(person_id):
         person = {
             'id': p['id'],
             'name': util.name_from_rc_person(p),
+            'full_name': util.full_name_from_rc_person(p),
             'avatar_url': p['image'],
             'is_faculty': p['is_faculty'],
             'bio': p['bio'],
