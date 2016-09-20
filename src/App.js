@@ -489,24 +489,33 @@ var Admin = React.createClass({
     componentDidMount: function() {
         this.loadAllNiceties(function (data) {
             this.setState({niceties: data});
-            console.log(data);
         }.bind(this));
     },
     render: function() {
         return (
             <div>
                 {this.state.niceties.map((person) => {
-                    return (
-                        <div>
-                        <h3>{person.to_name}</h3>
-                            {person.niceties.map((nicety) => {
-                                return (
-                                    <AdminNicety nicety={nicety} target_id={person.to_name} />
-                                );
-                            })}
-                        <hr />
-                        </div>
-                    );
+                    let noTextCheck = false;
+                    person.niceties.forEach((nicety) => {
+                        if (nicety.text !== '' && nicety.text !== null) {
+                            noTextCheck = true;
+                        }
+                    });
+                    if (noTextCheck) {
+                        return (
+                            <div>
+                            <h3>{person.to_name}</h3>
+                                {person.niceties.map((nicety) => {
+                                    return (
+                                        <AdminNicety nicety={nicety} target_id={person.to_name} />
+                                    );
+                                })}
+                            <hr />
+                            </div>
+                        );
+                    } else {
+                        return null;
+                    }
                 })}
             </div>
         );
@@ -516,9 +525,21 @@ var Admin = React.createClass({
 var AdminNicety = React.createClass({
     getInitialState: function() {
         return {
-            text: this.props.nicety.text
-        }
+            text: this.props.nicety.text,
+            noSave: true
+        };
     },
+
+    saveNicety: function() {
+        console.log('POST');
+        this.setState({ noSave: true });
+    },
+
+
+    textareaChange: function() {
+        this.setState({ text: event.target.value , noSave: false });
+    },
+
     render: function() {
         let nicetyName;
         if ('name' in this.props.nicety) {
@@ -527,8 +548,11 @@ var AdminNicety = React.createClass({
             nicetyName = 'Anonymous';
         }
 
-        let nicetyReturn;
-        if (this.props.nicety.text !== '') {
+        let nicetyReturn = null;
+        if (this.props.nicety.text !== '' && this.props.nicety.text !== null) {
+            const textStyle = {
+                width: '75%'
+            }
             nicetyReturn = (
                 <div>
                     <h5>From {nicetyName}</h5>
@@ -536,7 +560,12 @@ var AdminNicety = React.createClass({
                         defaultValue={this.state.text}
                         onChange={this.textareaChange}
                         rows="6"
-                    />
+                        style={textStyle} />
+                     <SaveButton
+                        noSave={this.state.noSave}
+                        onClick={this.saveNicety}>
+                        Save
+                    </SaveButton>
                 </div> 
             );
         }
