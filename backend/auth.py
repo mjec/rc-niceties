@@ -2,7 +2,7 @@ import os
 
 from functools import wraps
 import flask_oauthlib
-from flask import session, url_for, redirect, request
+from flask import session, url_for, redirect, request, json
 from werkzeug.exceptions import HTTPException
 
 from backend import app, rc, db, util
@@ -76,10 +76,21 @@ def current_user():
 def needs_authorization(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        try:
-            if current_user() is None:
-                return redirect(url_for('login'))
+        #try:
+        if current_user() is None:
+            return redirect(url_for('login'))
+        else:
             return f(*args, **kwargs)
-        except flask_oauthlib.client.OAuthException:
-            return redirect(url_for('home'))
+        #except flask_oauthlib.client.OAuthException:
+        #    return redirect(url_for('home'))
+    return decorated_function
+
+def faculty_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        is_faculty = json.loads(person(current_user().id).data)['is_faculty']
+        if is_faculty == True:
+            return f(*args, **kwargs)
+        else:
+            return redirect(url_for('login'))
     return decorated_function

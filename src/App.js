@@ -467,6 +467,83 @@ var Nicety = React.createClass({
     }
 })
 
+var Admin = React.createClass({
+    loadAllNiceties: function(callback) {
+        $.ajax({
+            url: this.props.all_niceties_api,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                callback(data);
+            },
+            error: function(xhr, status, err) {
+                console.error(this.props.people, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function() {
+        return {
+            niceties: []
+        }
+    },
+    componentDidMount: function() {
+        this.loadAllNiceties(function (data) {
+            this.setState({niceties: data});
+            console.log(data);
+        }.bind(this));
+    },
+    render: function() {
+        return (
+            <div>
+                {this.state.niceties.map((person) => {
+                    return (
+                        <div>
+                        <h3>{person.to_name}</h3>
+                            {person.niceties.map((nicety) => {
+                                return (
+                                    <AdminNicety nicety={nicety} target_id={person.to_name} />
+                                );
+                            })}
+                        <hr />
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    }
+});
+
+var AdminNicety = React.createClass({
+    getInitialState: function() {
+        return {
+            text: this.props.nicety.text
+        }
+    },
+    render: function() {
+        let nicetyName;
+        if ('name' in this.props.nicety) {
+            nicetyName = this.props.nicety.name;
+        } else  {
+            nicetyName = 'Anonymous';
+        }
+
+        let nicetyReturn;
+        if (this.props.nicety.text !== '') {
+            nicetyReturn = (
+                <div>
+                    <h5>From {nicetyName}</h5>
+                    <textarea
+                        defaultValue={this.state.text}
+                        onChange={this.textareaChange}
+                        rows="6"
+                    />
+                </div> 
+            );
+        }
+        return nicetyReturn;
+    }
+});
+
 var App = React.createClass({
     loadPeopleFromServer: function(callback) {
         $.ajax({
@@ -539,6 +616,10 @@ var App = React.createClass({
             $('.dropdown a').text('Niceties About You');
             $('.dropdown a').append('<span class="caret"></span>');
             return <NicetyDisplay niceties={this.state.niceties} />
+        case "admin":
+            $('.dropdown a').text('Admin');
+            $('.dropdown a').append('<span class="caret"></span>');
+            return <Admin all_niceties_api={this.props.all_niceties_api}/> 
         default:
         };
     },
@@ -558,6 +639,7 @@ var App = React.createClass({
                         <NavDropdown>
                             <MenuItem eventKey="write-niceties" >Write Niceties</MenuItem>
                             <MenuItem eventKey="view-niceties" disabled >Niceties About You</MenuItem>
+                            <MenuItem eventKey="admin">Admin</MenuItem>
                         </NavDropdown>
                     </Nav>
                 </Navbar>

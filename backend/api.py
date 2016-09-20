@@ -4,7 +4,7 @@ import random
 
 from backend import app, rc, db
 from backend.models import Nicety, SiteConfiguration
-from backend.auth import current_user, needs_authorization
+from backend.auth import current_user, needs_authorization, faculty_only
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
@@ -15,9 +15,9 @@ import backend.util as util
 
 import sys
 
-@app.route('/api/v1/niceties-to-print')
+@app.route('/api/v1/all-niceties')
 @needs_authorization
-def niceties_to_print():
+def niceties_for_editing():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
     is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
@@ -52,7 +52,6 @@ def niceties_to_print():
     else:
         return jsonify({'authorized': "false"})
 
-# load-my-niceties
 @app.route('/api/v1/load-niceties')
 @needs_authorization
 def load_unsent_niceties():
