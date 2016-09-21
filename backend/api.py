@@ -8,14 +8,20 @@ from backend.auth import current_user, needs_authorization, faculty_only
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
-from urllib.request import Request, urlopen
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
 
 import sys
+from functools import partial
+from urllib.request import Request, urlopen
+from operator import is_not
 
-@app.route('/api/v1/all-niceties')
+@app.route('/gee')
+def ya():
+    return jsonify(batch_people(29))
+
+@app.route('/api/v1/all-niceties', methods=['GET'])
 @needs_authorization
 def all_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
@@ -35,7 +41,7 @@ def all_niceties():
             if n.anonymous == False:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
-                    'name': json.loads(person(n.author_id).data)['name'],
+                    'name': json.loads(person(n.author_id).data)['full_name'],
                     'no_read': n.no_read,
                     'text': n.text,
                 })
@@ -46,7 +52,7 @@ def all_niceties():
                 })
         return jsonify([
             {
-                'to_name': json.loads(person(k).data)['name'],
+                'to_name': json.loads(person(k).data)['full_name'],
                 'to_id': json.loads(person(k).data)['id'],
                 'niceties': v
             }
@@ -54,6 +60,39 @@ def all_niceties():
         ])
     else:
         return jsonify({'authorized': "false"})
+
+@app.route('/api/v1/all-niceties', methods=['POST'])
+@needs_authorization
+def overwrite_niceties():
+    is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
+    two_weeks_from_now = datetime.now() - timedelta(days=14)
+    niceties_to_save = json.loads(request.form.get("niceties", "[]"))
+    print(niceties_to_save)
+    # for n in niceties_to_save:
+    #     nicety = (
+    #         Nicety
+    #         .query      # Query is always about getting Nicety objects from the database
+    #         .filter_by(
+    #             end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
+    #             target_id=n.get("target_id"),
+    #             author_id=current_user().id)
+    #         .one_or_none())
+    #     if nicety is None:
+    #         nicety = Nicety(
+    #             end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
+    #             target_id=n.get("target_id"),
+    #             author_id=current_user().id)
+    #         db.session.add(nicety)
+    #     nicety.anonymous = n.get("anonymous", current_user().anonymous_by_default)
+    #     text = n.get("text").strip()
+    #     if '' == text:
+    #         text = None
+    #     nicety.text = text
+    #     nicety.faculty_reviewed = False
+    #     nicety.no_read = n.get("no_read")
+    #     nicety.date_updated = n.get("date_updated")
+    # db.session.commit()
+    return jsonify({'status': 'OK'})
 
 @app.route('/api/v1/load-niceties')
 @needs_authorization
@@ -76,28 +115,11 @@ def load_unsent_niceties():
 @app.route('/api/v1/show-niceties')
 @needs_authorization
 def get_niceties_for_current_user():
-    """Returns JSON list like:
-    [
-        {
-            author_id: 0,   // target_id
-            end_date: "",
-            anonymous: true/false,
-            text: "",
-        },
-        {
-            author_id: int,
-            end_date: "",
-            anonymous: true/false,
-            text: "",
-        },
-        ...
-    ]
-    """
     ret = []
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # only show niceties that have a later date than now (i.e. future niceties)
+                      #.filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # only show niceties that have a later date than now (i.e. future niceties)
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
@@ -149,11 +171,12 @@ def batch_people(batch_id):
             else:
                 placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
 
-            user_date = None
+            latest_end_date = None
             for stint in p['stints']:
-                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                if user_date is None or e > user_date:
-                    user_date = e
+                if stint['end_date'] is not None:
+                    e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+                    if latest_end_date is None or e > latest_end_date:
+                        latest_end_date = e
             people.append({
                 'id': p['id'],
                 'is_faculty': p['is_faculty'],
@@ -169,10 +192,10 @@ def batch_people(batch_id):
                 'twitter': p['twitter'],
                 'github': p['github'],
                 'repos': repo_info,
-                'end_date': user_date
+                'end_date': latest_end_date,
             })
         cache.set(cache_key, people)
-    return (people)
+    return people
 
 @app.route('/api/v1/faculty')
 @needs_authorization
@@ -186,6 +209,7 @@ def get_current_faculty():
     '''
     faculty = []
     for batch in get_current_batches():
+        print(batch)
         for p in batch_people(batch['id']):
             if p['is_faculty'] == True:
                 faculty.append(p)
@@ -200,6 +224,7 @@ def get_current_batches():
         return cache.get(cache_key)
     except cache.NotInCache:
         batches = rc.get('batches').data
+        #rc.get can return unauthorized
         ret = [batch for batch in batches if util.latest_batches(batch['end_date'])]
         cache.set(cache_key, ret)
         return ret
@@ -216,16 +241,13 @@ def partition_current_users(users):
     end_dates = []
     for stints in user_stints:
         if stints != []:
-            latest_end_date = None
             for stint in stints:
-                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                if latest_end_date is None or e > latest_end_date:
-                    latest_end_date = e
-            end_dates.append(latest_end_date)
+                if stint['end_date'] is not None and stint['type'] == 'retreat':
+                    end_dates.append(stint['end_date'])
     end_dates = sorted(list(set(end_dates)))
     end_dates = end_dates[::-1]
-    staying_date = end_dates[0]
-    leaving_date = end_dates[1]
+    staying_date = datetime.strptime(end_dates[0], "%Y-%m-%d")
+    leaving_date = datetime.strptime(end_dates[1], "%Y-%m-%d")
     for u in users:
         # Batchlings have   is_hacker_schooler = True,      is_faculty = False
         # Faculty have      is_hacker_schooler = ?,         is_faculty = True
@@ -237,8 +259,9 @@ def partition_current_users(users):
                 ret['staying'].append(u)
             elif u['end_date'] == leaving_date:
                 ret['leaving'].append(u)
+            else:
+                print(u['name'], u['end_date'])
     return ret
-
 
 @app.route('/api/v1/people2')
 @needs_authorization
@@ -276,11 +299,6 @@ def display_people():
         #to_display = leaving
     return jsonify(to_display)
 
-@app.route('/api/v1/github-repos')
-@needs_authorization
-def abc():
-    return urlopen("https://api.github.com/users/katur/repos").read()
-
 @app.route('/api/v1/people/<int:person_id>')
 @needs_authorization
 def person(person_id):
@@ -291,7 +309,8 @@ def person(person_id):
         p = rc.get('people/{}'.format(person_id)).data
         person = {
             'id': p['id'],
-            'name': util.name_from_rc_person(p),
+            'name': p['first_name'],
+            'full_name': p['first_name'] + " " + p['last_name'],
             'avatar_url': p['image'],
             'is_faculty': p['is_faculty'],
             'bio': p['bio'],
@@ -309,23 +328,6 @@ def person(person_id):
 @app.route('/api/v1/post-niceties', methods=['POST'])
 @needs_authorization
 def save_niceties():
-    """Expects JSON list like:
-    [
-        {
-            target_id: 0,   // target_id
-            end_date: "",
-            anonymous: true/false,
-            text: "",
-        },
-        {
-            target_id: int,
-            end_date: "",
-            anonymous: true/false,
-            text: "",
-        },
-        ...
-    ]
-    """
     niceties_to_save = json.loads(request.form.get("niceties", "[]"))
     for n in niceties_to_save:
         nicety = (

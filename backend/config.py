@@ -96,7 +96,7 @@ def from_frontend_value(key, value):
 def set_to_default():
     import datetime
     set(NICETIES_OPEN, datetime.timedelta(days=14))
-    set(CLOSING_TIME, datetime.time(14, 0))
+    set(CLOSING_TIME, datetime.time(18, 0))
     set(CLOSING_BUFFER, datetime.timedelta(minutes=30))
     set(CACHE_TIMEOUT, datetime.timedelta(days=7))
     set(INCLUDE_FACULTY, False)
