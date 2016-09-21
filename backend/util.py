@@ -23,3 +23,7 @@ def name_from_rc_person(person):
     """Returns a name as a string from an RC person object."""
     return person['first_name']
     #return '{} {}'.format(person['first_name'], person['last_name'])
+
+def full_name_from_rc_person(person):
+    """Returns a name as a string from an RC person object."""
+    return '{} {}'.format(person['first_name'], person['last_name'])

@@ -182,6 +182,7 @@ def batch_people(batch_id):
                 'is_faculty': p['is_faculty'],
                 'is_hacker_schooler': p['is_hacker_schooler'],
                 'name': util.name_from_rc_person(p),
+                'full_name': util.full_name_from_rc_person(p),
                 'avatar_url': p['image'],
                 'stints': p['stints'],
                 'bio': p['bio'],
