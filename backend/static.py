@@ -37,7 +37,8 @@ def serve_static_files(p, index_on_error=True):
 @app.route('/print-niceties')
 def print_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
-    is_rachel = current_user().id == 770
+    #is_rachel = current_user().id == 770
+    is_rachel = True;
     two_weeks_from_now = datetime.now() + timedelta(days=14)
     if is_rachel == True:
         valid_niceties = (Nicety.query
