@@ -705,7 +705,7 @@ var App = React.createClass({
         let selectedComponent = this.selectComponent(this.state.currentview);
         // Add this back to nav when it's working
         let adminMenu = null;
-        if (true) {
+        if (this.state.selfInfo.id === 770) {
             adminMenu = (<MenuItem eventKey="admin">Admin</MenuItem>);
         }
         return (
