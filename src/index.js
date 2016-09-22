@@ -11,9 +11,7 @@ ReactDOM.render(
          all_niceties_api="/api/v1/all-niceties"
          print_nicety_api="/api/v1/niceties-to-print"
          load_nicety_api="/api/v1/load-niceties"
-         // ADD THIS
-         post_admin_nicety_api=""
-         //
+         self_api="/api/v1/self"
          pollInterval={2000} />,
     document.getElementById('root')
 );

@@ -17,6 +17,12 @@ from functools import partial
 from urllib.request import Request, urlopen
 from operator import is_not
 
+@app.route('/api/v1/self')
+def get_self_info():
+    self_info = rc.get('people/me').data
+    return jsonify(self_info)
+
+
 @app.route('/gee')
 def ya():
     return jsonify(batch_people(29))
@@ -26,9 +32,9 @@ def ya():
 def all_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
-    is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
+    is_rachel = current_user().id == 770
     two_weeks_from_now = datetime.now() - timedelta(days=14)
-    if is_faculty == True:
+    if is_rachel == True:
         valid_niceties = (Nicety.query
                           #.filter(Nicety.end_date < two_weeks_from_now)
                           .order_by(Nicety.target_id)
@@ -64,35 +70,19 @@ def all_niceties():
 @app.route('/api/v1/all-niceties', methods=['POST'])
 @needs_authorization
 def overwrite_niceties():
-    is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
-    two_weeks_from_now = datetime.now() - timedelta(days=14)
-    niceties_to_save = json.loads(request.form.get("niceties", "[]"))
-    print(niceties_to_save)
-    # for n in niceties_to_save:
-    #     nicety = (
-    #         Nicety
-    #         .query      # Query is always about getting Nicety objects from the database
-    #         .filter_by(
-    #             end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
-    #             target_id=n.get("target_id"),
-    #             author_id=current_user().id)
-    #         .one_or_none())
-    #     if nicety is None:
-    #         nicety = Nicety(
-    #             end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
-    #             target_id=n.get("target_id"),
-    #             author_id=current_user().id)
-    #         db.session.add(nicety)
-    #     nicety.anonymous = n.get("anonymous", current_user().anonymous_by_default)
-    #     text = n.get("text").strip()
-    #     if '' == text:
-    #         text = None
-    #     nicety.text = text
-    #     nicety.faculty_reviewed = False
-    #     nicety.no_read = n.get("no_read")
-    #     nicety.date_updated = n.get("date_updated")
-    # db.session.commit()
-    return jsonify({'status': 'OK'})
+    is_rachel = current_user().id == 770
+    nicety_text = request.form.get("text")
+    nicety_author = request.form.get("author_id")
+    nicety_target = request.form.get("target_id")
+    if is_rachel == True:
+        (Nicety.query
+         .filter(Nicety.author_id==nicety_author)
+         .filter(Nicety.target_id==nicety_target)
+         .update({'text': nicety_text}))
+        db.session.commit()
+        return jsonify({'status': 'OK'})
+    else:
+        return jsonify({'authorized': "false"})
 
 @app.route('/api/v1/load-niceties')
 @needs_authorization
@@ -111,7 +101,6 @@ def load_unsent_niceties():
     } for n in niceties]
     return jsonify(ret)
 
-# show-my-niceties
 @app.route('/api/v1/show-niceties')
 @needs_authorization
 def get_niceties_for_current_user():
@@ -119,7 +108,7 @@ def get_niceties_for_current_user():
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      #.filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # only show niceties that have a later date than now (i.e. future niceties)
+                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # show niceties one day after the end date
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
@@ -148,8 +137,8 @@ def get_niceties_for_current_user():
     pass
 
 def batch_people(batch_id):
+    cache_key = 'batches_people_list:{}'.format(batch_id)
     try:
-        cache_key = 'batches_people_list:{}'.format(batch_id)
         people = cache.get(cache_key)
     except cache.NotInCache:
         people = []
@@ -177,6 +166,7 @@ def batch_people(batch_id):
                     e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
                     if latest_end_date is None or e > latest_end_date:
                         latest_end_date = e
+            print(p['first_name'], latest_end_date)
             people.append({
                 'id': p['id'],
                 'is_faculty': p['is_faculty'],
@@ -210,7 +200,6 @@ def get_current_faculty():
     '''
     faculty = []
     for batch in get_current_batches():
-        print(batch)
         for p in batch_people(batch['id']):
             if p['is_faculty'] == True:
                 faculty.append(p)
@@ -220,15 +209,16 @@ def get_users(batches):
     return [person for batch in batches for person in batch_people(batch['id'])]
 
 def get_current_batches():
+    cache_key = 'open_batches_list'
     try:
-        cache_key = 'open_batches_list'
-        return cache.get(cache_key)
+        batches = cache.get(cache_key)
     except cache.NotInCache:
         batches = rc.get('batches').data
-        #rc.get can return unauthorized
-        ret = [batch for batch in batches if util.latest_batches(batch['end_date'])]
-        cache.set(cache_key, ret)
-        return ret
+        cache.set(cache_key, batches)
+    ret = [batch for batch in batches if util.latest_batches(batch['end_date'])]
+    if len(ret) == 1:
+        ret = []
+    return ret
 
 def get_current_users():
     return get_users(get_current_batches())
@@ -258,16 +248,21 @@ def partition_current_users(users):
             (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
             if u['end_date'] == staying_date:
                 ret['staying'].append(u)
+                print(u['name'], u['end_date'])
             elif u['end_date'] == leaving_date:
                 ret['leaving'].append(u)
+                #print(u['name'], u['end_date'], leaving_date)
             else:
-                print(u['name'], u['end_date'])
+                pass
     return ret
 
 @app.route('/api/v1/people2')
 @needs_authorization
 def display_people():
-    people = partition_current_users(get_current_users())
+    current = get_current_users()
+    if current == []:
+        return jsonify({'status': 'closed'})
+    people = partition_current_users(current)
     user_id = current_user().id
     current_user_leaving = False
     leaving = []

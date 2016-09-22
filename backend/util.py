@@ -15,8 +15,6 @@ def latest_batches(end_date):
         (end_date - timedelta(days=1)).date(),
         config.get(config.CLOSING_TIME, time(hour=18, minute=0)))
     now = datetime.now()
-    if closing_time > now:
-        print(end_date, closing_time)
     return (closing_time > now)
 
 def name_from_rc_person(person):

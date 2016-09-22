@@ -7,13 +7,13 @@ import React, { Component } from 'react';
 
 import Remarkable from 'remarkable';
 import logo from './logo.svg';
-import octotie from './octotie.png'
-import suittie from './suittie.png'
+import octotie from './octotie.png';
+import suittie from './suittie.png';
 import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
 var updated_niceties = new Set();
-const components = { People, NicetyDisplay }
+const components = { People, NicetyDisplay };
 
 if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === "undefined") {
     localStorage.setItem("saved", "true");
@@ -178,6 +178,7 @@ var People = React.createClass({
         );}
 });
 
+// abc
 var SaveButton = React.createClass({
     render: function() {
         if (this.props.noSave === true) {
@@ -234,9 +235,9 @@ var Person = React.createClass({
                 break;
             }
         }
-        if (foundPerson) {
-            console.log(foundPerson);
-        }
+        // if (foundPerson) {
+        //     console.log(foundPerson);
+        // }
         let dateUpdated;
         if (foundPerson) {
             if (dataPerson.date_updated === null) {
@@ -506,7 +507,8 @@ var Admin = React.createClass({
                                 <br />
                                 {person.niceties.map((nicety) => {
                                     return (
-                                        <AdminNicety nicety={nicety} target_id={person.to_id} />
+                                            <AdminNicety nicety={nicety} target_id={person.to_id}
+                                                         all_niceties_api = {this.props.all_niceties_api}/>
                                     );
                                 })}
                             <hr />
@@ -521,6 +523,7 @@ var Admin = React.createClass({
     }
 });
 
+// abc
 var AdminNicety = React.createClass({
     getInitialState: function() {
         return {
@@ -535,8 +538,9 @@ var AdminNicety = React.createClass({
             author_id: this.props.nicety.author_id,
             target_id: this.props.target_id
         }
-         $.ajax({
-            url: this.props.post_admin_nicety_api,
+        // console.log(data)
+        $.ajax({
+            url: this.props.all_niceties_api,
             data: data,
             dataType: 'json',
             type: 'POST',
@@ -564,7 +568,7 @@ var AdminNicety = React.createClass({
 
         let noRead = null;
         if (this.props.nicety.no_read === true) {
-            noRead = (<h5>(Don't Read At Ceremony, Please)</h5>);
+            noRead = "Don't Read At Ceremony, Please";
         }
 
         let nicetyReturn = null;
@@ -575,7 +579,7 @@ var AdminNicety = React.createClass({
             nicetyReturn = (
                 <div>
                     <h4>From {nicetyName}</h4>
-                    {noRead}
+                    <h5>{noRead}</h5>
                     <textarea
                         defaultValue={this.state.text}
                         onChange={this.textareaChange}
@@ -587,7 +591,7 @@ var AdminNicety = React.createClass({
                         Save
                     </SaveButton>
                     <br />
-                </div> 
+                </div>
             );
         }
         return nicetyReturn;
@@ -604,7 +608,7 @@ var App = React.createClass({
                 callback(data);
             },
             error: function(xhr, status, err) {
-                console.error(this.props.people, status, err.toString());
+                //console.error(this.props.people, status, err.toString());
             }.bind(this)
         });
     },
@@ -617,7 +621,7 @@ var App = React.createClass({
                 callback(data);
             },
             error: function(xhr, status, err) {
-                console.error(this.props.niceties, status, err.toString());
+                //console.error(this.props.fromMe, status, err.toString());
             }.bind(this)
         });
     },
@@ -630,23 +634,44 @@ var App = React.createClass({
                 callback(data);
             },
             error: function(xhr, status, err) {
-                console.error(this.props.niceties, status, err.toString());
+                //console.error(this.props.niceties, status, err.toString());
             }.bind(this)
         });
     },
-
+    loadSelfInfo: function(callback) {
+        $.ajax({
+            url: this.props.self_api,
+            dataType: 'json',
+            cache: false,
+            success: function(data) {
+                callback(data);
+            },
+            error: function(xhr, status, err) {
+                //console.error(this.props.niceties, status, err.toString());
+            }.bind(this)
+        });
+    },
     getInitialState: function() {
         return {
                 fromMe: [],
                 people: [],
                 niceties: [],
-                currentview: "write-niceties"};
+                currentview: "write-niceties",
+                selfInfo: [],
+        };
     },
     componentDidMount: function() {
         this.loadNicetiesFromMe(function (data1) {
             this.loadPeopleFromServer(function (data2) {
                 this.loadNicetiesForMe(function (data3) {
-                    this.setState({niceties: data3, people: data2, fromMe: data1});
+                    this.loadSelfInfo(function (data4) {
+                        this.setState({
+                            niceties: data3,
+                            people: data2,
+                            fromMe: data1,
+                            selfInfo: data4
+                        });
+                    }.bind(this));
                 }.bind(this));
             }.bind(this));
         }.bind(this));
@@ -659,23 +684,30 @@ var App = React.createClass({
         case "write-niceties":
             $('.dropdown a').text('Write Niceties');
             $('.dropdown a').append('<span class="caret"></span>');
+            if ('status' in this.state.people) {
+                return <h1>Niceties are closed!</h1>
+            }
             return <People people={this.state.people}
                             fromMe={this.state.fromMe}
                             post_nicety_api={this.props.post_nicety_api} />
         case "view-niceties":
-            $('.dropdown a').text('Niceties About You');
+            $('.dropdown a').text('Niceties For You');
             $('.dropdown a').append('<span class="caret"></span>');
             return <NicetyDisplay niceties={this.state.niceties} />
         case "admin":
             $('.dropdown a').text('Admin');
             $('.dropdown a').append('<span class="caret"></span>');
-            return <Admin all_niceties_api={this.props.all_niceties_api}/> 
+            return <Admin all_niceties_api={this.props.all_niceties_api}/>
         default:
         };
     },
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);
         // Add this back to nav when it's working
+        let adminMenu = null;
+        if (true) {
+            adminMenu = (<MenuItem eventKey="admin">Admin</MenuItem>);
+        }
         return (
             <div className="App">
                 <Navbar fixedTop id="main_nav">
@@ -688,8 +720,8 @@ var App = React.createClass({
                     <Nav activeKey={this.state.currentview} onSelect={this.handleSelect}>
                         <NavDropdown>
                             <MenuItem eventKey="write-niceties" >Write Niceties</MenuItem>
-                            <MenuItem eventKey="view-niceties" disabled >Niceties About You</MenuItem>
-                            <MenuItem eventKey="admin">Admin</MenuItem>
+                            <MenuItem eventKey="view-niceties" >Niceties About You</MenuItem>
+                            {adminMenu}
                         </NavDropdown>
                     </Nav>
                 </Navbar>

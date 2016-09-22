@@ -1,9 +1,11 @@
 import os
-from flask import json, send_file, abort, url_for, redirect, render_template
+from collections import OrderedDict
+
+from datetime import datetime, timedelta
+from flask import json, jsonify, send_file, abort, url_for, redirect, render_template
 
 from backend import app
 from backend.auth import current_user, needs_authorization
-from datetime import datetime, timedelta
 from backend.models import Nicety, SiteConfiguration
 from backend.api import person
 
@@ -35,35 +37,48 @@ def serve_static_files(p, index_on_error=True):
 @app.route('/print-niceties')
 def print_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
-    last_target = None
-    is_faculty = True #json.loads(person(current_user().id).data)['is_faculty']
-    two_weeks_from_now = datetime.now() - timedelta(days=14)
-    if is_faculty == True:
+    is_rachel = current_user().id == 770
+    two_weeks_from_now = datetime.now() + timedelta(days=14)
+    if is_rachel == True:
         valid_niceties = (Nicety.query
-                          #.filter(Nicety.end_date < two_weeks_from_now)
+                          .filter(Nicety.end_date < two_weeks_from_now)
                           .order_by(Nicety.target_id)
                           .all())
+        last_target = None
         for n in valid_niceties:
-            if n.target_id != last_target:
+            target = json.loads(person(n.target_id).data)['full_name']
+            if target != last_target:
                 # ... set up the test for the next one
-                last_target = n.target_id
-                ret[n.target_id] = []  # initialize the dictionary
-            if n.anonymous == False:
-                ret[n.target_id].append({
-                    'author_id': n.author_id,
-                    'name': json.loads(person(n.author_id).data)['name'],
-                    'text': n.text,
-                })
-            else:
-                ret[n.target_id].append({
-                    'text': n.text,
-                })
+                last_target = target
+                ret[target] = []  # initialize the dictionary
+            if n.text is not None and n.text.isspace() == False:
+                if n.anonymous == False:
+                    ret[target].append({
+                        'author_id': n.author_id,
+                        'anon': False,
+                        'name': json.loads(person(n.author_id).data)['full_name'],
+                        'text': n.text,
+                    })
+                else:
+                    ret[target].append({
+                        'anon': True,
+                        'name': "An Unknown Admirer",
+                        'text': n.text,
+                    })
+        ret = OrderedDict(sorted(ret.items(), key=lambda t: t[0]))
+        names = ret.keys()
         data = []
         for k, v in ret.items():
+            # sort by name, then sort by reverse author_id
             data.append({
-                'to': json.loads(person(k).data)['name'],
-                'niceties': v
+                'to': k,
+                'niceties': #sorted(v, key=lambda k: k['name'])
+                sorted(sorted(v, key=lambda k: k['name']), key=lambda k: k['anon'])
             })
-        return render_template('printniceties.html', data=data)
+        return render_template('printniceties.html',
+                               data={
+                                   'names': names,
+                                   'niceties': data
+                               })
     else:
-        return redirect(url_for(home()))
+        return jsonify({'authorized': "false"})
