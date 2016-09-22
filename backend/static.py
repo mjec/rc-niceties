@@ -40,8 +40,22 @@ def print_niceties():
     is_rachel = current_user().id == 770
     two_weeks_from_now = datetime.now() + timedelta(days=14)
     if is_rachel == True:
+        # These queries include HARDCODED STAFF MEMBERS
+        # AND SHOULD ABSOLUTELY BE CHANGED
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date < two_weeks_from_now)
+                          .order_by(Nicety.target_id)
+                          .all())
+        valid_niceties.extend(Nicety.query
+                          .filter(Nicety.target_id == 30)
+                          .order_by(Nicety.target_id)
+                          .all())
+        valid_niceties.extend(Nicety.query
+                          .filter(Nicety.target_id == 134)
+                          .order_by(Nicety.target_id)
+                          .all())
+        valid_niceties.extend(Nicety.query
+                          .filter(Nicety.target_id == 257)
                           .order_by(Nicety.target_id)
                           .all())
         last_target = None

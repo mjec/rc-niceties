@@ -18,6 +18,7 @@ from urllib.request import Request, urlopen
 from operator import is_not
 
 @app.route('/api/v1/self')
+@needs_authorization
 def get_self_info():
     self_info = rc.get('people/me').data
     return jsonify(self_info)

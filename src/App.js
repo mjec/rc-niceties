@@ -691,7 +691,7 @@ var App = React.createClass({
                             fromMe={this.state.fromMe}
                             post_nicety_api={this.props.post_nicety_api} />
         case "view-niceties":
-            $('.dropdown a').text('Niceties For You');
+            $('.dropdown a').text('Niceties About You');
             $('.dropdown a').append('<span class="caret"></span>');
             return <NicetyDisplay niceties={this.state.niceties} />
         case "admin":
@@ -703,7 +703,6 @@ var App = React.createClass({
     },
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);
-        // Add this back to nav when it's working
         let adminMenu = null;
         if (this.state.selfInfo.id === 770) {
             adminMenu = (<MenuItem eventKey="admin">Admin</MenuItem>);
