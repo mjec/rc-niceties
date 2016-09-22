@@ -166,7 +166,6 @@ def batch_people(batch_id):
                     e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
                     if latest_end_date is None or e > latest_end_date:
                         latest_end_date = e
-            print(p['first_name'], latest_end_date)
             people.append({
                 'id': p['id'],
                 'is_faculty': p['is_faculty'],
@@ -248,10 +247,8 @@ def partition_current_users(users):
             (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
             if u['end_date'] == staying_date:
                 ret['staying'].append(u)
-                print(u['name'], u['end_date'])
             elif u['end_date'] == leaving_date:
                 ret['leaving'].append(u)
-                #print(u['name'], u['end_date'], leaving_date)
             else:
                 pass
     return ret

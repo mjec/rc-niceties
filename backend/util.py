@@ -12,9 +12,10 @@ def latest_batches(end_date):
     if not isinstance(end_date, datetime):
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
     closing_time = datetime.combine(
-        (end_date - timedelta(days=1)).date(),
-        time(hour=23, minute=30))
-    #config.get(config.CLOSING_TIME, time(hour=18, minute=0)))
+        (end_date + timedelta(days=1)).date(),
+        #(end_date - timedelta(days=1)).date(),
+        config.get(config.CLOSING_TIME, time(hour=18, minute=0))
+    )
     now = datetime.now()
     return (closing_time > now)
 
