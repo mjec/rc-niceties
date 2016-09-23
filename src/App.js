@@ -235,9 +235,6 @@ var Person = React.createClass({
                 break;
             }
         }
-        // if (foundPerson) {
-        //     console.log(foundPerson);
-        // }
         let dateUpdated;
         if (foundPerson) {
             if (dataPerson.date_updated === null) {
@@ -440,6 +437,7 @@ var NicetyDisplay = React.createClass({
 });
 
 var Nicety = React.createClass({
+
     render: function() {
         let photo;
         if (this.props.data.anonymous) {
@@ -451,7 +449,7 @@ var Nicety = React.createClass({
         if ('name' in this.props.data) {
             name = this.props.data.name;
         } else {
-            name = '';
+            name = 'Anonymous';
         }
         return (
             <div className="nicety">
@@ -459,7 +457,8 @@ var Nicety = React.createClass({
                 <h3>{name}</h3>
                 <textarea
                     defaultValue={this.props.data.text}
-                    disable
+                    rows="6"
+                    readOnly
                 />
             </div>
         );

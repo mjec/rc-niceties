@@ -90,7 +90,23 @@ def overwrite_niceties():
 def load_unsent_niceties():
     user_id = current_user().id
     niceties = (Nicety.query
+                .filter(Nicety.author_id == user_id)
                 .filter(Nicety.end_date > datetime.now())
+                .all())
+    ret = [{
+        'target_id': n.target_id,
+        'text': n.text,
+        'anonymous': n.anonymous,
+        'no_read': n.no_read,
+        'date_updated': n.date_updated
+    } for n in niceties]
+    return jsonify(ret)
+
+@app.route('/api/v1/niceties-from-me')
+@needs_authorization
+def niceties_from_me():
+    user_id = current_user().id
+    niceties = (Nicety.query
                 .filter(Nicety.author_id == user_id)
                 .all())
     ret = [{
