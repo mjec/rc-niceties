@@ -23,11 +23,6 @@ def get_self_info():
     self_info = rc.get('people/me').data
     return jsonify(self_info)
 
-
-@app.route('/gee')
-def ya():
-    return jsonify(batch_people(29))
-
 @app.route('/api/v1/all-niceties', methods=['GET'])
 @needs_authorization
 def all_niceties():
@@ -270,7 +265,7 @@ def partition_current_users(users):
                 pass
     return ret
 
-@app.route('/api/v1/people2')
+@app.route('/api/v1/people')
 @needs_authorization
 def display_people():
     current = get_current_users()
