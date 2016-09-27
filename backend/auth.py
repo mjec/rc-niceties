@@ -22,9 +22,8 @@ def login():
     if app.config.get('DEV') == 'TRUE':
         return rc.authorize(callback=url_for('authorized', _external=True))
     elif app.config.get('DEV') == 'FALSE':
-        print(url_for('authorized', _external=True, _scheme='https'))
+        print(redirect(url_for('authorized', _external=True, _scheme='https')))
         sys.stdout.flush()
-        #return rc.authorize("https://niceties.recurse.com/login/authorized")
         return rc.authorize(redirect(callback=url_for('authorized', _external=True, _scheme='https')))
 
 @app.route('/login/authorized')
@@ -36,11 +35,7 @@ def authorized():
                 request.args['error'],
                 request.args['error_description']
             ))
-    print(resp)
-    sys.stdout.flush()
     session['rc_token'] = (resp['access_token'], '')
-    print(session['rc_token'])
-    sys.stdout.flush()
     me = rc.get('people/me').data
     user = User.query.get(me['id'])
     if user is None:
