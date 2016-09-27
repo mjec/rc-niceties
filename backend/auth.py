@@ -24,8 +24,8 @@ def login():
     elif app.config.get('DEV') == 'FALSE':
         print(url_for('authorized', _external=True, _scheme='https'))
         sys.stdout.flush()
-        return rc.authorize("https://niceties.recurse.com/login/authorized")
-        #return rc.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
+        #return rc.authorize("https://niceties.recurse.com/login/authorized")
+        return rc.authorize(redirect(callback=url_for('authorized', _external=True, _scheme='https')))
 
 @app.route('/login/authorized')
 def authorized():
