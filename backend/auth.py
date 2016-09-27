@@ -76,13 +76,13 @@ def current_user():
 def needs_authorization(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        #try:
-        if current_user() is None:
-            return redirect(url_for('login'))
-        else:
-            return f(*args, **kwargs)
-        #except flask_oauthlib.client.OAuthException:
-        #    return redirect(url_for('home'))
+        try:
+            if current_user() is None:
+                return redirect(url_for('login'))
+            else:
+                return f(*args, **kwargs)
+        except flask_oauthlib.client.OAuthException:
+            return redirect(url_for('home'))
     return decorated_function
 
 def faculty_only(f):
