@@ -22,15 +22,6 @@ def login():
         return rc.authorize(callback=url_for('authorized', _external=True))
     elif app.config.get('DEV') == 'FALSE':
         return rc.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
-    # return rc.authorize(callback='urn:ietf:wg:oauth:2.0:oob')
-
-# @app.route('/logout')
-# def logout():
-#     session.pop('rc_token', None)
-#     session.pop('user_id', None)
-#     _current_user_memo = None
-#     print(session)
-#     return redirect(url_for('home'))
 
 @app.route('/login/authorized')
 def authorized():
@@ -82,7 +73,10 @@ def needs_authorization(f):
             else:
                 return f(*args, **kwargs)
         except flask_oauthlib.client.OAuthException:
-            return redirect(url_for('home'))
+            if current_user() is None:
+                return redirect(url_for('login'))
+            else:
+                return f(*args, **kwargs)
     return decorated_function
 
 def faculty_only(f):
@@ -92,5 +86,6 @@ def faculty_only(f):
         if is_faculty == True:
             return f(*args, **kwargs)
         else:
+            ## we need to redirect to a page that says "only for admins
             return redirect(url_for('login'))
     return decorated_function

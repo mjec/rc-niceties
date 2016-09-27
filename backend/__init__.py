@@ -43,7 +43,6 @@ import backend.api
 import backend.auth
 import backend.static
 
-
 # This file exports:
 #   app     The Flask() object
 #   db      The SQLAlchemy() object
