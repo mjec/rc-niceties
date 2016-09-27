@@ -32,8 +32,11 @@ def authorized():
                 request.args['error'],
                 request.args['error_description']
             ))
+    print(resp)
     session['rc_token'] = (resp['access_token'], '')
+    print(session['rc_token'])
     me = rc.get('people/me').data
+    print(me)
     user = User.query.get(me['id'])
     if user is None:
         user = User(
