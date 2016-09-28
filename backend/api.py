@@ -231,27 +231,27 @@ def get_niceties_for_current_user():
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
-        if n.anonymous == True:
-            store = {
-                'end_date': n.end_date,
-                'anonymous': n.anonymous,
-                'text': n.text,
-                'no_read': n.no_read,
-                'date_updated': n.date_updated
-            }
-        else:
-            store = {
-                'avatar_url': json.loads(cache_person_call(n.author_id).data)['avatar_url'],
-                'name': json.loads(cache_person_call(n.author_id).data)['name'],
-                'author_id': n.author_id,
-                'end_date': n.end_date,
-                'anonymous': n.anonymous,
-                'text': n.text,
-                'no_read': n.no_read,
-                'date_updated': n.date_updated
-
-            }
-        ret.append(store)
+        if n.text != None:
+            if n.anonymous == True:
+                store = {
+                    'end_date': n.end_date,
+                    'anonymous': n.anonymous,
+                    'text': n.text,
+                    'no_read': n.no_read,
+                    'date_updated': n.date_updated
+                }
+            else:
+                store = {
+                    'avatar_url': json.loads(cache_person_call(n.author_id).data)['avatar_url'],
+                    'name': json.loads(cache_person_call(n.author_id).data)['name'],
+                    'author_id': n.author_id,
+                    'end_date': n.end_date,
+                    'anonymous': n.anonymous,
+                    'text': n.text,
+                    'no_read': n.no_read,
+                    'date_updated': n.date_updated
+                }
+            ret.append(store)
     return jsonify(ret)
     pass
 
