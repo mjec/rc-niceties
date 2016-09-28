@@ -1,5 +1,6 @@
 from datetime import datetime, time, date, timedelta
 
+from backend import app
 import backend.config as config
 
 batch_closing_time_memo = {}
@@ -59,3 +60,9 @@ def next_window(latest_batches):
     time_left = earliest_end_date - now
     #print(time_left.days, time_left.seconds)
     return end_date
+
+def admin_access(current_user):
+    if app.config.get('DEV') == 'TRUE':
+        return True
+    else:
+        return current_user().id == 770

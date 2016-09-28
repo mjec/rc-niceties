@@ -7,6 +7,7 @@ from flask import json, jsonify, send_file, abort, url_for, redirect, render_tem
 from backend import app
 from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
+from backend.util import admin_access
 from backend.api import cache_person_call
 
 @app.route('/')
@@ -34,10 +35,58 @@ def serve_static_files(p, index_on_error=True):
             return abort(404)
     return send_file(full_path)
 
+@app.route('/niceties-by-sender')
+def niceties_by_user():
+    ret = {}    # Mapping from target_id to a list of niceties for that person
+    is_rachel = admin_access(current_user())
+    two_weeks_from_now = datetime.now() + timedelta(days=14)
+    if is_rachel == True:
+        valid_niceties = (Nicety.query
+                          .order_by(Nicety.author_id)
+                          .all())
+        last_author = None
+        for n in valid_niceties:
+            author = cache_person_call(n.author_id)['full_name']
+            if author != last_author:
+                # ... set up the test for the next one
+                last_author = author
+                ret[author] = []  # initialize the dictionary
+            if n.text is not None and n.text.isspace() == False:
+                if n.anonymous == False:
+                    ret[author].append({
+                        'target_id': n.target_id,
+                        'anon': False,
+                        'name': cache_person_call(n.target_id)['full_name'],
+                        'text': n.text,
+                    })
+                else:
+                    ret[author].append({
+                        'anon': True,
+                        'name': "An Unknown Admirer",
+                        'text': n.text,
+                    })
+        ret = OrderedDict(sorted(ret.items(), key=lambda t: t[0]))
+        names = ret.keys()
+        data = []
+        for k, v in ret.items():
+            # sort by name, then sort by reverse author_id
+            data.append({
+                'to': k,
+                'niceties':
+                sorted(sorted(v, key=lambda k: k['name']), key=lambda k: k['anon'])
+            })
+        return render_template('nicetiesbyusers.html',
+                               data={
+                                   'names': names,
+                                   'niceties': data
+                               })
+    else:
+        return jsonify({'authorized': "false"})
+
 @app.route('/print-niceties')
 def print_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
-    is_rachel = current_user().id == 770
+    is_rachel = admin_access(current_user())
     two_weeks_from_now = datetime.now() + timedelta(days=14)
     if is_rachel == True:
         valid_niceties = (Nicety.query
@@ -50,7 +99,7 @@ def print_niceties():
         #                   .all())
         last_target = None
         for n in valid_niceties:
-            target = json.loads(cache_person_call(n.target_id).data)['full_name']
+            target = cache_person_call(n.target_id)['full_name']
             if target != last_target:
                 # ... set up the test for the next one
                 last_target = target
@@ -60,7 +109,7 @@ def print_niceties():
                     ret[target].append({
                         'author_id': n.author_id,
                         'anon': False,
-                        'name': json.loads(cache_person_call(n.author_id).data)['full_name'],
+                        'name': cache_person_call(n.author_id)['full_name'],
                         'text': n.text,
                     })
                 else:

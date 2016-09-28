@@ -118,7 +118,8 @@ def get_current_faculty():
     return faculty
 
 def get_current_batches_info():
-    ret = [batch for batch in cache_batches_call() if util.open_batches(batch['end_date'])]
+    batches = cache_batches_call()
+    ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
     if not util.niceties_are_open(ret) or len(ret) == 1:
         ret = []
     return ret
@@ -164,7 +165,6 @@ def get_person_info(person_id):
     person_info = cache_person_call(person_id)
     return jsonify(person_info)
 
-
 # @app.route('api/v1/window')
 # @needs_authorization
 # def get_window_info():
@@ -191,7 +191,7 @@ def get_self_info():
 def post_edited_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
-    is_rachel = current_user().id == 770
+    is_rachel = util.admin_access(current_user())
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     if is_rachel == True:
         valid_niceties = (Nicety.query
@@ -206,7 +206,7 @@ def post_edited_niceties():
             if n.anonymous == False:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
-                    'name': json.loads(cache_person_call(n.author_id).data)['full_name'],
+                    'name': cache_person_call(n.author_id)['full_name'],
                     'no_read': n.no_read,
                     'text': n.text,
                 })
@@ -217,8 +217,8 @@ def post_edited_niceties():
                 })
         return jsonify([
             {
-                'to_name': json.loads(cache_person_call(k).data)['full_name'],
-                'to_id': json.loads(cache_person_call(k).data)['id'],
+                'to_name': cache_person_call(k)['full_name'],
+                'to_id': cache_person_call(k)['id'],
                 'niceties': v
             }
             for k, v in ret.items()
@@ -229,7 +229,7 @@ def post_edited_niceties():
 @app.route('/api/v1/admin-edit-niceties', methods=['POST'])
 @needs_authorization
 def get_niceties_to_edit():
-    is_rachel = current_user().id == 770
+    is_rachel = util.admin_access(current_user())
     nicety_text = request.form.get("text")
     nicety_author = request.form.get("author_id")
     nicety_target = request.form.get("target_id")
@@ -281,8 +281,8 @@ def niceties_for_me():
                 }
             else:
                 store = {
-                    'avatar_url': json.loads(cache_person_call(n.author_id).data)['avatar_url'],
-                    'name': json.loads(cache_person_call(n.author_id).data)['name'],
+                    'avatar_url': cache_person_call(n.author_id)['avatar_url'],
+                    'name': cache_person_call(n.author_id)['name'],
                     'author_id': n.author_id,
                     'end_date': n.end_date,
                     'anonymous': n.anonymous,
