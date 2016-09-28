@@ -90,3 +90,7 @@ def faculty_only(f):
             ## we need to redirect to a page that says "only for admins
             return redirect(url_for('login'))
     return decorated_function
+
+def check_token_status(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):

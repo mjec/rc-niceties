@@ -17,18 +17,19 @@ from functools import partial
 from urllib.request import Request, urlopen
 from operator import is_not
 
-
+@check_token_status
 def cache_batches_call():
     cache_key = 'open_batches_list'
     try:
         batches = cache.get(cache_key)
     except cache.NotInCache:
         batches = rc.get('batches').data
-        if 'message' in batches:
-            return redirect(url_for('login'))
+        # if 'message' in batches:
+        #     return redirect(url_for('login'))
         cache.set(cache_key, batches)
     return batches
 
+@check_token_status
 def cache_people_call(batch_id):
     cache_key = 'batches_people_list:{}'.format(batch_id)
     try:
@@ -36,8 +37,8 @@ def cache_people_call(batch_id):
     except cache.NotInCache:
         people = []
         for p in rc.get('batches/{}/people'.format(batch_id)).data:
-            if 'message' in p:
-                return redirect(url_for('login'))
+            # if 'message' in p:
+            #     return redirect(url_for('login'))
             repo_info = []
             # if p['github'] is not None:
             #     try:
@@ -81,14 +82,15 @@ def cache_people_call(batch_id):
         cache.set(cache_key, people)
     return people
 
+@check_token_status
 def cache_person_call(person_id):
     cache_key = 'person:{}'.format(person_id)
     try:
         return cache.get(cache_key)
     except cache.NotInCache:
         p = rc.get('people/{}'.format(person_id)).data
-        if 'message' in p:
-            return redirect(url_for('login'))
+        # if 'message' in p:
+        #     return redirect(url_for('login'))
         person_info = {
             'id': p['id'],
             'name': p['first_name'],
@@ -126,7 +128,10 @@ def get_current_batches_info():
 
 def get_current_users():
     batches = get_current_batches_info()
-    return [person for batch in batches for person  in cache_people_call(batch['id'])]
+    if batches != []:
+        return [person for batch in batches for person  in cache_people_call(batch['id'])]
+    else:
+        return []
 
 def partition_current_users(users):
     ret = {
@@ -182,8 +187,8 @@ def get_person_info(person_id):
 def get_self_info():
     print(rc.access_token_url)
     self_info = rc.get('people/me').data
-    if 'message' in self_info:
-        return redirect(url_for('login'))
+    # if 'message' in self_info:
+    #     return redirect(url_for('login'))
     return jsonify(self_info)
 
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
