@@ -66,7 +66,6 @@ def current_user():
 def needs_authorization(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        print(session.get('rc_token'))
         try:
             if current_user() is None:
                 return redirect(url_for('login'))
