@@ -31,7 +31,7 @@ def authorized():
                 request.args['error'],
                 request.args['error_description']
             ))
-    session['rc_token'] = (resp['access_token'], resp['refresh_token'], resp['expires_in'])
+    session['rc_token'] = (resp['access_token'], '') #resp['refresh_token'], resp['expires_in'])
     me = rc.get('people/me').data
     user = User.query.get(me['id'])
     if user is None:

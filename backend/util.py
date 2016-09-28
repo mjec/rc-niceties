@@ -31,7 +31,7 @@ def niceties_are_open(latest_batches):
         window_open = end_date - timedelta(days=7)
         if now > window_open and end_date > now:
             return True
-    return True #False
+    return False
 
 def name_from_rc_person(person):
     '''
