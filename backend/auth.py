@@ -28,7 +28,11 @@ def login():
 
 @app.route('/login/authorized')
 def authorized():
+    print("abc")
+    sys.stdout.flush()
     resp = rc.authorized_response()
+    print(resp)
+    sys.stdout.flush()
     if resp is None:
         raise AuthorizationFailed(
             'Error: {} ({})'.format(
