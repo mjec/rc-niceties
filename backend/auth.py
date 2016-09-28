@@ -12,6 +12,7 @@ from backend.models import User
 
 class AuthorizationFailed(HTTPException):
     code = 403
+
     def __init__(self, **kwargs):
         self.description = kwargs.get('description', '')
 
@@ -20,26 +21,20 @@ def login():
     if app.config.get('DEV') == 'TRUE':
         return rc.authorize(callback=url_for('authorized', _external=True))
     elif app.config.get('DEV') == 'FALSE':
-        print("abc")
-        sys.stdout.flush()
         print(redirect(url_for('authorized', _external=True, _scheme='https')))
         sys.stdout.flush()
-        return rc.authorize(callback=redirect(url_for('authorized', _external=True, _scheme='https')))
+        return rc.authorize(redirect(url_for('authorized', _external=True, _scheme='https')))
 
 @app.route('/login/authorized')
 def authorized():
-    print("abc")
-    sys.stdout.flush()
     resp = rc.authorized_response()
-    print(resp)
-    sys.stdout.flush()
     if resp is None:
         raise AuthorizationFailed(
             'Error: {} ({})'.format(
                 request.args['error'],
                 request.args['error_description']
             ))
-    session['rc_token'] = (resp['access_token'], resp['refresh_token'], resp['expires_in'])
+    session['rc_token'] = (resp['access_token'], '')
     me = rc.get('people/me').data
     user = User.query.get(me['id'])
     if user is None:
