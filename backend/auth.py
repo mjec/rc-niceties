@@ -24,7 +24,7 @@ def login():
         sys.stdout.flush()
         print(redirect(url_for('authorized', _external=True, _scheme='https')))
         sys.stdout.flush()
-        return rc.authorize(redirect(url_for('authorized', _external=True, _scheme='https')))
+        return rc.authorize(callback=redirect(url_for('authorized', _external=True, _scheme='https')))
 
 @app.route('/login/authorized')
 def authorized():
