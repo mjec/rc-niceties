@@ -4,7 +4,7 @@ import random
 
 from backend import app, rc, db
 from backend.models import Nicety, SiteConfiguration
-from backend.auth import current_user, needs_authorization, faculty_only
+from backend.auth import current_user, needs_authorization, faculty_only, get_oauth_token
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
@@ -17,10 +17,117 @@ from functools import partial
 from urllib.request import Request, urlopen
 from operator import is_not
 
+
+def cache_batches_call():
+    cache_key = 'open_batches_list'
+    try:
+        batches = cache.get(cache_key)
+    except cache.NotInCache:
+        batches = rc.get('batches').data
+        if 'message' in batches:
+            return redirect(url_for('login'))
+        cache.set(cache_key, batches)
+    return batches
+
+def cache_people_call(batch_id):
+    cache_key = 'batches_people_list:{}'.format(batch_id)
+    try:
+        people = cache.get(cache_key)
+    except cache.NotInCache:
+        people = []
+        for p in rc.get('batches/{}/people'.format(batch_id)).data:
+            if 'message' in p:
+                return redirect(url_for('login'))
+            repo_info = []
+            # if p['github'] is not None:
+            #     try:
+            #         repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+            #         for repo in repos:
+            #             repo_info.append({
+            #                 'name': repo['name'],
+            #                 'description': repo['description'],
+            #             })
+            #     except:
+            #         repo_info = []
+            #         e = sys.exc_info()[:2]
+            # if p['interests'] is not None:
+            #     placeholder = util.name_from_rc_person(p) + " has got the following interests: " + p['interests']
+            # else:
+            #     placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
+            latest_end_date = None
+            for stint in p['stints']:
+                if stint['end_date'] is not None:
+                    e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+                    if latest_end_date is None or e > latest_end_date:
+                        latest_end_date = e
+            people.append({
+                'id': p['id'],
+                'is_faculty': p['is_faculty'],
+                'is_hacker_schooler': p['is_hacker_schooler'],
+                'name': util.name_from_rc_person(p),
+                'full_name': util.full_name_from_rc_person(p),
+                'avatar_url': p['image'],
+                'stints': p['stints'],
+                'bio': p['bio'],
+                'interests': p['interests'],
+                'before_rc': p['before_rc'],
+                'during_rc': p['during_rc'],
+                'job': p['job'],
+                'twitter': p['twitter'],
+                'github': p['github'],
+                'repos': repo_info,
+                'end_date': latest_end_date,
+            })
+        cache.set(cache_key, people)
+    return people
+
+@app.route('/api/v1/people/<int:person_id>')
+@needs_authorization
+def cache_person_call(person_id):
+    cache_key = 'person:{}'.format(person_id)
+    try:
+        return cache.get(cache_key)
+    except cache.NotInCache:
+        p = rc.get('people/{}'.format(person_id)).data
+        if 'message' in p:
+            return redirect(url_for('login'))
+        person = {
+            'id': p['id'],
+            'name': p['first_name'],
+            'full_name': p['first_name'] + " " + p['last_name'],
+            'avatar_url': p['image'],
+            'is_faculty': p['is_faculty'],
+            'bio': p['bio'],
+            'interests': p['interests'],
+            'before_rc': p['before_rc'],
+            'during_rc': p['during_rc'],
+            'job': p['job'],
+            'twitter': p['twitter'],
+            'github': p['github'],
+        }
+        person_json = jsonify(person)
+        cache.set(cache_key, person_json)
+    return person_json
+
+# @app.route('api/v1/window')
+# @needs_authorization
+# def get_window_info():
+#     ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
+#     if not util.niceties_are_open(batches) or len(ret) == 1:
+#         ret = []
+#     return jsonify(
+#         {
+#             "status": 'closed',
+#             "opening": '',
+#         })
+
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
+    print(rc.access_token_url)
     self_info = rc.get('people/me').data
+    if 'message' in self_info:
+        return redirect(url_for('login'))
     return jsonify(self_info)
 
 @app.route('/api/v1/all-niceties', methods=['GET'])
@@ -43,7 +150,7 @@ def all_niceties():
             if n.anonymous == False:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
-                    'name': json.loads(person(n.author_id).data)['full_name'],
+                    'name': json.loads(cache_person_call(n.author_id).data)['full_name'],
                     'no_read': n.no_read,
                     'text': n.text,
                 })
@@ -54,8 +161,8 @@ def all_niceties():
                 })
         return jsonify([
             {
-                'to_name': json.loads(person(k).data)['full_name'],
-                'to_id': json.loads(person(k).data)['id'],
+                'to_name': json.loads(cache_person_call(k).data)['full_name'],
+                'to_id': json.loads(cache_person_call(k).data)['id'],
                 'niceties': v
             }
             for k, v in ret.items()
@@ -134,8 +241,8 @@ def get_niceties_for_current_user():
             }
         else:
             store = {
-                'avatar_url': json.loads(person(n.author_id).data)['avatar_url'],
-                'name': json.loads(person(n.author_id).data)['name'],
+                'avatar_url': json.loads(cache_person_call(n.author_id).data)['avatar_url'],
+                'name': json.loads(cache_person_call(n.author_id).data)['name'],
                 'author_id': n.author_id,
                 'end_date': n.end_date,
                 'anonymous': n.anonymous,
@@ -148,56 +255,6 @@ def get_niceties_for_current_user():
     return jsonify(ret)
     pass
 
-def batch_people(batch_id):
-    cache_key = 'batches_people_list:{}'.format(batch_id)
-    try:
-        people = cache.get(cache_key)
-    except cache.NotInCache:
-        people = []
-        for p in rc.get('batches/{}/people'.format(batch_id)).data:
-            if p['github'] is not None:
-                try:
-                    repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
-                    repo_info = []
-                    for repo in repos:
-                        repo_info.append({
-                            'name': repo['name'],
-                            'description': repo['description'],
-                        })
-                except:
-                    repo_info = []
-                    e = sys.exc_info()[:2]
-            if p['interests'] is not None:
-                placeholder = util.name_from_rc_person(p) + " has got the following interests: " + p['interests']
-            else:
-                placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
-
-            latest_end_date = None
-            for stint in p['stints']:
-                if stint['end_date'] is not None:
-                    e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                    if latest_end_date is None or e > latest_end_date:
-                        latest_end_date = e
-            people.append({
-                'id': p['id'],
-                'is_faculty': p['is_faculty'],
-                'is_hacker_schooler': p['is_hacker_schooler'],
-                'name': util.name_from_rc_person(p),
-                'full_name': util.full_name_from_rc_person(p),
-                'avatar_url': p['image'],
-                'stints': p['stints'],
-                'bio': p['bio'],
-                'interests': p['interests'],
-                'before_rc': p['before_rc'],
-                'during_rc': p['during_rc'],
-                'job': p['job'],
-                'twitter': p['twitter'],
-                'github': p['github'],
-                'repos': repo_info,
-                'end_date': latest_end_date,
-            })
-        cache.set(cache_key, people)
-    return people
 
 @app.route('/api/v1/faculty')
 @needs_authorization
@@ -210,29 +267,26 @@ def get_current_faculty():
     the most recent batch!
     '''
     faculty = []
-    for batch in get_current_batches():
-        for p in batch_people(batch['id']):
+    for batch in get_current_batches_info():
+        for p in cache_people_call(batch['id']):
             if p['is_faculty'] == True:
                 faculty.append(p)
     return faculty
 
-def get_users(batches):
-    return [person for batch in batches for person in batch_people(batch['id'])]
+@app.route('/api/v1/batches')
+def get_all_batches():
+    batches = cache_batches_call()
+    return jsonify(batches)
 
-def get_current_batches():
-    cache_key = 'open_batches_list'
-    try:
-        batches = cache.get(cache_key)
-    except cache.NotInCache:
-        batches = rc.get('batches').data
-        cache.set(cache_key, batches)
-    ret = [batch for batch in batches if util.latest_batches(batch['end_date'])]
-    if len(ret) == 1:
+def get_current_batches_info():
+    ret = [batch for batch in cache_batches_call() if util.open_batches(batch['end_date'])]
+    if not util.niceties_are_open(ret) or len(ret) == 1:
         ret = []
     return ret
 
 def get_current_users():
-    return get_users(get_current_batches())
+    batches = get_current_batches_info()
+    return [person for batch in batches for person  in cache_people_call(batch['id'])]
 
 def partition_current_users(users):
     ret = {
@@ -284,7 +338,7 @@ def display_people():
     staying = list(person for person in people['staying'])
     faculty = get_current_faculty()
     # there needs to be a better way to do this!
-    special = [person for person in faculty if person['name'] == "Lisa" or person['name'] == "Allie" or person['name'] == "John"]
+    special = []
     random.seed(current_user().random_seed)
     random.shuffle(staying)
     random.shuffle(leaving)
@@ -295,40 +349,12 @@ def display_people():
             'leaving': leaving,
             'special': special
         }
-        #to_display = staying + leaving
     else:
         to_display = {
             'leaving': leaving,
             'special': special
         }
-        #to_display = leaving
     return jsonify(to_display)
-
-@app.route('/api/v1/people/<int:person_id>')
-@needs_authorization
-def person(person_id):
-    cache_key = 'person:{}'.format(person_id)
-    try:
-        return cache.get(cache_key)
-    except cache.NotInCache:
-        p = rc.get('people/{}'.format(person_id)).data
-        person = {
-            'id': p['id'],
-            'name': p['first_name'],
-            'full_name': p['first_name'] + " " + p['last_name'],
-            'avatar_url': p['image'],
-            'is_faculty': p['is_faculty'],
-            'bio': p['bio'],
-            'interests': p['interests'],
-            'before_rc': p['before_rc'],
-            'during_rc': p['during_rc'],
-            'job': p['job'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-        }
-        person_json = jsonify(person)
-        cache.set(cache_key, person_json)
-        return person_json
 
 @app.route('/api/v1/post-niceties', methods=['POST'])
 @needs_authorization

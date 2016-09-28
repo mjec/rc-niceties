@@ -7,7 +7,7 @@ from flask import json, jsonify, send_file, abort, url_for, redirect, render_tem
 from backend import app
 from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
-from backend.api import person
+from backend.api import cache_person_call
 
 @app.route('/')
 @needs_authorization
@@ -50,7 +50,7 @@ def print_niceties():
         #                   .all())
         last_target = None
         for n in valid_niceties:
-            target = json.loads(person(n.target_id).data)['full_name']
+            target = json.loads(cache_person_call(n.target_id).data)['full_name']
             if target != last_target:
                 # ... set up the test for the next one
                 last_target = target
@@ -60,7 +60,7 @@ def print_niceties():
                     ret[target].append({
                         'author_id': n.author_id,
                         'anon': False,
-                        'name': json.loads(person(n.author_id).data)['full_name'],
+                        'name': json.loads(cache_person_call(n.author_id).data)['full_name'],
                         'text': n.text,
                     })
                 else:
