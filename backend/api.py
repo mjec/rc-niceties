@@ -290,7 +290,6 @@ def niceties_for_me():
                 }
             ret.append(store)
     return jsonify(ret)
-    pass
 
 @app.route('/api/v1/faculty')
 @needs_authorization

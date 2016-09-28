@@ -20,6 +20,10 @@ def login():
     if app.config.get('DEV') == 'TRUE':
         return rc.authorize(callback=url_for('authorized', _external=True))
     elif app.config.get('DEV') == 'FALSE':
+        print("abc")
+        sys.stdout.flush()
+        print(redirect(url_for('authorized', _external=True, _scheme='https')))
+        sys.stdout.flush()
         return rc.authorize(redirect(url_for('authorized', _external=True, _scheme='https')))
 
 @app.route('/login/authorized')
@@ -31,7 +35,7 @@ def authorized():
                 request.args['error'],
                 request.args['error_description']
             ))
-    session['rc_token'] = (resp['access_token'], '') #resp['refresh_token'], resp['expires_in'])
+    session['rc_token'] = (resp['access_token'], resp['refresh_token'], resp['expires_in'])
     me = rc.get('people/me').data
     user = User.query.get(me['id'])
     if user is None:
