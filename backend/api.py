@@ -17,28 +17,23 @@ from functools import partial
 from urllib.request import Request, urlopen
 from operator import is_not
 
-@check_token_status
 def cache_batches_call():
     cache_key = 'open_batches_list'
     try:
         batches = cache.get(cache_key)
     except cache.NotInCache:
         batches = rc.get('batches').data
-        # if 'message' in batches:
-        #     return redirect(url_for('login'))
         cache.set(cache_key, batches)
     return batches
 
-@check_token_status
 def cache_people_call(batch_id):
     cache_key = 'batches_people_list:{}'.format(batch_id)
     try:
         people = cache.get(cache_key)
     except cache.NotInCache:
         people = []
-        for p in rc.get('batches/{}/people'.format(batch_id)).data:
-            # if 'message' in p:
-            #     return redirect(url_for('login'))
+        batches = rc.get('batches/{}/people'.format(batch_id)).data
+        for p in batches:
             repo_info = []
             # if p['github'] is not None:
             #     try:
@@ -82,7 +77,6 @@ def cache_people_call(batch_id):
         cache.set(cache_key, people)
     return people
 
-@check_token_status
 def cache_person_call(person_id):
     cache_key = 'person:{}'.format(person_id)
     try:
@@ -185,7 +179,6 @@ def get_person_info(person_id):
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
-    print(rc.access_token_url)
     self_info = rc.get('people/me').data
     # if 'message' in self_info:
     #     return redirect(url_for('login'))

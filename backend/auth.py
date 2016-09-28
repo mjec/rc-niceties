@@ -20,8 +20,6 @@ def login():
     if app.config.get('DEV') == 'TRUE':
         return rc.authorize(callback=url_for('authorized', _external=True))
     elif app.config.get('DEV') == 'FALSE':
-        # print(redirect(url_for('authorized', _external=True, _scheme='https')))
-        # sys.stdout.flush()
         return rc.authorize(redirect(url_for('authorized', _external=True, _scheme='https')))
 
 @app.route('/login/authorized')
@@ -68,6 +66,7 @@ def current_user():
 def needs_authorization(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        print(session.get('rc_token'))
         try:
             if current_user() is None:
                 return redirect(url_for('login'))
@@ -90,7 +89,3 @@ def faculty_only(f):
             ## we need to redirect to a page that says "only for admins
             return redirect(url_for('login'))
     return decorated_function
-
-def check_token_status(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
