@@ -16,14 +16,15 @@ class AuthorizationFailed(HTTPException):
     def __init__(self, **kwargs):
         self.description = kwargs.get('description', '')
 
+
 @app.route('/login')
 def login():
     if app.config.get('DEV') == 'TRUE':
-        return rc.authorize(callback=url_for('authorized', _external=True))
+        return rc.authorize(redirect(url_for('authorized', _external=True)))
     elif app.config.get('DEV') == 'FALSE':
-        print(redirect(url_for('authorized', _external=True, _scheme='https')))
+        print(url_for('authorized', _external=True, _scheme='https'))
         sys.stdout.flush()
-        return redirect(url_for('authorized', _external=True, _scheme='https'))
+        return rc.authorize(url_for('authorized', _external=True, _scheme='https'))
 
 @app.route('/login/authorized')
 def authorized():
