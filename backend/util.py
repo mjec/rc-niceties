@@ -1,6 +1,8 @@
 from datetime import datetime, time, date, timedelta
+from base64 import b64decode, b64encode
 
 from backend import app
+
 import backend.config as config
 
 batch_closing_time_memo = {}
@@ -66,3 +68,9 @@ def admin_access(current_user):
         return True
     else:
         return current_user().id == 770
+
+def encode_str(inp):
+    b64encode(inp.encode('utf-8')).decode('utf-8')
+
+def decode_str(inp):
+    b64decode(inp).decode('utf-8')

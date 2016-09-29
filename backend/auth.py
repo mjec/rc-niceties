@@ -20,7 +20,7 @@ class AuthorizationFailed(HTTPException):
 @app.route('/login')
 def login():
     if app.config.get('DEV') == 'TRUE':
-        return rc.authorize(redirect(url_for('authorized', _external=True)))
+        return rc.authorize(url_for('authorized', _external=True))
     elif app.config.get('DEV') == 'FALSE':
         print(os.environ['RC_OAUTH_REDIRECT_URI'])
         sys.stdout.flush()

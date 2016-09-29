@@ -1,5 +1,6 @@
-from backend.models import SiteConfiguration
+from backend.models import SiteConfiguration, Nicety
 from backend import db
+from base64 import b64encode, b64decode
 
 # Configuration keys
 NICETIES_OPEN = 'how long before batch end to start accepting niceties (datetime.timedelta)'
@@ -101,4 +102,13 @@ def set_to_default():
     set(CACHE_TIMEOUT, datetime.timedelta(days=7))
     set(INCLUDE_FACULTY, False)
     set(INCLUDE_RESIDENTS, False)
+    db.session.commit()
+
+def obfuscate_niceties():
+    for nicety in Nicety.query.all():
+        if nicety.text is not None:
+            encode = nicety.text.encode('utf-8')
+            new = b64encode(encode).decode('utf-8')
+            if nicety.text == b64decode(new).decode('utf-8'):
+                nicety.text = new
     db.session.commit()

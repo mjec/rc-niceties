@@ -3,11 +3,12 @@ from collections import OrderedDict
 
 from datetime import datetime, timedelta
 from flask import json, jsonify, send_file, abort, url_for, redirect, render_template
+from base64 import b64decode, b64encode
 
 from backend import app
 from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
-from backend.util import admin_access
+from backend.util import admin_access, encode_str, decode_str
 from backend.api import cache_person_call
 
 @app.route('/')
@@ -57,13 +58,13 @@ def niceties_by_sender():
                         'target_id': n.target_id,
                         'anon': False,
                         'name': cache_person_call(n.target_id)['full_name'],
-                        'text': n.text,
+                        'text': decode_str(n.text),
                     })
                 else:
                     ret[author].append({
                         'anon': True,
                         'name': "An Unknown Admirer",
-                        'text': n.text,
+                        'text': decode_str(n.text),
                     })
         ret = OrderedDict(sorted(ret.items(), key=lambda t: t[0]))
         names = ret.keys()
@@ -110,13 +111,13 @@ def print_niceties():
                         'author_id': n.author_id,
                         'anon': False,
                         'name': cache_person_call(n.author_id)['full_name'],
-                        'text': n.text,
+                        'text': decode_str(n.text),
                     })
                 else:
                     ret[target].append({
                         'anon': True,
                         'name': "An Unknown Admirer",
-                        'text': n.text,
+                        'text': decode_str(n.text),
                     })
         ret = OrderedDict(sorted(ret.items(), key=lambda t: t[0]))
         names = ret.keys()
