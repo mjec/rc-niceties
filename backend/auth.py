@@ -24,7 +24,7 @@ def login():
     elif app.config.get('DEV') == 'FALSE':
         print(os.environ['RC_OAUTH_REDIRECT_URI'])
         sys.stdout.flush()
-        return os.environ['RC_OAUTH_REDIRECT_URI']
+        return rc.authorize(os.environ['RC_OAUTH_REDIRECT_URI'])
         #return rc.authorize(url_for('authorized', _external=True, _scheme='https'))
 
 @app.route('/login/authorized')
