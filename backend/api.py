@@ -206,11 +206,11 @@ def post_edited_niceties():
                     'author_id': n.author_id,
                     'name': cache_person_call(n.author_id)['full_name'],
                     'no_read': n.no_read,
-                    'text': decode_str(n.text),
+                    'text': util.decode_str(n.text),
                 })
             else:
                 ret[n.target_id].append({
-                    'text': decode_str(n.text),
+                    'text': util.decode_str(n.text),
                     'no_read': n.no_read,
                 })
         return jsonify([
@@ -228,7 +228,7 @@ def post_edited_niceties():
 @needs_authorization
 def get_niceties_to_edit():
     is_rachel = util.admin_access(current_user())
-    nicety_text = encode_str(request.form.get("text"))
+    nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = request.form.get("author_id")
     nicety_target = request.form.get("target_id")
     if is_rachel == True:
@@ -250,7 +250,7 @@ def niceties_from_me():
                 .all())
     ret = [{
         'target_id': n.target_id,
-        'text': decode_str(n.text),
+        'text': util.decode_str(n.text),
         'anonymous': n.anonymous,
         'no_read': n.no_read,
         'date_updated': n.date_updated
@@ -273,7 +273,7 @@ def niceties_for_me():
                 store = {
                     'end_date': n.end_date,
                     'anonymous': n.anonymous,
-                    'text': decode_str(n.text),
+                    'text': util.decode_str(n.text),
                     'no_read': n.no_read,
                     'date_updated': n.date_updated
                 }
@@ -284,7 +284,7 @@ def niceties_for_me():
                     'author_id': n.author_id,
                     'end_date': n.end_date,
                     'anonymous': n.anonymous,
-                    'text': decode_str(n.text),
+                    'text': util.decode_str(n.text),
                     'no_read': n.no_read,
                     'date_updated': n.date_updated
                 }

@@ -70,7 +70,11 @@ def admin_access(current_user):
         return current_user().id == 770
 
 def encode_str(inp):
-    b64encode(inp.encode('utf-8')).decode('utf-8')
+    if inp is None:
+        return None
+    return b64encode(inp.encode('utf-8')).decode('utf-8')
 
 def decode_str(inp):
-    b64decode(inp).decode('utf-8')
+    if inp is None:
+        return None
+    return b64decode(inp).decode('utf-8')

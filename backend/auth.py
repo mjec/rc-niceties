@@ -77,10 +77,8 @@ def needs_authorization(f):
             else:
                 return f(*args, **kwargs)
         except flask_oauthlib.client.OAuthException:
-            if current_user() is None:
-                return redirect(url_for('login'))
-            else:
-                return f(*args, **kwargs)
+            ## redirect to 404
+            return redirect(url_for('home'))
     return decorated_function
 
 def faculty_only(f):
