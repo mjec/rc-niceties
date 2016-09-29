@@ -22,9 +22,10 @@ def login():
     if app.config.get('DEV') == 'TRUE':
         return rc.authorize(redirect(url_for('authorized', _external=True)))
     elif app.config.get('DEV') == 'FALSE':
-        print(url_for('authorized', _external=True, _scheme='https'))
+        print(os.environ['RC_OAUTH_REDIRECT_URI'])
         sys.stdout.flush()
-        return rc.authorize(url_for('authorized', _external=True, _scheme='https'))
+        return os.environ['RC_OAUTH_REDIRECT_URI']
+        #return rc.authorize(url_for('authorized', _external=True, _scheme='https'))
 
 @app.route('/login/authorized')
 def authorized():
