@@ -137,6 +137,21 @@ var People = React.createClass({
         if (this.state.justSaved) {
             this.alertTimer();
         }
+
+        let staffHeader;
+        let staffRows;
+        if (staying.length > 0) {
+            staffRows = special.map(function(row) {
+                return (
+                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                );
+            }.bind(this))
+ 
+            staffHeader = (
+                <h3>Staff</h3>
+                
+            );
+        }  
         return (
             <div className="people">
              <Modal show={this.state.justSaved}>
@@ -167,12 +182,8 @@ var People = React.createClass({
                     );
                 }.bind(this))}
                 {maybeHR}
-                <h3>Staff</h3>
-                {special.map(function(row) {
-                    return (
-                        <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
-                    );
-                }.bind(this))}
+                { staffHeader }  
+                { staffRows }
             </Grid>
                 </div>
         );}
