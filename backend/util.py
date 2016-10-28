@@ -64,7 +64,7 @@ def next_window(latest_batches):
     return end_date
 
 def admin_access(current_user):
-    if app.config.get('DEV') == 'TRUE' or current_user().id == 770:
+    if app.config.get('DEV') == 'TRUE' or current_user.id == 770 or current_user.id == 1804:
         return True
     else:
         return False
