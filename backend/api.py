@@ -179,10 +179,12 @@ def get_person_info(person_id):
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
-    self_info = rc.get('people/me').data
-    # if 'message' in self_info:
-    #     return redirect(url_for('login'))
-    return jsonify(self_info)
+    #self_info = rc.get('people/me').data
+    admin = util.admin_access(current_user())
+    data = {
+        'admin': admin
+    }
+    return jsonify(data)
 
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
 @needs_authorization

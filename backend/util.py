@@ -64,10 +64,10 @@ def next_window(latest_batches):
     return end_date
 
 def admin_access(current_user):
-    if app.config.get('DEV') == 'TRUE':
+    if app.config.get('DEV') == 'TRUE' or current_user().id == 770:
         return True
     else:
-        return current_user().id == 770
+        return False
 
 def encode_str(inp):
     if inp is None:

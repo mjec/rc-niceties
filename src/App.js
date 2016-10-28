@@ -714,7 +714,7 @@ var App = React.createClass({
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);
         let adminMenu = null;
-        if (this.state.selfInfo.id === 770) {
+        if (this.state.selfInfo.admin === true) {
             adminMenu = (<MenuItem eventKey="admin">Admin</MenuItem>);
         }
         return (
