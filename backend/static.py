@@ -96,9 +96,11 @@ def print_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     is_rachel = admin_access(current_user())
     three_weeks_ago = datetime.now() - timedelta(days=21)
+    two_weeks_from_now = datetime.now() + timedelta(days=14)
     if is_rachel == True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
+                          .filter(Nicety.end_date < two_weeks_from_now)
                           .order_by(Nicety.target_id)
                           .all())
         last_target = None
