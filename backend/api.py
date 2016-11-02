@@ -193,9 +193,11 @@ def post_edited_niceties():
     last_target = None
     is_rachel = util.admin_access(current_user())
     three_weeks_ago = datetime.now() - timedelta(days=21) 
+    three_weeks_from_now = datetime.now() + timedelta(days=21)
     if is_rachel == True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
+                          .filter(Nicety.end_date < three_weeks_from_now)
                           .order_by(Nicety.target_id)
                           .all())
         for n in valid_niceties:
