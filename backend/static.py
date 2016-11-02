@@ -2,7 +2,7 @@ import os
 from collections import OrderedDict
 
 from datetime import datetime, timedelta
-from flask import json, jsonify, send_file, abort, url_for, redirect, render_template
+from flask import json, jsonify, send_file, abort, url_for, redirect, render_template, send_from_directory
 from base64 import b64decode, b64encode
 
 from backend import app
@@ -16,6 +16,7 @@ from backend.api import cache_person_call
 def home():
     return send_file(os.path.realpath(os.path.join(app.static_folder, 'index.html')))
 
+'''
 @app.route('/<path:p>')
 @needs_authorization
 def serve_static_files(p, index_on_error=True):
@@ -35,6 +36,12 @@ def serve_static_files(p, index_on_error=True):
         else:
             return abort(404)
     return send_file(full_path)
+'''
+
+@app.route('/SFPixelate-Bold.ttf')
+def font():
+    return send_file(os.path.realpath(os.path.join('SFPixelate-Bold.ttf')))
+    #return send_from_directory('/', 'SFPixelate-Bold.ttf')
 
 @app.route('/niceties-by-sender')
 def niceties_by_sender():
