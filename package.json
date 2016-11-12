@@ -15,6 +15,7 @@
     "redux": "^3.5.2",
     "remarkable": "^1.6.2"
   },
+  "proxy": "http://localhost:8000",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
