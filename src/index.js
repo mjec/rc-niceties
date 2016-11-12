@@ -6,10 +6,10 @@ import './index.css';
 
 ReactDOM.render(
     <App people_api="/api/v1/people"
-         post_nicety_api="/api/v1/save-niceties"
-         get_nicety_api="/api/v1/niceties-for-me"
-         load_nicety_api="/api/v1/niceties-from-me"
-         all_niceties_api="/api/v1/admin-edit-niceties"
+         save_nicety_api="/api/v1/save-niceties"
+         for_me_api="/api/v1/niceties-for-me"
+         from_me_api="/api/v1/niceties-from-me"
+         admin_edit_api="/api/v1/admin-edit-niceties"
          print_nicety_api="/api/v1/niceties-to-print"
          self_api="/api/v1/self"
          pollInterval={2000} />,

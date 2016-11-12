@@ -58,7 +58,7 @@ var People = React.createClass({
         });
         updated_niceties_spinlock = false;
         $.ajax({
-            url: this.props.post_nicety_api,
+            url: this.props.save_nicety_api,
             data: {'niceties': JSON.stringify(data_to_save)},
             dataType: 'json',
             type: 'POST',
@@ -414,10 +414,6 @@ var NicetyDisplay = React.createClass({
         };
     },
 
-    // componentDidMount: function() {
-    //     this.loadNicetiesForMe();
-    // },
-
     generateRows: function() {
         let dataList = [];
         for (let i = 0; i < this.props.niceties.length; i +=4) {
@@ -479,7 +475,7 @@ var Nicety = React.createClass({
 var Admin = React.createClass({
     loadAllNiceties: function(callback) {
         $.ajax({
-            url: this.props.all_niceties_api,
+            url: this.props.admin_edit_api,
             dataType: 'json',
             cache: false,
             success: function(data) {
@@ -518,7 +514,7 @@ var Admin = React.createClass({
                                 {person.niceties.map((nicety) => {
                                     return (
                                             <AdminNicety nicety={nicety} target_id={person.to_id}
-                                                         all_niceties_api = {this.props.all_niceties_api}/>
+                                                         admin_edit_api = {this.props.admin_edit_api}/>
                                     );
                                 })}
                             <hr />
@@ -548,9 +544,8 @@ var AdminNicety = React.createClass({
             author_id: this.props.nicety.author_id,
             target_id: this.props.target_id
         }
-        // console.log(data)
         $.ajax({
-            url: this.props.all_niceties_api,
+            url: this.props.admin_edit_api,
             data: data,
             dataType: 'json',
             type: 'POST',
@@ -624,7 +619,7 @@ var App = React.createClass({
     },
     loadNicetiesFromMe: function(callback) {
         $.ajax({
-            url: this.props.load_nicety_api,
+            url: this.props.from_me_api,
             dataType: 'json',
             cache: false,
             success: function(data) {
@@ -637,7 +632,7 @@ var App = React.createClass({
     },
     loadNicetiesForMe: function(callback) {
         $.ajax({
-            url: this.props.get_nicety_api,
+            url: this.props.for_me_api,
             dataType: 'json',
             cache: false,
             success: function(data) {
@@ -699,7 +694,7 @@ var App = React.createClass({
             }
             return <People people={this.state.people}
                             fromMe={this.state.fromMe}
-                            post_nicety_api={this.props.post_nicety_api} />
+                            save_nicety_api={this.props.save_nicety_api} />
         case "view-niceties":
             $('.dropdown a').text('Niceties About You');
             $('.dropdown a').append('<span class="caret"></span>');
@@ -707,7 +702,7 @@ var App = React.createClass({
         case "admin":
             $('.dropdown a').text('Admin');
             $('.dropdown a').append('<span class="caret"></span>');
-            return <Admin all_niceties_api={this.props.all_niceties_api}/>
+            return <Admin admin_edit_api={this.props.admin_edit_api}/>
         default:
         };
     },
