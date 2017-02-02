@@ -140,7 +140,7 @@ var People = React.createClass({
 
         let staffHeader;
         let staffRows;
-        if (staying.length > 0) {
+        //if (staying.length > 0) {
             staffRows = special.map(function(row) {
                 return (
                     <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
@@ -151,7 +151,7 @@ var People = React.createClass({
                 <h3>Staff</h3>
                 
             );
-        }  
+        //}  
         return (
             <div className="people">
              <Modal show={this.state.justSaved}>
