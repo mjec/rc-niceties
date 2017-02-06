@@ -687,8 +687,8 @@ var App = React.createClass({
     selectComponent: function(idx) {
         switch(idx) {
         case "write-niceties":
-            $('.dropdown a').text('Write Niceties');
-            $('.dropdown a').append('<span class="caret"></span>');
+            $('.dropdown-toggle').text('Write Niceties');
+            $('.dropdown-toggle').append('<span class="caret"></span>');
             if ('status' in this.state.people) {
                 return <h1>Niceties are closed!</h1>
             }
@@ -696,12 +696,12 @@ var App = React.createClass({
                             fromMe={this.state.fromMe}
                             save_nicety_api={this.props.save_nicety_api} />
         case "view-niceties":
-            $('.dropdown a').text('Niceties About You');
-            $('.dropdown a').append('<span class="caret"></span>');
+            $('.dropdown-toggle').text('Niceties About You');
+            $('.dropdown-toggle').append('<span class="caret"></span>');
             return <NicetyDisplay niceties={this.state.niceties} />
         case "admin":
-            $('.dropdown a').text('Admin');
-            $('.dropdown a').append('<span class="caret"></span>');
+            $('.dropdown-toggle').text('Admin');
+            $('.dropdown-toggle').append('<span class="caret"></span>');
             return <Admin admin_edit_api={this.props.admin_edit_api}/>
         default:
         };
