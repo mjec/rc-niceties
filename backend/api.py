@@ -18,63 +18,38 @@ from urllib.request import Request, urlopen
 from operator import is_not
 
 def cache_batches_call():
-    cache_key = 'open_batches_list'
-    try:
-        batches = cache.get(cache_key)
-    except cache.NotInCache:
-        batches = rc.get('batches').data
-        cache.set(cache_key, batches)
+    batches = rc.get('batches').data
     return batches
 
 def cache_people_call(batch_id):
-    cache_key = 'batches_people_list:{}'.format(batch_id)
-    try:
-        people = cache.get(cache_key)
-    except cache.NotInCache:
-        people = []
-        batches = rc.get('batches/{}/people'.format(batch_id)).data
-        for p in batches:
-            repo_info = []
-            # if p['github'] is not None:
-            #     try:
-            #         repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
-            #         for repo in repos:
-            #             repo_info.append({
-            #                 'name': repo['name'],
-            #                 'description': repo['description'],
-            #             })
-            #     except:
-            #         repo_info = []
-            #         e = sys.exc_info()[:2]
-            # if p['interests'] is not None:
-            #     placeholder = util.name_from_rc_person(p) + " has got the following interests: " + p['interests']
-            # else:
-            #     placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
-            latest_end_date = None
-            for stint in p['stints']:
-                if stint['end_date'] is not None:
-                    e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                    if latest_end_date is None or e > latest_end_date:
-                        latest_end_date = e
-            people.append({
-                'id': p['id'],
-                'is_faculty': p['is_faculty'],
-                'is_hacker_schooler': p['is_hacker_schooler'],
-                'name': util.name_from_rc_person(p),
-                'full_name': util.full_name_from_rc_person(p),
-                'avatar_url': p['image'],
-                'stints': p['stints'],
-                'bio': p['bio'],
-                'interests': p['interests'],
-                'before_rc': p['before_rc'],
-                'during_rc': p['during_rc'],
-                'job': p['job'],
-                'twitter': p['twitter'],
-                'github': p['github'],
-                'repos': repo_info,
-                'end_date': latest_end_date,
-            })
-        cache.set(cache_key, people)
+    people = []
+    batches = rc.get('batches/{}/people'.format(batch_id)).data
+    for p in batches:
+        repo_info = []
+        latest_end_date = None
+        for stint in p['stints']:
+            if stint['end_date'] is not None:
+                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+                if latest_end_date is None or e > latest_end_date:
+                    latest_end_date = e
+        people.append({
+            'id': p['id'],
+            'is_faculty': p['is_faculty'],
+            'is_hacker_schooler': p['is_hacker_schooler'],
+            'name': util.name_from_rc_person(p),
+            'full_name': util.full_name_from_rc_person(p),
+            'avatar_url': p['image'],
+            'stints': p['stints'],
+            'bio': p['bio'],
+            'interests': p['interests'],
+            'before_rc': p['before_rc'],
+            'during_rc': p['during_rc'],
+            'job': p['job'],
+            'twitter': p['twitter'],
+            'github': p['github'],
+            'repos': repo_info,
+            'end_date': latest_end_date,
+        })
     return people
 
 def cache_person_call(person_id):
