@@ -1,6 +1,8 @@
 import os
 import sys
+from time import time
 import flask_oauthlib
+import requests
 
 from functools import wraps
 from flask import session, url_for, redirect, request, json
@@ -22,7 +24,6 @@ def login():
     if app.config.get('DEV') == 'TRUE':
         return rc.authorize(url_for('authorized', _external=True))
     elif app.config.get('DEV') == 'FALSE':
-        print(os.environ['RC_OAUTH_REDIRECT_URI'])
         sys.stdout.flush()
         return rc.authorize(os.environ['RC_OAUTH_REDIRECT_URI'])
         #return rc.authorize(url_for('authorized', _external=True, _scheme='https'))
@@ -36,7 +37,11 @@ def authorized():
                 request.args['error'],
                 request.args['error_description']
             ))
-    session['rc_token'] = (resp['access_token'], '')
+    session['rc_token'] = {
+            'access_token': resp['access_token'],
+            'refresh_token': resp['refresh_token'],
+            'expires_at': resp['expires_in'] + time() - 600 
+    }
     me = rc.get('people/me').data
     user = User.query.get(me['id'])
     if user is None:
@@ -55,7 +60,25 @@ def authorized():
 
 @rc.tokengetter
 def get_oauth_token():
-    return session.get('rc_token')
+    token = session.get('rc_token')
+    if time() > token['expires_at']:
+        data = {
+                'grant_type': 'refresh_token', 
+                'client_id': rc.consumer_key,
+                'client_secret': rc.consumer_secret,
+                'redirect_uri': 'ietf:wg:oauth:2.0:oob',
+                'refresh_token': token['refresh_token']
+                }
+        resp = requests.post('https://www.recurse.com/oauth/token', data=data)
+        data = resp.json()
+        session['rc_token'] = {
+            'access_token': data['access_token'],
+            'refresh_token': data['refresh_token'],
+            'expires_at': data['expires_in'] + time() - 600 
+        }
+        return (data['access_token'], '')
+    else:
+        return (token['access_token'], '') 
 
 _current_user_memo = None
 
@@ -72,7 +95,7 @@ def needs_authorization(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            if current_user() is None:
+            if (current_user() is None) or (type(session.get('rc_token')) is tuple):
                 return redirect(url_for('login'))
             else:
                 return f(*args, **kwargs)

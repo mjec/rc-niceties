@@ -1,4 +1,4 @@
-from flask import json, jsonify, request, abort, url_for, redirect
+from flask import json, jsonify, request, abort, url_for, redirect, session
 from flask.views import MethodView
 import random
 
@@ -18,7 +18,8 @@ from urllib.request import Request, urlopen
 from operator import is_not
 
 def cache_batches_call():
-    batches = rc.get('batches').data
+    res = rc.get('batches')
+    batches = res.data
     return batches
 
 def cache_people_call(batch_id):
