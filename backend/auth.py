@@ -5,7 +5,7 @@ import flask_oauthlib
 import requests
 
 from functools import wraps
-from flask import session, url_for, redirect, request, json
+from flask import session, url_for, redirect, request, json, Response, jsonify
 from werkzeug.exceptions import HTTPException
 
 from backend import app, rc, db, util
@@ -18,6 +18,20 @@ class AuthorizationFailed(HTTPException):
     def __init__(self, **kwargs):
         self.description = kwargs.get('description', '')
 
+@app.route('/testauth', methods=['POST'])
+def test_auth():
+    code = request.get_json()['code']
+    data = {
+            'grant_type': 'authorization_code', 
+            'client_id': os.environ['RC_OAUTH_ID'],
+            'client_secret': os.environ['RC_OAUTH_SECRET'],
+            'redirect_uri': 'http://localhost:8000',
+            'code': code
+            }
+    resp = requests.post('https://www.recurse.com/oauth/token', data=data)
+    tokenData = resp.json()
+    print(tokenData)
+    return jsonify(tokenData) 
 
 @app.route('/login')
 def login():

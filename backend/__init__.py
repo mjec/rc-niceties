@@ -22,6 +22,14 @@ app.config.update(dict(
 ))
 app.static_folder = app.config.get('STATIC_BASE', './static/')
 
+def add_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*' 
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    reponse.headers['Content-Type'] = 'application/json'
+    return response
+
+app.after_request(add_headers)
+
 with app.app_context():
     db = SQLAlchemy(app)
     rc = OAuth(app).remote_app(
@@ -35,10 +43,10 @@ with app.app_context():
         access_token_method='POST',
     )
 
+
 # Imports for URLs that should be available
 import backend.api
 import backend.auth
-import backend.static
 
 # This file exports:
 #   app     The Flask() object
