@@ -25,7 +25,7 @@ app.static_folder = app.config.get('STATIC_BASE', './static/')
 def add_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*' 
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    reponse.headers['Content-Type'] = 'application/json'
+    response.headers['Content-Type'] = 'application/json'
     return response
 
 app.after_request(add_headers)

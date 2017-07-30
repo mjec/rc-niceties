@@ -10,7 +10,7 @@ export default class App extends Component {
       return acc;
     }, {}); 
     if ('code' in queryDict) {
-      fetch('http://localhost:5000/testauth', {
+      fetch(`${API_HOST}/authorize`, {
         method: 'POST',
         headers: new Headers({
           'Content-Type': 'application/json'
@@ -28,9 +28,7 @@ export default class App extends Component {
       });
     }
     else if (!refreshToken) {
-      const clientId = 'f8e5036835584d12f95e020eba2efe95cdec3ab8a18743b997168b5b00f93fdc';
-      const redirectURI = 'http://localhost:8000';
-      window.location = `https://www.recurse.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectURI}`;
+      window.location = `https://www.recurse.com/oauth/authorize?response_type=code&client_id=${OAUTH_CLIENT_ID}&redirect_uri=${OAUTH_REDIRECT_URI}`;
     }
   }
 

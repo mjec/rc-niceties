@@ -18,14 +18,14 @@ class AuthorizationFailed(HTTPException):
     def __init__(self, **kwargs):
         self.description = kwargs.get('description', '')
 
-@app.route('/testauth', methods=['POST'])
+@app.route('/authorize', methods=['POST'])
 def test_auth():
     code = request.get_json()['code']
     data = {
             'grant_type': 'authorization_code', 
             'client_id': os.environ['RC_OAUTH_ID'],
             'client_secret': os.environ['RC_OAUTH_SECRET'],
-            'redirect_uri': 'http://localhost:8000',
+            'redirect_uri': os.environ['RC_OAUTH_REDIRECT_URI'],
             'code': code
             }
     resp = requests.post('https://www.recurse.com/oauth/token', data=data)
