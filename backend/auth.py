@@ -18,7 +18,7 @@ class AuthorizationFailed(HTTPException):
     def __init__(self, **kwargs):
         self.description = kwargs.get('description', '')
 
-@app.route('/authorize', methods=['POST'])
+@app.route('/admin/authorize', methods=['POST'])
 def authorize():
     code = request.get_json()['code']
     data = {
@@ -31,7 +31,7 @@ def authorize():
     resp = requests.post('https://www.recurse.com/oauth/token', data=data)
     return jsonify(resp.json()) 
 
-@app.route('/rc-test', methods=['GET'])
+@app.route('/admin/data', methods=['GET'])
 def rc_test():
     access_token = request.headers['X-Access-Token']
     print(access_token)

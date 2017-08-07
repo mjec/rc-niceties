@@ -1,67 +1,65 @@
 import React, {Component, PropTypes} from 'react';
+import {connect} from 'react-redux';
+import {getTokens, setTokens} from '../actions/auth';
+import Admin from './Admin';
 
-export default class App extends Component {
+class AppContainer extends Component {
 
   componentDidMount() {
-    function fetchToken() {
-      return fetch(`${API_HOST}/authorize`, {
-        method: 'POST',
-        headers: new Headers({
-          'Content-Type': 'application/json'
-        }),
-        body: JSON.stringify({
-          code: queryDict['code']
-        })
-      })
-    }
-    function fetchUser(accessToken, refreshToken) {
-      return fetch(`${API_HOST}/rc-test`, {
-        headers: new Headers({
-          'X-Access-Token': `${accessToken}`,
-          'X-Refresh-Token': `${refreshToken}` 
-        })
-      })
-    }
+    const {params, getTokens, setTokens} = this.props;
+
     const accessToken = localStorage.getItem('access-token');
     const refreshToken = localStorage.getItem('refresh-token');
-    const queryDict = location.search.slice(1).split('&').reduce((acc, query) => {
-      const arr = query.split('=');
-      acc[arr[0]] = arr[1];
-      return acc;
-    }, {}); 
-    if ('code' in queryDict) {
-      fetchToken().then(response => {
-        return response.json();
-      }).then(json => {
-        localStorage.setItem('access-token', json['access_token']);
-        localStorage.setItem('refresh-token', json['refresh_token']);
-        return fetchUser(json['access_token'], json['refresh_token']);
-      }).then(response => {
-        return response.json();
-      }).then(json => {
-        debugger;
-      }).catch(err => {
-        debugger
-      });
+
+    if ('code' in params) {
+      getTokens(params['code']);
     }
     else if (!accessToken) {
       window.location = `https://www.recurse.com/oauth/authorize?response_type=code&client_id=${OAUTH_CLIENT_ID}&redirect_uri=${OAUTH_REDIRECT_URI}`;
     } else {
-      fetchUser(accessToken, refreshToken).then(response => {
-        return response.json();
-      }).then(json => {
-        debugger;
-      }).catch(err => {
-        debugger
-      });
+      setTokens(accessToken, refreshToken);
     }
   }
 
   render() {
-    return (
-      <div>
-        Testing!
-      </div>
-    );
+    const {auth, rcData} = this.props;
+    if (auth.success === true) {
+      return (
+        <Admin />
+      );
+    } else if (auth.loading === true) {
+      return (
+        <div>
+          Loading user...
+        </div>
+      );
+    } else if (auth.failure === true) {
+      return (
+        <div>
+          {JSON.stringify(auth.error)}
+        </div>
+      );
+    } else {
+      return null; 
+    }
   }
 }
+
+AppContainer.propTypes = {
+  auth: PropTypes.object,
+  getTokens: PropTypes.func,
+  setTokens: PropTypes.func
+}
+
+const App = connect(
+  state => {
+    return {
+      auth: state.auth
+    };
+  }, {
+    getTokens,
+    setTokens
+  }
+)(AppContainer);
+
+export default App;
