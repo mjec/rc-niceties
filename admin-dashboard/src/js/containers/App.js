@@ -1,24 +1,13 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
-import {getTokens, setTokens} from '../actions/auth';
+import {authenticate} from '../actions/auth';
 import Admin from './Admin';
 
 class AppContainer extends Component {
 
   componentDidMount() {
-    const {params, getTokens, setTokens} = this.props;
-
-    const accessToken = localStorage.getItem('access-token');
-    const refreshToken = localStorage.getItem('refresh-token');
-
-    if ('code' in params) {
-      getTokens(params['code']);
-    }
-    else if (!accessToken) {
-      window.location = `https://www.recurse.com/oauth/authorize?response_type=code&client_id=${OAUTH_CLIENT_ID}&redirect_uri=${OAUTH_REDIRECT_URI}`;
-    } else {
-      setTokens(accessToken, refreshToken);
-    }
+    const {params, authenticate} = this.props;
+    authenticate(params); 
   }
 
   render() {
@@ -46,9 +35,9 @@ class AppContainer extends Component {
 }
 
 AppContainer.propTypes = {
+  params: PropTypes.object,
   auth: PropTypes.object,
-  getTokens: PropTypes.func,
-  setTokens: PropTypes.func
+  authenticate: PropTypes.func
 }
 
 const App = connect(
@@ -57,8 +46,7 @@ const App = connect(
       auth: state.auth
     };
   }, {
-    getTokens,
-    setTokens
+    authenticate
   }
 )(AppContainer);
 

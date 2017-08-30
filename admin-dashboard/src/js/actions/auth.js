@@ -48,3 +48,22 @@ export function getTokens(code) {
     });
   }
 }
+
+export function authenticate(params) {
+  return function(dispatch, getState) {
+    const accessToken = localStorage.getItem('access-token');
+    const refreshToken = localStorage.getItem('refresh-token');
+
+    if ('code' in params && !accessToken) {
+      dispatch(getTokens(params['code']));
+    }
+    else if (!accessToken) {
+      window.location = `https://www.recurse.com/oauth/authorize?response_type=code&client_id=${OAUTH_CLIENT_ID}&redirect_uri=${OAUTH_REDIRECT_URI}`;
+    } else {
+      dispatch(setTokens(accessToken, refreshToken));
+    }
+    if (window.history != undefined && window.history.pushState != undefined) {
+      window.history.pushState({}, document.title, window.location.pathname);
+    }
+  }
+}
