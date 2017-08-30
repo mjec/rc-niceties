@@ -34,7 +34,6 @@ def authorize():
 @app.route('/admin/data', methods=['GET'])
 def rc_test():
     access_token = request.headers['X-Access-Token']
-    print(access_token)
     headers = {
             'Authorization': 'Bearer ' + access_token
             }

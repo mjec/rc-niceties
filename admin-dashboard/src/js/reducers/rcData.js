@@ -1,3 +1,7 @@
+export const RC_DATA_LOADING = 'RC_DATA_LOADING';
+export const RC_DATA_SUCCESS = 'RC_DATA_SUCCESS';
+export const RC_DATA_FAILURE = 'RC_DATA_FAILURE';
+
 export default function rcData(state = {
   loading: false,
   success: false,

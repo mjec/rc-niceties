@@ -1,9 +1,10 @@
 import {getRcData} from './rcData';
+import {AUTH_FAILURE, AUTH_LOADING, AUTH_SUCCESS} from '../reducers/auth';
 
 export function setTokens(accessToken, refreshToken) {
   return function(dispatch, getState) {
     dispatch({
-      type: 'AUTH_SUCCESS',
+      type: AUTH_SUCCESS,
       result: {
         accessToken,
         refreshToken
@@ -16,7 +17,7 @@ export function setTokens(accessToken, refreshToken) {
 export function getTokens(code) {
   return function(dispatch, getState) {
     dispatch({
-      type: 'AUTH_LOADING'
+      type: AUTH_LOADING
     });
     fetch(`${API_HOST}/admin/authorize`, {
       method: 'POST',
@@ -32,7 +33,7 @@ export function getTokens(code) {
       localStorage.setItem('access-token', accessToken);
       localStorage.setItem('refresh-token', refreshToken);
       dispatch({
-        type: 'AUTH_SUCCESS',
+        type: AUTH_SUCCESS,
         result: {
           accessToken,
           refreshToken
@@ -41,7 +42,7 @@ export function getTokens(code) {
       dispatch(getRcData());
     }).catch(error => {
       dispatch({
-        type: 'AUTH_ERROR',
+        type: AUTH_ERROR,
         error
       });
     });
