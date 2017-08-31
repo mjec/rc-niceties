@@ -1,25 +1,22 @@
 import {getRcData} from './rcData';
 import {AUTH_FAILURE, AUTH_LOADING, AUTH_SUCCESS} from '../reducers/auth';
 
-export function setTokens(accessToken, refreshToken) {
+export function setToken(token) {
   return function(dispatch, getState) {
     dispatch({
       type: AUTH_SUCCESS,
-      result: {
-        accessToken,
-        refreshToken
-      }
+      result: token 
     });
     dispatch(getRcData());
   }
 }
 
-export function getTokens(code) {
-  return function(dispatch, getState) {
+export function getToken(code) {
+  return async function(dispatch, getState) {
     dispatch({
       type: AUTH_LOADING
     });
-    fetch(`${API_HOST}/admin/authorize`, {
+    await fetch(`${API_HOST}/admin/authorize`, {
       method: 'POST',
       headers: new Headers({
         'Content-Type': 'application/json'
@@ -28,21 +25,65 @@ export function getTokens(code) {
     }).then(response => {
       return response.json();
     }).then(json => {
-      const accessToken = json['access_token'];
-      const refreshToken = json['refresh_token'];
-      localStorage.setItem('access-token', accessToken);
-      localStorage.setItem('refresh-token', refreshToken);
+      const storage = {
+        accessToken: json['access_token'],
+        refreshToken: json['refresh_token'],
+        createdAt: json['created_at'],
+        expiresIn: json['expires_in']
+      }
+      localStorage.setItem('token', JSON.stringify(storage));
       dispatch({
         type: AUTH_SUCCESS,
-        result: {
-          accessToken,
-          refreshToken
-        }
+        result: storage 
       });
       dispatch(getRcData());
     }).catch(error => {
       dispatch({
-        type: AUTH_ERROR,
+        type: AUTH_FAILURE,
+        error
+      });
+    });
+  }
+}
+
+export function checkExpired() {
+  return function(dispatch, getState) {
+    const {createdAt, expiresIn} = getState().auth.result;
+    if (createdAt + expiresIn / 2 > Date.now()) {
+      dispatch(refreshToken());
+    }
+  }
+}
+
+export function refreshToken() {
+  return async function(dispatch, getState) {
+    const {refreshToken} = getState().auth.result;
+    dispatch({
+      type: AUTH_LOADING
+    });
+    await fetch(`${API_HOST}/admin/refresh`, {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ refresh_token: refreshToken })
+    }).then(response => {
+      return response.json();
+    }).then(json => {
+      const storage = {
+        accessToken: json['access_token'],
+        refreshToken: json['refresh_token'],
+        createdAt: json['created_at'],
+        expiresIn: json['expires_in']
+      }
+      localStorage.setItem('token', JSON.stringify(storage));
+      dispatch({
+        type: AUTH_SUCCESS,
+        result: storage 
+      });
+    }).catch(error => {
+      dispatch({
+        type: AUTH_FAILURE,
         error
       });
     });
@@ -51,16 +92,15 @@ export function getTokens(code) {
 
 export function authenticate(params) {
   return function(dispatch, getState) {
-    const accessToken = localStorage.getItem('access-token');
-    const refreshToken = localStorage.getItem('refresh-token');
+    const token = JSON.parse(localStorage.getItem('token'));
 
-    if ('code' in params && !accessToken) {
-      dispatch(getTokens(params['code']));
+    if ('code' in params && !token) {
+      dispatch(getToken(params['code']));
     }
-    else if (!accessToken) {
+    else if (!token) {
       window.location = `https://www.recurse.com/oauth/authorize?response_type=code&client_id=${OAUTH_CLIENT_ID}&redirect_uri=${OAUTH_REDIRECT_URI}`;
     } else {
-      dispatch(setTokens(accessToken, refreshToken));
+      dispatch(setToken(token));
     }
     if (window.history != undefined && window.history.pushState != undefined) {
       window.history.pushState({}, document.title, window.location.pathname);

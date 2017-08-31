@@ -31,6 +31,18 @@ def authorize():
     resp = requests.post('https://www.recurse.com/oauth/token', data=data)
     return jsonify(resp.json()) 
 
+@app.route('/admin/refresh', methods=['POST'])
+def refresh():
+    refresh_token = request.get_json()['refresh_token']
+    data = {
+            'grant_type': 'refresh_token',
+            'client_id': os.environ['RC_OAUTH_ID'],
+            'client_secret': os.environ['RC_OAUTH_SECRET'] ,
+            'refresh_token': refresh_token
+            }
+    resp = requests.post('https://www.recurse.com/oauth/token', data=data)
+    return jsonify(resp.json());
+
 @app.route('/admin/data', methods=['GET'])
 def rc_test():
     access_token = request.headers['X-Access-Token']
