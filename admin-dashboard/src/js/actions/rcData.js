@@ -2,8 +2,8 @@ import {RC_DATA_LOADING, RC_DATA_SUCCESS, RC_DATA_FAILURE} from '../reducers/rcD
 import {checkExpired} from './auth';
 
 export function getRcData() {
-  return function(dispatch, getState) {
-    dispatch(checkExpired());
+  return async function(dispatch, getState) {
+    await dispatch(checkExpired());
     const {accessToken} = getState().auth.result;
     dispatch({
       type: RC_DATA_LOADING

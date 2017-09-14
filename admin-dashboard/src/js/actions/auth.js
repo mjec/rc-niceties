@@ -47,10 +47,10 @@ export function getToken(code) {
 }
 
 export function checkExpired() {
-  return function(dispatch, getState) {
+  return async function(dispatch, getState) {
     const {createdAt, expiresIn} = getState().auth.result;
     if (Date.now() > createdAt + expiresIn / 2) {
-      dispatch(refreshToken());
+      await dispatch(refreshToken());
     }
   }
 }
