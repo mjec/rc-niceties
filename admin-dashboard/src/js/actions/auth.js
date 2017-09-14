@@ -28,8 +28,8 @@ export function getToken(code) {
       const storage = {
         accessToken: json['access_token'],
         refreshToken: json['refresh_token'],
-        createdAt: json['created_at'],
-        expiresIn: json['expires_in']
+        createdAt: parseInt(json['created_at'], 10) * 1000,
+        expiresIn: parseInt(json['expires_in'], 10) * 1000
       }
       localStorage.setItem('token', JSON.stringify(storage));
       dispatch({
@@ -49,7 +49,7 @@ export function getToken(code) {
 export function checkExpired() {
   return function(dispatch, getState) {
     const {createdAt, expiresIn} = getState().auth.result;
-    if (createdAt + expiresIn / 2 > Date.now()) {
+    if (Date.now() > createdAt + expiresIn / 2) {
       dispatch(refreshToken());
     }
   }
@@ -73,8 +73,8 @@ export function refreshToken() {
       const storage = {
         accessToken: json['access_token'],
         refreshToken: json['refresh_token'],
-        createdAt: json['created_at'],
-        expiresIn: json['expires_in']
+        createdAt: parseInt(json['created_at'], 10) * 1000,
+        expiresIn: parseInt(json['expires_in'], 10) * 1000
       }
       localStorage.setItem('token', JSON.stringify(storage));
       dispatch({
