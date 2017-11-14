@@ -8,6 +8,14 @@ import backend.config as config
 batch_closing_time_memo = {}
 batch_closing_warning_time_memo = {}
 
+def authorized_reqest(request, endpoint):
+    access_token = request.headers['X-Access-Token']
+    headers = {
+            'Authorization': 'Bearer ' + access_token
+            }
+    resp = requests.get('https://www.recurse.com/api/v1' + endpoint, headers=headers)
+    return jsonify(resp.json())
+
 def open_batches(end_date):
     '''
     Returns `True` if and only if the specified batch is currently accepting
