@@ -1,0 +1,4 @@
+development:
+  API_HOST: 'http://localhost:5000'
+  OAUTH_REDIRECT_URI: 'http://localhost:8000'
+  OAUTH_CLIENT_ID: 'f8e5036835584d12f95e020eba2efe95cdec3ab8a18743b997168b5b00f93fdc'
