@@ -1,14 +1,12 @@
 {
   "name": "rc-niceties-admin-dashboard",
   "version": "1.0.0",
-  "description": "Client-side web interface for niceties administration.",
-  "main": "index.js",
+  "description": "Client-side web interface for niceties administration",
   "scripts": {
     "build": "rm -rf dist && webpack",
     "start": "webpack-dev-server"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "babel-cli": "^6.24.1",
     "babel-loader": "^7.1.1",

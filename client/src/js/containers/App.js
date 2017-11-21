@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import {authenticate} from '../actions/auth';
-import Admin from './Admin';
+import ShittyComponent from './ShittyComponent';
 
 class AppContainer extends Component {
 
@@ -14,7 +14,7 @@ class AppContainer extends Component {
     const {auth, rcData} = this.props;
     if (auth.success === true) {
       return (
-        <Admin />
+        <ShittyComponent />
       );
     } else if (auth.loading === true) {
       return (
