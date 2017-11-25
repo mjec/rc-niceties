@@ -1,7 +1,7 @@
 {
-  "name": "rc-niceties-admin-dashboard",
+  "name": "rc-niceties-user-client",
   "version": "1.0.0",
-  "description": "Client-side web interface for niceties administration",
+  "description": "Client-side web interface for niceties",
   "scripts": {
     "build": "rm -rf dist && webpack",
     "start": "webpack-dev-server"
@@ -13,9 +13,12 @@
     "babel-preset-es2017": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "html-webpack-plugin": "^2.29.0",
+    "jquery": "^3.1.0",
     "node-yaml": "^3.1.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "react-bootstrap": "^0.30.3",
+    "bootstrap": "^3.3.7",
     "react-redux": "^5.0.5",
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
