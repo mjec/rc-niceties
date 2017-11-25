@@ -18,7 +18,7 @@ from operator import is_not
 
 def cache_batches_call(request):
     res = util.authorized_request(request, '/batches')
-    batches = res.data
+    batches = res
     return batches
 
 def cache_people_call(batch_id, request):
@@ -53,13 +53,15 @@ def cache_people_call(batch_id, request):
     return people
 
 def cache_person_call(person_id, request):
+    print(person_id)
     cache_key = 'person:{}'.format(person_id)
     try:
         return cache.get(cache_key)
     except cache.NotInCache:
-        p = util.authorized_request('people/{}'.format(person_id), request).data
+        p = util.authorized_request(request, '/people/{}'.format(person_id))
         # if 'message' in p:
         #     return redirect(url_for('login'))
+        print(p)
         person_info = {
             'id': p['id'],
             'name': p['first_name'],
@@ -134,7 +136,7 @@ def partition_current_users(users):
     return ret
 
 def current_user(request):
-    me = util.authorized_request(request, '/people/me').data
+    me = util.authorized_request(request, '/people/me')
     return me
 
 @app.route('/api/v1/me')
@@ -226,7 +228,7 @@ def get_niceties_to_edit():
 
 @app.route('/api/v1/niceties-from-me')
 def niceties_from_me():
-    user_id = current_user(request).id
+    user_id = current_user(request)['id']
     niceties = (Nicety.query
                 .filter(Nicety.author_id == user_id)
                 .all())
@@ -242,7 +244,7 @@ def niceties_from_me():
 @app.route('/api/v1/niceties-for-me')
 def niceties_for_me():
     ret = []
-    whoami = current_user(request).id
+    whoami = current_user(request)['id']
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
                       .filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # show niceties one day after the end date
@@ -288,7 +290,7 @@ def display_people():
     if current == []:
         return jsonify({'status': 'closed'})
     people = partition_current_users(current)
-    user_id = current_user(request).id
+    user_id = current_user(request)['id']
     current_user_leaving = False
     leaving = []
     to_display = None
@@ -301,7 +303,7 @@ def display_people():
     faculty = get_current_faculty(request)
     # there needs to be a better way to add special people to the current exiting batch
     special = [ x for x in faculty if x['id'] == 601]
-    random.seed(current_user(request).random_seed)
+    random.seed(current_user(request)['random_seed'])
     random.shuffle(staying)
     random.shuffle(leaving)
     random.shuffle(special)
@@ -328,13 +330,13 @@ def save_niceties():
             .filter_by(
                 end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
                 target_id=n.get("target_id"),
-                author_id=current_user(request).id)
+                author_id=current_user(request)['id'])
             .one_or_none())
         if nicety is None:
             nicety = Nicety(
                 end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
                 target_id=n.get("target_id"),
-                author_id=current_user(request).id)
+                author_id=current_user(request)['id'])
             db.session.add(nicety)
             # We need to add for the new one, but we don't need to add where we have used .query
             # Now any change to the nicety object (variable) is tracked by the object
@@ -344,7 +346,7 @@ def save_niceties():
             # So then db.session.commit() sends the update (or insert) for every object
             # in the session. This includes every object created by a [model].query and
             # everything added to the session with db.session.add().
-        nicety.anonymous = n.get("anonymous", current_user(request).anonymous_by_default)
+        nicety.anonymous = n.get("anonymous", current_user(request)['anonymous_by_default'])
         text = util.encode_str(n.get("text").strip())
         if '' == text:
             text = None
@@ -360,7 +362,7 @@ class SiteSettingsAPI(MethodView):
         user = current_user(request)
         if user is None:
             return redirect(url_for('authorized'))
-        if not user.faculty:
+        if not user['faculty']:
             return abort(403)
         return jsonify({c.key: config.to_frontend_value(c) for c in SiteConfiguration.query.all()})
 
@@ -368,7 +370,7 @@ class SiteSettingsAPI(MethodView):
         if current_user(request) is None:
             redirect(url_for('authorized'))
             user = current_user(request)
-        if not user.faculty:
+        if not user['faculty']:
             return abort(403)
         key = request.form.get('key', None)
         value = request.form.get('value', None)

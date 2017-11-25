@@ -1,4 +1,3 @@
-import {getRcData} from './rcData';
 import {AUTH_FAILURE, AUTH_LOADING, AUTH_SUCCESS} from '../reducers/auth';
 
 export function setToken(token) {
@@ -7,7 +6,6 @@ export function setToken(token) {
       type: AUTH_SUCCESS,
       result: token 
     });
-    dispatch(getRcData());
   }
 }
 
@@ -36,7 +34,6 @@ export function getToken(code) {
         type: AUTH_SUCCESS,
         result: storage 
       });
-      dispatch(getRcData());
     }).catch(error => {
       dispatch({
         type: AUTH_FAILURE,

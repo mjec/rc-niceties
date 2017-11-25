@@ -464,143 +464,16 @@ var Nicety = React.createClass({
     }
 })
 
-var Admin = React.createClass({
-    loadAllNiceties: function(callback) {
-        $.ajax({
-            url: this.props.admin_edit_api,
-            dataType: 'json',
-            cache: false,
-            success: function(data) {
-                callback(data);
-            },
-            error: function(xhr, status, err) {
-                console.error(this.props.people, status, err.toString());
-            }.bind(this)
-        });
-    },
-    getInitialState: function() {
-        return {
-            niceties: []
-        }
-    },
-    componentDidMount: function() {
-        this.loadAllNiceties(function (data) {
-            this.setState({niceties: data});
-        }.bind(this));
-    },
-    render: function() {
-        return (
-            <div>
-                {this.state.niceties.map((person) => {
-                    let noTextCheck = false;
-                    person.niceties.forEach((nicety) => {
-                        if (nicety.text !== '' && nicety.text !== null) {
-                            noTextCheck = true;
-                        }
-                    });
-                    if (noTextCheck) {
-                        return (
-                            <div>
-                            <h2>To {person.to_name}</h2>
-                                <br />
-                                {person.niceties.map((nicety) => {
-                                    return (
-                                            <AdminNicety nicety={nicety} target_id={person.to_id}
-                                                         admin_edit_api = {this.props.admin_edit_api}/>
-                                    );
-                                })}
-                            <hr />
-                            </div>
-                        );
-                    } else {
-                        return null;
-                    }
-                })}
-            </div>
-        );
-    }
-});
-
-// abc
-var AdminNicety = React.createClass({
-    getInitialState: function() {
-        return {
-            text: this.props.nicety.text,
-            noSave: true
-        };
-    },
-
-    saveNicety: function() {
-        const data = {
-            text: this.state.text,
-            author_id: this.props.nicety.author_id,
-            target_id: this.props.target_id
-        }
-        $.ajax({
-            url: this.props.admin_edit_api,
-            data: data,
-            dataType: 'json',
-            type: 'POST',
-            cache: false,
-            success: function(data) {
-                this.setState({noSave: true});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.log(err)
-            }.bind(this)
-        });
-    },
-
-    textareaChange: function() {
-        this.setState({ text: event.target.value , noSave: false });
-    },
-
-    render: function() {
-        let nicetyName;
-        if ('name' in this.props.nicety) {
-            nicetyName = this.props.nicety.name;
-        } else  {
-            nicetyName = 'Anonymous';
-        }
-
-        let noRead = null;
-        if (this.props.nicety.no_read === true) {
-            noRead = "Don't Read At Ceremony, Please";
-        }
-
-        let nicetyReturn = null;
-        if (this.props.nicety.text !== '' && this.props.nicety.text !== null) {
-            const textStyle = {
-                width: '75%'
-            }
-            nicetyReturn = (
-                <div>
-                    <h4>From {nicetyName}</h4>
-                    <h5>{noRead}</h5>
-                    <textarea
-                        defaultValue={this.state.text}
-                        onChange={this.textareaChange}
-                        rows="6"
-                        style={textStyle} />
-                     <SaveButton
-                        noSave={this.state.noSave}
-                        onClick={this.saveNicety}>
-                        Save
-                    </SaveButton>
-                    <br />
-                </div>
-            );
-        }
-        return nicetyReturn;
-    }
-});
-
-var App = React.createClass({
+const host = API_HOST;
+var ShittyComponent = React.createClass({
     loadPeopleFromServer: function(callback) {
+      const {token} = this.props; 
         $.ajax({
-            url: this.props.people_api,
+            url: `${host}${this.props.people_api}`,
             dataType: 'json',
-            cache: false,
+          headers: {
+            'X-Access-Token': token
+          },
             success: function(data) {
                 callback(data);
             },
@@ -610,10 +483,13 @@ var App = React.createClass({
         });
     },
     loadNicetiesFromMe: function(callback) {
+      const {token} = this.props; 
         $.ajax({
-            url: this.props.from_me_api,
+            url: `${host}${this.props.from_me_api}`,
             dataType: 'json',
-            cache: false,
+          headers: {
+            'X-Access-Token': token
+          },
             success: function(data) {
                 callback(data);
             },
@@ -623,10 +499,13 @@ var App = React.createClass({
         });
     },
     loadNicetiesForMe: function(callback) {
+      const {token} = this.props; 
         $.ajax({
-            url: this.props.for_me_api,
+            url: `${host}${this.props.for_me_api}`,
             dataType: 'json',
-            cache: false,
+          headers: {
+            'X-Access-Token': token
+          },
             success: function(data) {
                 callback(data);
             },
@@ -636,10 +515,13 @@ var App = React.createClass({
         });
     },
     loadSelfInfo: function(callback) {
+      const {token} = this.props; 
         $.ajax({
-            url: this.props.self_api,
+            url: `${host}${this.props.self_api}`,
             dataType: 'json',
-            cache: false,
+          headers: {
+            'X-Access-Token': token
+          },
             success: function(data) {
                 callback(data);
             },
@@ -691,19 +573,11 @@ var App = React.createClass({
             $('.dropdown-toggle').text('Niceties About You');
             $('.dropdown-toggle').append('<span class="caret"></span>');
             return <NicetyDisplay niceties={this.state.niceties} />
-        case "admin":
-            $('.dropdown-toggle').text('Admin');
-            $('.dropdown-toggle').append('<span class="caret"></span>');
-            return <Admin admin_edit_api={this.props.admin_edit_api}/>
         default:
         };
     },
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);
-        let adminMenu = null;
-        if (this.state.selfInfo.admin === true) {
-            adminMenu = (<MenuItem eventKey="admin">Admin</MenuItem>);
-        }
         return (
             <div className="App">
                 <Navbar fixedTop id="main_nav">
@@ -716,7 +590,6 @@ var App = React.createClass({
                         <NavDropdown>
                             <MenuItem eventKey="write-niceties" >Write Niceties</MenuItem>
                             <MenuItem eventKey="view-niceties" >Niceties About You</MenuItem>
-                            {adminMenu}
                         </NavDropdown>
                     </Nav>
                 </Navbar>
@@ -728,4 +601,4 @@ var App = React.createClass({
     }
 });
 
-export default App;
+export default ShittyComponent;

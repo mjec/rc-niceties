@@ -1,20 +1,23 @@
 from datetime import datetime, time, date, timedelta
 from base64 import b64decode, b64encode
+from flask import jsonify
 
 from backend import app
 
 import backend.config as config
 
+import requests
+
 batch_closing_time_memo = {}
 batch_closing_warning_time_memo = {}
 
-def authorized_reqest(request, endpoint):
+def authorized_request(request, endpoint):
     access_token = request.headers['X-Access-Token']
     headers = {
             'Authorization': 'Bearer ' + access_token
             }
     resp = requests.get('https://www.recurse.com/api/v1' + endpoint, headers=headers)
-    return jsonify(resp.json())
+    return resp.json()
 
 def open_batches(end_date):
     '''
@@ -72,7 +75,7 @@ def next_window(latest_batches):
     return end_date
 
 def admin_access(current_user):
-    if app.config.get('DEV') == 'TRUE' or current_user.id == 770 or current_user.id == 1804:
+    if app.config.get('DEV') == 'TRUE' or current_user['id'] == 770 or current_user['id'] == 1804:
         return True
     else:
         return False
