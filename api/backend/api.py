@@ -3,7 +3,7 @@ from flask.views import MethodView
 import random
 
 from backend import app, rc, db
-from backend.models import Nicety, SiteConfiguration
+from backend.models import Nicety
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
@@ -138,23 +138,6 @@ def partition_current_users(users):
 def current_user(request):
     me = util.authorized_request(request, '/people/me')
     return me
-
-@app.route('/api/v1/me')
-def api_me():
-    me = util.authorized_request(request, '/people/me').data
-    user = User.query.get(me['id'])
-    if user is None:
-        user = User(
-            id=me['id'],
-            name=util.name_from_rc_person(me),
-            avatar_url=me['image'],
-            is_faculty=me['is_faculty'])
-        db.session.add(user)
-        db.session.commit()
-    elif user.faculty != me['is_faculty']:
-        user.faculty = me['is_faculty']
-        db.session.commit()
-    return me 
 
 @app.route('/api/v1/people/<int:person_id>')
 def get_person_info(person_id):
@@ -356,33 +339,3 @@ def save_niceties():
         nicety.date_updated = n.get("date_updated")
     db.session.commit()
     return jsonify({'status': 'OK'})
-
-class SiteSettingsAPI(MethodView):
-    def get(self):
-        user = current_user(request)
-        if user is None:
-            return redirect(url_for('authorized'))
-        if not user['faculty']:
-            return abort(403)
-        return jsonify({c.key: config.to_frontend_value(c) for c in SiteConfiguration.query.all()})
-
-    def post(self):
-        if current_user(request) is None:
-            redirect(url_for('authorized'))
-            user = current_user(request)
-        if not user['faculty']:
-            return abort(403)
-        key = request.form.get('key', None)
-        value = request.form.get('value', None)
-        try:
-            try:
-                config.set(key, config.from_frontend_value(key, json.loads(value)))
-                return jsonify({'status': 'OK'})
-            except ValueError:
-                return abort(404)
-        except:
-            return abort(400)
-
-app.add_url_rule(
-    '/api/v1/site_settings',
-    view_func=SiteSettingsAPI.as_view('site_settings'))

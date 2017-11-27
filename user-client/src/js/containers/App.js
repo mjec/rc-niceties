@@ -22,7 +22,6 @@ people_api="/api/v1/people"
          from_me_api="/api/v1/niceties-from-me"
          admin_edit_api="/api/v1/admin-edit-niceties"
          print_nicety_api="/api/v1/niceties-to-print"
-         self_api="/api/v1/self"
          pollInterval={2000}
         />
       );
