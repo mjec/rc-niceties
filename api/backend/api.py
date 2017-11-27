@@ -7,8 +7,6 @@ from backend.models import Nicety
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
-import backend.cache as cache
-import backend.config as config
 import backend.util as util
 
 import sys
@@ -53,30 +51,23 @@ def cache_people_call(batch_id, request):
     return people
 
 def cache_person_call(person_id, request):
-    print(person_id)
-    cache_key = 'person:{}'.format(person_id)
-    try:
-        return cache.get(cache_key)
-    except cache.NotInCache:
-        p = util.authorized_request(request, '/people/{}'.format(person_id))
-        # if 'message' in p:
-        #     return redirect(url_for('login'))
-        print(p)
-        person_info = {
-            'id': p['id'],
-            'name': p['first_name'],
-            'full_name': p['first_name'] + " " + p['last_name'],
-            'avatar_url': p['image'],
-            'is_faculty': p['is_faculty'],
-            'bio': p['bio'],
-            'interests': p['interests'],
-            'before_rc': p['before_rc'],
-            'during_rc': p['during_rc'],
-            'job': p['job'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-        }
-        cache.set(cache_key, person_info)
+    p = util.authorized_request(request, '/people/{}'.format(person_id))
+    # if 'message' in p:
+    #     return redirect(url_for('login'))
+    person_info = {
+        'id': p['id'],
+        'name': p['first_name'],
+        'full_name': p['first_name'] + " " + p['last_name'],
+        'avatar_url': p['image'],
+        'is_faculty': p['is_faculty'],
+        'bio': p['bio'],
+        'interests': p['interests'],
+        'before_rc': p['before_rc'],
+        'during_rc': p['during_rc'],
+        'job': p['job'],
+        'twitter': p['twitter'],
+        'github': p['github'],
+    }
     return person_info
 
 def get_current_faculty(request):
@@ -121,18 +112,12 @@ def partition_current_users(users):
     staying_date = datetime.strptime(end_dates[0], "%Y-%m-%d")
     leaving_date = datetime.strptime(end_dates[1], "%Y-%m-%d")
     for u in users:
-        # Batchlings have   is_hacker_schooler = True,      is_faculty = False
-        # Faculty have      is_hacker_schooler = ?,         is_faculty = True
-        # Residents have    is_hacker_schooler = False,     is_faculty = False
-        if ((u['is_hacker_schooler'] and not u['is_faculty']) or
-            (not u['is_faculty'] and not u['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
-            (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
-            if u['end_date'] == staying_date:
-                ret['staying'].append(u)
-            elif u['end_date'] == leaving_date:
-                ret['leaving'].append(u)
-            else:
-                pass
+        if u['end_date'] == staying_date:
+            ret['staying'].append(u)
+        elif u['end_date'] == leaving_date:
+            ret['leaving'].append(u)
+        else:
+            pass
     return ret
 
 def current_user(request):

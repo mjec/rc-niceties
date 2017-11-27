@@ -4,8 +4,6 @@ from flask import jsonify
 
 from backend import app
 
-import backend.config as config
-
 import requests
 
 batch_closing_time_memo = {}
@@ -73,12 +71,6 @@ def next_window(latest_batches):
     time_left = earliest_end_date - now
     #print(time_left.days, time_left.seconds)
     return end_date
-
-def admin_access(current_user):
-    if app.config.get('DEV') == 'TRUE' or current_user['id'] == 770 or current_user['id'] == 1804:
-        return True
-    else:
-        return False
 
 def encode_str(inp):
     if inp is None:
