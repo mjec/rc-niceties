@@ -29,7 +29,7 @@ def auth_authorize():
     resp = requests.post('https://www.recurse.com/oauth/token', data=data)
     return jsonify(resp.json()) 
 
-@app.route('/admin/refresh', methods=['POST'])
+@app.route('/auth/refresh', methods=['POST'])
 def auth_refresh():
     refresh_token = request.get_json()['refresh_token']
     data = {

@@ -16,7 +16,7 @@ export function getToken(code) {
     dispatch({
       type: AUTH_LOADING
     });
-    await fetch(`${API_HOST}/admin/authorize`, {
+    await fetch(`${API_HOST}/auth/authorize`, {
       method: 'POST',
       headers: new Headers({
         'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ export function refreshToken() {
     dispatch({
       type: AUTH_LOADING
     });
-    await fetch(`${API_HOST}/admin/refresh`, {
+    await fetch(`${API_HOST}/auth/refresh`, {
       method: 'POST',
       headers: new Headers({
         'Content-Type': 'application/json'

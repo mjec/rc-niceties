@@ -8,7 +8,7 @@ export function getRcData() {
     dispatch({
       type: RC_DATA_LOADING
     });
-    fetch(`${API_HOST}/admin/data`, {
+    fetch(`${API_HOST}/api/v1/self`, {
       headers: new Headers({
         'X-Access-Token': `${accessToken}`,
       })

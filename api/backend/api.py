@@ -131,11 +131,8 @@ def get_person_info(person_id):
 
 @app.route('/api/v1/self')
 def get_self_info():
-    admin = util.admin_access(current_user(request))
-    data = {
-        'admin': admin
-    }
-    return jsonify(data)
+    user = current_user(request)
+    return jsonify(user)
 
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
 def post_edited_niceties():
