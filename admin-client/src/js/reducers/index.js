@@ -1,8 +1,8 @@
 import {combineReducers} from 'redux';
-import rcData from './rcData';
+import openAPI from './openAPI';
 import auth from './auth';
 
 export default combineReducers({
-  rcData,
+  openAPI,
   auth
 });

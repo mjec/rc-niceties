@@ -3,7 +3,7 @@ from flask.views import MethodView
 import random
 
 from backend import app, rc, db
-from backend.models import Nicety
+from backend.models import Nicety, AdminSetting 
 from datetime import datetime, timedelta
 from sqlalchemy import func
 
@@ -133,6 +133,32 @@ def get_person_info(person_id):
 def get_self_info():
     user = current_user(request)
     return jsonify(user)
+
+@app.route('/api/v1/admin/open', methods=['GET'])
+def get_open():
+    niceties_open = (AdminSetting.query
+            .filter(AdminSetting.key == 'open')
+            .first())
+    if niceties_open == None:
+        niceties_open = AdminSetting(
+                key='open',
+                value=False
+                )
+        db.session.add(niceties_open)
+        db.session.commit()
+    return jsonify({ 'open': niceties_open.value })
+
+@app.route('/api/v1/admin/open', methods=['POST'])
+def post_open():
+    print(request)
+    # not reading body--figure out why
+    request_open = request.form.get("open", False)
+    print(request_open)
+    (AdminSetting.query
+            .filter(AdminSetting.key == 'open')
+            .update({'value': request_open}))
+    db.session.commit()
+    return jsonify({ 'open': request_open })
 
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
 def post_edited_niceties():

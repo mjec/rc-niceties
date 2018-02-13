@@ -11,7 +11,7 @@ class AppContainer extends Component {
   }
 
   render() {
-    const {auth, rcData} = this.props;
+    const {auth, openAPI} = this.props;
     if (auth.success === true) {
       return (
         <Admin />

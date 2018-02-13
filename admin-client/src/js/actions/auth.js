@@ -1,5 +1,11 @@
-import {getRcData} from './rcData';
+import {getOpen} from './openAPI';
 import {AUTH_FAILURE, AUTH_LOADING, AUTH_SUCCESS} from '../reducers/auth';
+
+export function getData() {
+  return function(dispatch) {
+    dispatch(getOpen());
+  }
+}
 
 export function setToken(token) {
   return function(dispatch, getState) {
@@ -7,7 +13,7 @@ export function setToken(token) {
       type: AUTH_SUCCESS,
       result: token 
     });
-    dispatch(getRcData());
+    dispatch(getData());
   }
 }
 
@@ -36,7 +42,7 @@ export function getToken(code) {
         type: AUTH_SUCCESS,
         result: storage 
       });
-      dispatch(getRcData());
+      dispatch(getData());
     }).catch(error => {
       dispatch({
         type: AUTH_FAILURE,
