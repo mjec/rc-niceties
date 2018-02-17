@@ -14,6 +14,14 @@ const {
   RC_OAUTH_REDIRECT_URI
 } = process.env; 
 
+app.get('/health', (req, res, next) => {
+  try {
+    return res.json({ okay: true });
+  } catch(e) {
+    next(e);
+  } 
+});
+
 app.post('/auth/authorize', async (req, res, next) => {
   try {
     const { code } = req.body;
