@@ -24,9 +24,7 @@ app.post('/auth/authorize', (req, res, next) => {
     const { code } = req.body;
     return got('https://www.recurse.com/oauth/token', {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         grant_type: 'authorization_code',
         client_id: RC_OAUTH_ID,

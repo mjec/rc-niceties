@@ -1,0 +1,17 @@
+{
+  "name": "rc-niceties",
+  "version": "1.0.0",
+  "description": "An application to manage niceties delivered by [recursers](https://recurse.com) at the end of their batch",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mjec/rc-niceties.git"
+  },
+  "scripts": {
+    "precommit": "lerna run --concurrency 1 --stream precommit",
+    "install-all": "lerna bootstrap"
+  },
+  "devDependencies": {
+    "husky": "^0.14.3",
+    "lerna": "^2.9.0"
+  }
+}
