@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint --fix ./src",
-    "start": "node src/index.js",
+    "start": "node index.js",
+    "deploy": "firebase deploy",
     "precommit": "lint-staged"
   },
   "lint-staged": {
@@ -29,6 +30,7 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
+    "firebase-tools": "^3.17.6",
     "lint-staged": "^7.0.0",
     "prettier": "^1.11.1"
   }

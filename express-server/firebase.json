@@ -1,5 +1,5 @@
 {
   "functions": {
-    "source": "./src"
+    "source": "."
   }
 }

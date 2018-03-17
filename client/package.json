@@ -4,7 +4,8 @@
   "scripts": {
     "lint": "eslint --fix --ext .js --ext .jsx ./src",
     "build": "rm -rf dist && webpack",
-    "start": "webpack-dev-server",
+    "start": "NODE_ENV=development webpack-dev-server",
+    "deploy": "NODE_ENV=production npm run build && firebase deploy",
     "precommit": "lint-staged"
   },
   "lint-staged": {
@@ -36,6 +37,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.7.0",
+    "firebase-tools": "^3.17.6",
     "html-webpack-plugin": "^3.0.6",
     "lint-staged": "^7.0.0",
     "node-yaml": "^3.1.1",

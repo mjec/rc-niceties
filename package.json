@@ -8,7 +8,9 @@
   },
   "scripts": {
     "precommit": "lerna run --concurrency 1 --stream precommit",
-    "install-all": "lerna bootstrap"
+    "install-all": "lerna bootstrap",
+    "clean": "lerna clean",
+    "deploy": "lerna exec -- npm run deploy"
   },
   "devDependencies": {
     "husky": "^0.14.3",
