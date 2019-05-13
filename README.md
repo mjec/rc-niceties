@@ -27,8 +27,8 @@ I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
     * `FLASK_SECRET_KEY_B64` - a base64-encoded random secret string, for example generaed by running:
         ```python
         from base64 import b64encode
-    from os import urandom
-    print(b64encode(urandom(24)))
+        from os import urandom
+        print(b64encode(urandom(24)))
         ```
     * `DATABASE_URL` - the database connection URL `e.g. postgres://localhost/rcniceties`
     * `RC_OAUTH_ID` - your Recurse Center OAuth application ID
