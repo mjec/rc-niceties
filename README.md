@@ -33,6 +33,7 @@ I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
     * `DATABASE_URL` - the database connection URL `e.g. postgres://localhost/rcniceties`
     * `RC_OAUTH_ID` - your Recurse Center OAuth application ID
     * `RC_OAUTH_SECRET` - your Recurse Center OAuth application secret
+    * `DEV` - set to either `TRUE` or `FALSE`, depending on if this is a development or production environment
 
    A common way of setting up these environment variables is with a `.env` file in your project directory, containing `export ENV_VAR=value` on each line. This can be loaded by running `source .env` and will be automatically loaded by `heroku local`.
 
