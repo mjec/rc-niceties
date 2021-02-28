@@ -77,7 +77,7 @@ hr {
 	}
 	.container {
     	width: inherit;
-	}	
+	}
 }
 
 @media (min-width: 992px) {
@@ -154,4 +154,10 @@ textarea:focus {
     left: 25%;
     right: 25%;
     text-align: center;
+}
+
+footer {
+  margin: auto 1em 1em 1em;
+  text-align: center;
+  font-size: 1em;
 }
