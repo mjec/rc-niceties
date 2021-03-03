@@ -142,7 +142,7 @@ const People = React.createClass({
                   Niceties Saved!
                 </Modal.Body>
               </Modal>
-              <div id="save_button">
+              <div className="save_button">
                 <SaveButton
                   noSave={this.state.noSave}
                   onClick={this.saveAllComments}>
@@ -168,6 +168,13 @@ const People = React.createClass({
                 { staffHeader }
                 { staffRows }
               </Grid>
+              <div className="save_button">
+                <SaveButton
+                  noSave={this.state.noSave}
+                  onClick={this.saveAllComments}>
+                  Save
+                </SaveButton>
+              </div>
             </div>
         );}
 });
