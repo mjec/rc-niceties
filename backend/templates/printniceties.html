@@ -1,71 +1,79 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
+
+  <head>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <style type="text/css" media="print, screen">
-        @page {
-            size: 7in 9.25in;
-            margin: 27mm 16mm 27mm 16mm;
-        }
+      @page {
+        size: 7in 9.25in;
+        margin: 27mm 16mm 27mm 16mm;
+      }
 
-         @font-face{
-             font-family: pixelFont;
-             src: url('../SFPixelate-Bold.ttf');
-         }
+      @font-face {
+        font-family: pixelFont;
+        src: url('../SFPixelate-Bold.ttf');
+      }
 
 
-         div.page_print {
-             page-break-after: always;
-             margin: 5mm;
+      div.page_print {
+        page-break-after: always;
+        margin: 5mm;
 
-         }
-         h2 {
-             text-align: center;
-             font-family: pixelFont;
-             color: #61AE24;
-             text-transform: uppercase;
-             font-size: 2.5em;
-             line-height: 0em;
-         }
+      }
 
-         h3 {
-             text-align: center;
-             font-family: 'Open Sans', sans-serif;
-         }
-         img {
-             display: block;
-             margin: 0 auto;
-         }
-         p.nicety {
-             padding: 15px;
-             page-break-inside: avoid;
-             font-family: 'Open Sans', sans-serif;
-             border-bottom: 1px solid #808080;
-         }
-         span.signature {
-             display: inline-block;
-             text-indent: 25px;
-             margin-top: -15px;
-             color: #61AE24;
-         }
+      h2 {
+        text-align: center;
+        font-family: pixelFont;
+        color: #61AE24;
+        text-transform: uppercase;
+        font-size: 2.5em;
+        line-height: 0em;
+      }
+
+      h3 {
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+      }
+
+      img {
+        display: block;
+        margin: 0 auto;
+      }
+
+      p.nicety {
+        padding: 15px;
+        page-break-inside: avoid;
+        font-family: 'Open Sans', sans-serif;
+        border-bottom: 1px solid #808080;
+      }
+
+      span.signature {
+        display: inline-block;
+        text-indent: 25px;
+        margin-top: -15px;
+        color: #61AE24;
+      }
+
     </style>
     <title>Printable Niceties</title>
-    </head>
-    <body>
-        {% for person in data.niceties %}
-        <img src="https://pbs.twimg.com/profile_images/449256202262704128/KJCvViJI.png">
-        <h3> Never Graduate </h3>
-        <div class="page_print">
-            <h2>{{ person.to }}</h2>
-            {% for nicety in person.niceties %}
-            <p class="nicety"> {{ nicety.text }}
-            {% if nicety.name is defined %}
-            <br>
-            <span class="signature"> - <i>{{ nicety.name }}</i></p>
-            {% endif %}
-            {% endfor %}
-        </div>
-        {% endfor %}
-    </body>
+  </head>
+
+  <body>
+    {% for person in data.niceties %}
+    <img src="https://pbs.twimg.com/profile_images/449256202262704128/KJCvViJI.png">
+    <h3> Never Graduate </h3>
+    <div class="page_print">
+      <h2>{{ person.to }}</h2>
+      {% for nicety in person.niceties %}
+      <p class="nicety"> {{ nicety.text }}
+        {% if nicety.name is defined %}
+        <br>
+        <span class="signature"> - <i>{{ nicety.name }}</i></p>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </body>
+
 </html>

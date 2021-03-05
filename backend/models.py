@@ -24,7 +24,7 @@ class User(db.Model):
         self.avatar_url = kwargs.get("avatar_url", None)
         self.faculty = kwargs.get("faculty", None)
         self.anonymous_by_default = kwargs.get("anonymous_by_default", False)
-        self.read_by_default = kwargs.get("read_by_default", False)
+        # self.read_by_default = kwargs.get("read_by_default", False)
         self.autosave_timeout = kwargs.get("autosave_timeout", 10)
         self.autosave_enabled = kwargs.get("autosave_enabled", True)
         self.random_seed = urandom(32)

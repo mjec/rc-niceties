@@ -1,9 +1,10 @@
-import re
 import os
+import re
 from types import SimpleNamespace
-from flask import url_for, redirect, json
 
 from backend import app
+from flask import json, redirect, url_for
+
 
 class MockRCOAuthAPI(object):
     url_matches = [

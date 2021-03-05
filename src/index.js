@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import NicetyDisplay from './App';
 import App from './App';
 import './index.css';
 

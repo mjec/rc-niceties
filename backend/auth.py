@@ -1,15 +1,14 @@
 import os
 import sys
+from functools import wraps
 from time import time
+
 import flask_oauthlib
 import requests
-
-from functools import wraps
-from flask import session, url_for, redirect, request, json
-from werkzeug.exceptions import HTTPException
-
-from backend import app, rc, db, util
+from backend import app, db, rc, util
 from backend.models import User
+from flask import json, redirect, request, session, url_for
+from werkzeug.exceptions import HTTPException
 
 
 class AuthorizationFailed(HTTPException):
@@ -26,7 +25,7 @@ def login():
     elif app.config.get('DEV') == 'FALSE':
         sys.stdout.flush()
         return rc.authorize(os.environ['RC_OAUTH_REDIRECT_URI'])
-        #return rc.authorize(url_for('authorized', _external=True, _scheme='https'))
+
 
 @app.route('/login/authorized')
 def authorized():
@@ -38,9 +37,9 @@ def authorized():
                 request.args['error_description']
             ))
     session['rc_token'] = {
-            'access_token': resp['access_token'],
-            'refresh_token': resp['refresh_token'],
-            'expires_at': resp['expires_in'] + time() - 600 
+        'access_token': resp['access_token'],
+        'refresh_token': resp['refresh_token'],
+        'expires_at': resp['expires_in'] + time() - 600
     }
     me = rc.get('people/me').data
     user = User.query.get(me['id'])
@@ -58,29 +57,32 @@ def authorized():
     session['user_id'] = user.id
     return redirect(url_for('home'))
 
+
 @rc.tokengetter
 def get_oauth_token():
     token = session.get('rc_token')
     if time() > token['expires_at']:
         data = {
-                'grant_type': 'refresh_token', 
-                'client_id': rc.consumer_key,
-                'client_secret': rc.consumer_secret,
-                'redirect_uri': 'ietf:wg:oauth:2.0:oob',
-                'refresh_token': token['refresh_token']
-                }
+            'grant_type': 'refresh_token',
+            'client_id': rc.consumer_key,
+            'client_secret': rc.consumer_secret,
+            'redirect_uri': 'ietf:wg:oauth:2.0:oob',
+            'refresh_token': token['refresh_token']
+        }
         resp = requests.post('https://www.recurse.com/oauth/token', data=data)
         data = resp.json()
         session['rc_token'] = {
             'access_token': data['access_token'],
             'refresh_token': data['refresh_token'],
-            'expires_at': data['expires_in'] + time() - 600 
+            'expires_at': data['expires_in'] + time() - 600
         }
         return (data['access_token'], '')
     else:
-        return (token['access_token'], '') 
+        return (token['access_token'], '')
+
 
 _current_user_memo = None
+
 
 def current_user():
     global _current_user_memo
@@ -91,6 +93,7 @@ def current_user():
         db.session.expunge(_current_user_memo)
     return _current_user_memo
 
+
 def needs_authorization(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -100,17 +103,19 @@ def needs_authorization(f):
             else:
                 return f(*args, **kwargs)
         except flask_oauthlib.client.OAuthException:
-            ## redirect to 404
+            # redirect to 404
             return redirect(url_for('home'))
     return decorated_function
+
 
 def faculty_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # TODO fix this??
         is_faculty = json.loads(person(current_user().id).data)['is_faculty']
-        if is_faculty == True:
+        if is_faculty is True:
             return f(*args, **kwargs)
         else:
-            ## we need to redirect to a page that says "only for admins
+            # we need to redirect to a page that says "only for admins
             return redirect(url_for('login'))
     return decorated_function

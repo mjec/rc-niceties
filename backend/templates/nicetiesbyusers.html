@@ -1,43 +1,51 @@
 <!DOCTYPE html>
 
 <style type="text/css" media="print">
- @page {
+  @page {
     size: 7in 9.25in;
     margin: 27mm 16mm 27mm 16mm;
- }
- div.page_print {
-     page-break-after: always;
-     margin: 5mm;
- }
- h2 {
+  }
+
+  div.page_print {
+    page-break-after: always;
+    margin: 5mm;
+  }
+
+  h2 {
     text-align: center
- }
- p.nicety {
+  }
+
+  p.nicety {
     page-break-inside: avoid;
- }
- span.signature {
+  }
+
+  span.signature {
     display: inline-block;
     text-indent: 25px;
     margin-top: -15px;
- }
+  }
+
 </style>
 
 <html>
-    <head>
-	<title>Printable Niceties</title>
-    </head>
-    <body>
-	{% for person in data.niceties %}
-        <div class="page_print">
-            <h2>{{ person.to }}</h2>
-    	    {% for nicety in person.niceties %}
-    	    <p class="nicety"> {{ nicety.text }}
-    	    {% if nicety.name is defined %}
-            <br>
-    	    <span class="signature"> for <i>{{ nicety.name }}</i></p>
-    	    {% endif %}
-    	    {% endfor %}
-	   </div>
-	{% endfor %}
-    </body>
+
+  <head>
+    <title>Printable Niceties</title>
+  </head>
+
+  <body>
+    {% for person in data.niceties %}
+    <div class="page_print">
+      <h2>{{ person.to }}</h2>
+      {% for nicety in person.niceties %}
+      <p class="nicety"> {{ nicety.text }}
+        {% if nicety.name is defined %}
+        <br>
+        <span class="signature"> for <i>{{ nicety.name }}</i></p>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </body>
+
 </html>
