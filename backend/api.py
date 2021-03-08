@@ -1,9 +1,7 @@
 import random
 import sys
 from datetime import datetime, timedelta
-from functools import partial
-from operator import is_not
-from urllib.request import Request, urlopen
+from urllib.request import urlopen
 
 import backend.cache as cache
 import backend.config as config
@@ -17,79 +15,86 @@ from flask.views import MethodView
 from sqlalchemy import func
 
 
+def format_info(p):
+    latest_end_date = None
+    is_recurser = False
+    for stint in p['stints']:
+        if stint['end_date']:
+            is_recurser = True
+            e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+            if latest_end_date is None or e > latest_end_date:
+                latest_end_date = e
+
+    if p['github']:
+        repo_info = []
+        repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+        for repo in repos:
+            repo_info.append({'name': repo['name'],
+                              'description': repo['description'],
+                              })
+
+    if p['interests_rendered']:
+        placeholder = util.name_from_rc_person(p) + " is interested in: " + p['interests_hl']
+    else:
+        placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
+
+    person_info = {
+        'id': p['id'],
+        'name': util.name_from_rc_person(p),
+        'full_name': util.full_name_from_rc_person(p),
+        'avatar_url': p['image_path'],
+        'bio': p['bio_rendered'],
+        'interests': p['interests_rendered'],
+        'before_rc': p['before_rc_rendered'],
+        'during_rc': p['during_rc_rendered'],
+        'job': p['employer_info_rendered'],
+        'twitter': p['twitter'],
+        'github': p['github'],
+        'stints': p['stints'],
+        'repos': repo_info,
+        'end_date': latest_end_date,
+        'placeholder': placeholder,
+        'is_recurser': is_recurser,
+        'is_faculty': False,
+    }
+
+    return person_info
+
+
 def cache_batches_call():
-    res = rc.get('batches')
-    batches = res.data
-    return batches
+    res = rc.get('batches').data
+    return res
 
 
 def cache_people_call(batch_id):
     people = []
-    batches = rc.get('batches/{}/people'.format(batch_id)).data
-    for p in batches:
-        repo_info = []
-        latest_end_date = None
-        for stint in p['stints']:
-            if stint['end_date'] is not None:
-                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                if latest_end_date is None or e > latest_end_date:
-                    latest_end_date = e
-        people.append({
-            'id': p['id'],
-            'is_faculty': p['is_faculty'],
-            'is_hacker_schooler': p['is_hacker_schooler'],
-            'name': util.name_from_rc_person(p),
-            'full_name': util.full_name_from_rc_person(p),
-            'avatar_url': p['image'],
-            'stints': p['stints'],
-            'bio': p['bio'],
-            'interests': p['interests'],
-            'before_rc': p['before_rc'],
-            'during_rc': p['during_rc'],
-            'job': p['job'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-            'repos': repo_info,
-            'end_date': latest_end_date,
-        })
+    batch = rc.get('profiles?batch_id={}'.format(batch_id)).data
+    for p in batch:
+        people.append(format_info(p))
+
     return people
 
 
 def cache_person_call(person_id):
-    cache_key = 'person:{}'.format(person_id)
-    try:
-        return cache.get(cache_key)
-    except cache.NotInCache:
-        p = rc.get('people/{}'.format(person_id)).data
-        # if 'message' in p:
-        #     return redirect(url_for('login'))
-        person_info = {
-            'id': p['id'],
-            'name': p['first_name'],
-            'full_name': p['first_name'] + " " + p['last_name'],
-            'avatar_url': p['image'],
-            'is_faculty': p['is_faculty'],
-            'bio': p['bio'],
-            'interests': p['interests'],
-            'before_rc': p['before_rc'],
-            'during_rc': p['during_rc'],
-            'job': p['job'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-        }
-        cache.set(cache_key, person_info)
-    return person_info
+    p = rc.get('profiles/{}'.format(person_id)).data
+
+    return format_info(p)
 
 
 def get_current_faculty():
     ''' faculty will always appear in
     the most recent batch!
     '''
+    f = rc.get('profiles?role=faculty').data
     faculty = []
-    for batch in get_current_batches_info():
-        for p in cache_people_call(batch['id']):
-            if p['is_faculty'] == True:
-                faculty.append(p)
+    for p in f:
+        for stint in p['stints']:
+            if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] is None:
+                info = cache_person_call(p["id"])
+                info['is_faculty'] = True
+                faculty.append(info)
+                break
+
     return faculty
 
 
