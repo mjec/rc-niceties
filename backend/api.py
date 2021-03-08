@@ -25,13 +25,13 @@ def format_info(p):
             if latest_end_date is None or e > latest_end_date:
                 latest_end_date = e
 
-    if p['github']:
-        repo_info = []
-        repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
-        for repo in repos:
-            repo_info.append({'name': repo['name'],
-                              'description': repo['description'],
-                              })
+    repo_info = []
+    # if p['github']:
+    #     repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+    #     for repo in repos:
+    #         repo_info.append({'name': repo['name'],
+    #                           'description': repo['description'],
+    #                           })
 
     if p['interests_rendered']:
         placeholder = util.name_from_rc_person(p) + " is interested in: " + p['interests_hl']
@@ -330,12 +330,14 @@ def display_people():
         to_display = {
             'staying': staying,
             'leaving': leaving,
-            'special': special
+            'special': special,
+            'faculty': faculty
         }
     else:
         to_display = {
             'leaving': leaving,
-            'special': special
+            'special': special,
+            'faculty': faculty
         }
 
     return jsonify(to_display)
