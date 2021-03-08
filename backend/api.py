@@ -244,10 +244,14 @@ def niceties_from_me():
 def niceties_for_me():
     ret = []
     whoami = current_user().id
-    valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
-                      .filter(Nicety.target_id == whoami)
-                      .all())
+    if app.config.get("DEBUG_SHOW_ALL") == "TRUE":
+        valid_niceties = (Nicety.query
+                          .all())
+    else:
+        valid_niceties = (Nicety.query
+                          .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
+                          .filter(Nicety.target_id == whoami)
+                          .all())
     for n in valid_niceties:
         if n.text is not None:
             if n.anonymous is True:

@@ -20,7 +20,8 @@ app.config.update(dict(
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     STATIC_BASE=os.path.realpath(os.path.abspath(os.path.join(app.root_path, '../build/'))),
     STATIC_FILE_ON_404='index.html',
-    DEV=os.environ['DEV']
+    DEV=os.environ['DEV'],
+    DEBUG_SHOW_ALL=os.environ.get('DEBUG_SHOW_ALL', False)
 ))
 app.static_folder = app.config.get('STATIC_BASE', './static/')
 
