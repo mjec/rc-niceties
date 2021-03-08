@@ -31,7 +31,7 @@ def niceties_are_open(latest_batches):
         if not isinstance(end_date, datetime):
             end_date = datetime.strptime(end_date, "%Y-%m-%d")
         window_open = end_date - timedelta(days=7)
-        if now > window_open and (end_date + timedelta(hours=10)) > now or app.config.get("DEV") == True:
+        if now > window_open and (end_date + timedelta(hours=10)) > now or app.config.get("DEV") == "TRUE":
             return True
     return False
 

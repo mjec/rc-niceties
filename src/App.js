@@ -75,7 +75,7 @@ var People = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.log(err)
-            }.bind(this)
+            }
         });
     },
 
@@ -126,6 +126,7 @@ var People = React.createClass({
         let leaving = this.generateRows(this.props.people.leaving);
         let staying = this.generateRows(this.props.people.staying);
         let special = this.generateRows(this.props.people.special);
+        let faculty = this.generateRows(this.props.people.faculty);
         const savePass = this.saveReady.bind(this);
 
         let maybeHeader  = '';
@@ -141,17 +142,22 @@ var People = React.createClass({
         let staffHeader;
         let staffRows;
         //if (staying.length > 0) {
-            staffRows = special.map(function(row) {
+            // staffRows = special.map(function(row) {
+            //     return (
+            //         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+            //     );
+            // }.bind(this))
+            staffRows = faculty.map(function(row) {
                 return (
                     <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                 );
             }.bind(this))
- 
+
             staffHeader = (
                 <h3>Staff</h3>
-                
+
             );
-        //}  
+        //}
         return (
             <div className="people">
              <Modal show={this.state.justSaved}>
@@ -175,14 +181,14 @@ var People = React.createClass({
                     );
                 }.bind(this))}
                 <hr />
-                {maybeHeader}
+                { maybeHeader }
                 {staying.map(function(row) {
                     return (
                         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                     );
                 }.bind(this))}
-                {maybeHR}
-                { staffHeader }  
+                { maybeHR }
+                { staffHeader }
                 { staffRows }
             </Grid>
                 </div>
@@ -222,7 +228,7 @@ var PeopleRow = React.createClass({
             <Row>
               {this.props.data
                   .map(function(result) {
-                      return (<Col lg ="3" md="4" sm="6" xs="12">
+                      return (<Col lg="3" md="4" sm="6" xs="12">
                               <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} saveButton={saveButton}/>
                               </Col>);
                   }.bind(this))}
@@ -397,7 +403,7 @@ var NicetyRow = React.createClass({
             <Row>
               {this.props.data
                   .map(function(result) {
-                      return (<Col lg ="3" md="4" sm="6" xs="12">
+                      return (<Col lg="3" md="4" sm="6" xs="12">
                               <Nicety data={result}/>
                               </Col>);
                   })}
@@ -514,7 +520,7 @@ var Admin = React.createClass({
                                 {person.niceties.map((nicety) => {
                                     return (
                                             <AdminNicety nicety={nicety} target_id={person.to_id}
-                                                         admin_edit_api = {this.props.admin_edit_api}/>
+                                                         admin_edit_api={this.props.admin_edit_api}/>
                                     );
                                 })}
                             <hr />
@@ -555,7 +561,7 @@ var AdminNicety = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.log(err)
-            }.bind(this)
+            }
         });
     },
 
@@ -614,7 +620,7 @@ var App = React.createClass({
             },
             error: function(xhr, status, err) {
                 //console.error(this.props.people, status, err.toString());
-            }.bind(this)
+            }
         });
     },
     loadNicetiesFromMe: function(callback) {
@@ -627,7 +633,7 @@ var App = React.createClass({
             },
             error: function(xhr, status, err) {
                 //console.error(this.props.fromMe, status, err.toString());
-            }.bind(this)
+            }
         });
     },
     loadNicetiesForMe: function(callback) {
@@ -640,7 +646,7 @@ var App = React.createClass({
             },
             error: function(xhr, status, err) {
                 //console.error(this.props.niceties, status, err.toString());
-            }.bind(this)
+            }
         });
     },
     loadSelfInfo: function(callback) {
@@ -653,7 +659,7 @@ var App = React.createClass({
             },
             error: function(xhr, status, err) {
                 //console.error(this.props.niceties, status, err.toString());
-            }.bind(this)
+            }
         });
     },
     getInitialState: function() {
