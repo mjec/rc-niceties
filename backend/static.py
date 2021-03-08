@@ -1,20 +1,22 @@
 import os
-from collections import OrderedDict
-
-from datetime import datetime, timedelta
-from flask import json, jsonify, send_file, abort, url_for, redirect, render_template, send_from_directory
 from base64 import b64decode, b64encode
+from collections import OrderedDict
+from datetime import datetime, timedelta
 
 from backend import app
+from backend.api import cache_person_call
 from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
-from backend.util import admin_access, encode_str, decode_str
-from backend.api import cache_person_call
+from backend.util import admin_access, decode_str, encode_str
+from flask import (abort, json, jsonify, redirect, render_template, send_file,
+                   send_from_directory, url_for)
+
 
 @app.route('/')
 @needs_authorization
 def home():
     return send_file(os.path.realpath(os.path.join(app.static_folder, 'index.html')))
+
 
 @app.route('/<path:p>')
 @needs_authorization
@@ -36,17 +38,18 @@ def serve_static_files(p, index_on_error=True):
             return abort(404)
     return send_file(full_path)
 
+
 @app.route('/SFPixelate-Bold.ttf')
 def font():
     return send_file(os.path.realpath(os.path.join('SFPixelate-Bold.ttf')))
-    #return send_from_directory('/', 'SFPixelate-Bold.ttf')
+    # return send_from_directory('/', 'SFPixelate-Bold.ttf')
+
 
 @app.route('/niceties-by-sender')
 def niceties_by_sender():
     ret = {}    # Mapping from target_id to a list of niceties for that person
-    is_rachel = admin_access(current_user())
-    two_weeks_from_now = datetime.now() + timedelta(days=14)
-    if is_rachel == True:
+    is_admin = admin_access(current_user())
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .order_by(Nicety.author_id)
                           .all())
@@ -89,13 +92,14 @@ def niceties_by_sender():
     else:
         return jsonify({'authorized': "false"})
 
+
 @app.route('/print-niceties')
 def print_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
-    is_rachel = admin_access(current_user())
+    is_admin = admin_access(current_user())
     three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
-    if is_rachel == True:
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
                           .filter(Nicety.end_date < three_weeks_from_now)
@@ -129,7 +133,7 @@ def print_niceties():
             # sort by name, then sort by reverse author_id
             data.append({
                 'to': k,
-                'niceties': #sorted(v, key=lambda k: k['name'])
+                'niceties':  # sorted(v, key=lambda k: k['name'])
                 sorted(sorted(v, key=lambda k: k['name']), key=lambda k: k['anon'])
             })
         return render_template('printniceties.html',

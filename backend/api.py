@@ -1,26 +1,27 @@
-from flask import json, jsonify, request, abort, url_for, redirect, session
-from flask.views import MethodView
 import random
-
-from backend import app, rc, db
-from backend.models import Nicety, SiteConfiguration
-from backend.auth import current_user, needs_authorization, faculty_only, get_oauth_token
+import sys
 from datetime import datetime, timedelta
-from sqlalchemy import func
+from functools import partial
+from operator import is_not
+from urllib.request import Request, urlopen
 
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
+from backend import app, db, rc
+from backend.auth import (current_user, faculty_only, get_oauth_token,
+                          needs_authorization)
+from backend.models import Nicety, SiteConfiguration
+from flask import abort, json, jsonify, redirect, request, session, url_for
+from flask.views import MethodView
+from sqlalchemy import func
 
-import sys
-from functools import partial
-from urllib.request import Request, urlopen
-from operator import is_not
 
 def cache_batches_call():
     res = rc.get('batches')
     batches = res.data
     return batches
+
 
 def cache_people_call(batch_id):
     people = []
@@ -53,6 +54,7 @@ def cache_people_call(batch_id):
         })
     return people
 
+
 def cache_person_call(person_id):
     cache_key = 'person:{}'.format(person_id)
     try:
@@ -78,6 +80,7 @@ def cache_person_call(person_id):
         cache.set(cache_key, person_info)
     return person_info
 
+
 def get_current_faculty():
     ''' faculty will always appear in
     the most recent batch!
@@ -89,6 +92,7 @@ def get_current_faculty():
                 faculty.append(p)
     return faculty
 
+
 def get_current_batches_info():
     batches = cache_batches_call()
     ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
@@ -96,12 +100,14 @@ def get_current_batches_info():
         ret = []
     return ret
 
+
 def get_current_users():
     batches = get_current_batches_info()
     if batches != []:
-        return [person for batch in batches for person  in cache_people_call(batch['id'])]
+        return [person for batch in batches for person in cache_people_call(batch['id'])]
     else:
         return []
+
 
 def partition_current_users(users):
     ret = {
@@ -120,12 +126,12 @@ def partition_current_users(users):
     staying_date = datetime.strptime(end_dates[0], "%Y-%m-%d")
     leaving_date = datetime.strptime(end_dates[1], "%Y-%m-%d")
     for u in users:
-        # Batchlings have   is_hacker_schooler = True,      is_faculty = False
-        # Faculty have      is_hacker_schooler = ?,         is_faculty = True
-        # Residents have    is_hacker_schooler = False,     is_faculty = False
-        if ((u['is_hacker_schooler'] and not u['is_faculty']) or
-            (not u['is_faculty'] and not u['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
-            (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
+        # Batchlings have   is_recurser = True,      is_faculty = False
+        # Faculty have      is_recurser = ?,         is_faculty = True
+        # Residents have    is_recurser = False,     is_faculty = False
+        if ((u['is_recurser'] and not u['is_faculty']) or
+            (not u['is_faculty'] and not u['is_recurser'] and config.get(config.INCLUDE_RESIDENTS, False)) or
+                (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
             if u['end_date'] == staying_date:
                 ret['staying'].append(u)
             elif u['end_date'] == leaving_date:
@@ -133,6 +139,7 @@ def partition_current_users(users):
             else:
                 pass
     return ret
+
 
 @app.route('/api/v1/people/<int:person_id>')
 @needs_authorization
@@ -152,6 +159,7 @@ def get_person_info(person_id):
 #             "opening": '',
 #         })
 
+
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
@@ -162,15 +170,16 @@ def get_self_info():
     }
     return jsonify(data)
 
+
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
 @needs_authorization
 def post_edited_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
-    is_rachel = util.admin_access(current_user())
-    three_weeks_ago = datetime.now() - timedelta(days=21) 
+    is_admin = util.admin_access(current_user())
+    three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
-    if is_rachel == True:
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
                           .filter(Nicety.end_date < three_weeks_from_now)
@@ -204,22 +213,24 @@ def post_edited_niceties():
     else:
         return jsonify({'authorized': "false"})
 
+
 @app.route('/api/v1/admin-edit-niceties', methods=['POST'])
 @needs_authorization
 def get_niceties_to_edit():
-    is_rachel = util.admin_access(current_user())
+    is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = request.form.get("author_id")
     nicety_target = request.form.get("target_id")
-    if is_rachel == True:
+    if is_admin is True:
         (Nicety.query
-         .filter(Nicety.author_id==nicety_author)
-         .filter(Nicety.target_id==nicety_target)
+         .filter(Nicety.author_id == nicety_author)
+         .filter(Nicety.target_id == nicety_target)
          .update({'text': nicety_text}))
         db.session.commit()
         return jsonify({'status': 'OK'})
     else:
         return jsonify({'authorized': "false"})
+
 
 @app.route('/api/v1/niceties-from-me')
 @needs_authorization
@@ -237,6 +248,7 @@ def niceties_from_me():
     } for n in niceties]
     return jsonify(ret)
 
+
 @app.route('/api/v1/niceties-for-me')
 @needs_authorization
 def niceties_for_me():
@@ -244,7 +256,7 @@ def niceties_for_me():
     whoami = current_user().id
     two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # show niceties one day after the end date
+                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
@@ -271,16 +283,19 @@ def niceties_for_me():
             ret.append(store)
     return jsonify(ret)
 
+
 @app.route('/api/v1/faculty')
 @needs_authorization
 def get_faculty():
     faculty = get_current_faculty()
     return jsonify(faculty)
 
+
 @app.route('/api/v1/batches')
 def get_all_batches():
     batches = cache_batches_call()
     return jsonify(batches)
+
 
 @app.route('/api/v1/people')
 @needs_authorization
@@ -301,7 +316,7 @@ def display_people():
     staying = list(person for person in people['staying'])
     faculty = get_current_faculty()
     # there needs to be a better way to add special people to the current exiting batch
-    special = [ x for x in faculty if x['id'] == 601]
+    special = [x for x in faculty if x['id'] == 601]
     random.seed(current_user().random_seed)
     random.shuffle(staying)
     random.shuffle(leaving)
@@ -317,7 +332,9 @@ def display_people():
             'leaving': leaving,
             'special': special
         }
+
     return jsonify(to_display)
+
 
 @app.route('/api/v1/save-niceties', methods=['POST'])
 @needs_authorization
@@ -357,6 +374,7 @@ def save_niceties():
     db.session.commit()
     return jsonify({'status': 'OK'})
 
+
 class SiteSettingsAPI(MethodView):
     def get(self):
         user = current_user()
@@ -382,6 +400,7 @@ class SiteSettingsAPI(MethodView):
                 return abort(404)
         except:
             return abort(400)
+
 
 app.add_url_rule(
     '/api/v1/site_settings',
