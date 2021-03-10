@@ -41,7 +41,7 @@ def authorized():
         'refresh_token': resp['refresh_token'],
         'expires_at': resp['expires_in'] + time() - 600
     }
-    me = rc.get('people/me').data
+    me = rc.get('profiles/me').data
     user = User.query.get(me['id'])
     if user is None:
         user = User(

@@ -5,83 +5,95 @@ import backend.cache as cache
 import backend.config as config
 import backend.util as util
 from backend import app, db, rc
+
 from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
 from flask import abort, json, jsonify, redirect, request, url_for
 from flask.views import MethodView
 
 
+def format_info(p):
+    latest_end_date = None
+    is_recurser = False
+    for stint in p['stints']:
+        if stint['end_date']:
+            is_recurser = True
+            e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+            if latest_end_date is None or e > latest_end_date:
+                latest_end_date = e
+
+    repo_info = []
+    # if p['github']:
+    #     repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+    #     for repo in repos:
+    #         repo_info.append({'name': repo['name'],
+    #                           'description': repo['description'],
+    #                           })
+
+    if p['interests_rendered']:
+        placeholder = util.name_from_rc_person(p) + " is interested in: " + p['interests_hl']
+    else:
+        placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
+
+    person_info = {
+        'id': p['id'],
+        'name': util.name_from_rc_person(p),
+        'full_name': util.full_name_from_rc_person(p),
+        'avatar_url': p['image_path'],
+        'bio': p['bio_rendered'],
+        'interests': p['interests_rendered'],
+        'before_rc': p['before_rc_rendered'],
+        'during_rc': p['during_rc_rendered'],
+        'job': p['employer_info_rendered'],
+        'twitter': p['twitter'],
+        'github': p['github'],
+        'stints': p['stints'],
+        'repos': repo_info,
+        'end_date': latest_end_date,
+        'placeholder': placeholder,
+        'is_recurser': is_recurser,
+        'is_faculty': False,
+    }
+
+    return person_info
+
+
 def cache_batches_call():
-    res = rc.get('batches')
-    batches = res.data
-    return batches
+    res = rc.get('batches').data
+    return res
+
 
 
 def cache_people_call(batch_id):
     people = []
-    batches = rc.get('batches/{}/people'.format(batch_id)).data
-    for p in batches:
-        repo_info = []
-        latest_end_date = None
-        for stint in p['stints']:
-            if stint['end_date'] is not None:
-                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                if latest_end_date is None or e > latest_end_date:
-                    latest_end_date = e
-        people.append({
-            'id': p['id'],
-            'is_faculty': p['is_faculty'],
-            'is_hacker_schooler': p['is_hacker_schooler'],
-            'name': util.name_from_rc_person(p),
-            'full_name': util.full_name_from_rc_person(p),
-            'avatar_url': p['image'],
-            'stints': p['stints'],
-            'bio': p['bio'],
-            'interests': p['interests'],
-            'before_rc': p['before_rc'],
-            'during_rc': p['during_rc'],
-            'job': p['job'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-            'repos': repo_info,
-            'end_date': latest_end_date,
-        })
+    batch = rc.get('profiles?batch_id={}'.format(batch_id)).data
+    for p in batch:
+        people.append(format_info(p))
+
     return people
 
 
 def cache_person_call(person_id):
-    cache_key = 'person:{}'.format(person_id)
-    try:
-        return cache.get(cache_key)
-    except cache.NotInCache:
-        p = rc.get('people/{}'.format(person_id)).data
-        person_info = {
-            'id': p['id'],
-            'name': p['first_name'],
-            'full_name': p['first_name'] + " " + p['last_name'],
-            'avatar_url': p['image'],
-            'is_faculty': p['is_faculty'],
-            'bio': p['bio'],
-            'interests': p['interests'],
-            'before_rc': p['before_rc'],
-            'during_rc': p['during_rc'],
-            'job': p['job'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-        }
-        cache.set(cache_key, person_info)
-    return person_info
+    p = rc.get('profiles/{}'.format(person_id)).data
+    
+    return format_info(p)
 
 
 def get_current_faculty():
     ''' faculty will always appear in
     the most recent batch!
     '''
+    f = rc.get('profiles?role=faculty').data
     faculty = []
-    for batch in get_current_batches_info():
-        for p in cache_people_call(batch['id']):
-            if p['is_faculty'] is True:
-                faculty.append(p)
+
+    for p in f:
+        for stint in p['stints']:
+            if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] is None:
+                info = cache_person_call(p["id"])
+                info['is_faculty'] = True
+                faculty.append(info)
+                break
+
     return faculty
 
 
@@ -118,11 +130,11 @@ def partition_current_users(users):
     staying_date = datetime.strptime(end_dates[0], "%Y-%m-%d")
     leaving_date = datetime.strptime(end_dates[1], "%Y-%m-%d")
     for u in users:
-        # Batchlings have   is_hacker_schooler = True,      is_faculty = False
-        # Faculty have      is_hacker_schooler = ?,         is_faculty = True
-        # Residents have    is_hacker_schooler = False,     is_faculty = False
-        if ((u['is_hacker_schooler'] and not u['is_faculty']) or
-            (not u['is_faculty'] and not u['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
+        # Batchlings have   is_recurser = True,      is_faculty = False
+        # Faculty have      is_recurser = ?,         is_faculty = True
+        # Residents have    is_recurser = False,     is_faculty = False
+        if ((u['is_recurser'] and not u['is_faculty']) or
+            (not u['is_faculty'] and not u['is_recurser'] and config.get(config.INCLUDE_RESIDENTS, False)) or
                 (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
             if u['end_date'] == staying_date:
                 ret['staying'].append(u)
@@ -140,6 +152,7 @@ def get_person_info(person_id):
     return jsonify(person_info)
 
 
+
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
@@ -155,10 +168,10 @@ def get_self_info():
 def post_edited_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
-    is_rachel = util.admin_access(current_user())
+    is_admin = util.admin_access(current_user())
     three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
-    if is_rachel is True:
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
                           .filter(Nicety.end_date < three_weeks_from_now)
@@ -196,11 +209,11 @@ def post_edited_niceties():
 @app.route('/api/v1/admin-edit-niceties', methods=['POST'])
 @needs_authorization
 def get_niceties_to_edit():
-    is_rachel = util.admin_access(current_user())
+    is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = request.form.get("author_id")
     nicety_target = request.form.get("target_id")
-    if is_rachel is True:
+    if is_admin is True:
         (Nicety.query
          .filter(Nicety.author_id == nicety_author)
          .filter(Nicety.target_id == nicety_target)
@@ -303,13 +316,16 @@ def display_people():
         to_display = {
             'staying': staying,
             'leaving': leaving,
-            'special': special
+            'special': special,
+            'faculty': faculty
         }
     else:
         to_display = {
             'leaving': leaving,
-            'special': special
+            'special': special,
+            'faculty': faculty
         }
+
     return jsonify(to_display)
 
 
