@@ -1,12 +1,9 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Button, Grid, Row, Col, Image, Nav, NavItem, Navbar, NavDropdown, MenuItem, Checkbox, Modal } from 'react-bootstrap';
-import ReactDOM, { findDOMNode } from 'react-dom';
-import React, { Component } from 'react';
+import { Button, Grid, Row, Col, Image, Nav, Navbar, NavDropdown, MenuItem, Checkbox, Modal } from 'react-bootstrap';
+import React from 'react';
 
-import Remarkable from 'remarkable';
-import logo from './logo.svg';
 import octotie from './octotie.png';
 import suittie from './suittie.png';
 import $ from 'jquery';
@@ -92,7 +89,7 @@ var People = React.createClass({
                 noSave: false,
                 justSaved: false
             }
-        };
+        }
     },
 
     generateRows: function(inputArray) {
@@ -710,7 +707,7 @@ var App = React.createClass({
             $('.dropdown-toggle').append('<span class="caret"></span>');
             return <Admin admin_edit_api={this.props.admin_edit_api}/>
         default:
-        };
+        }
     },
     render: function() {
         let selectedComponent = this.selectComponent(this.state.currentview);

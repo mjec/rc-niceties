@@ -1,18 +1,15 @@
 import random
-import sys
 from datetime import datetime, timedelta
-from urllib.request import urlopen
 
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
 from backend import app, db, rc
-from backend.auth import (current_user, faculty_only, get_oauth_token,
-                          needs_authorization)
+
+from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
-from flask import abort, json, jsonify, redirect, request, session, url_for
+from flask import abort, json, jsonify, redirect, request, url_for
 from flask.views import MethodView
-from sqlalchemy import func
 
 
 def format_info(p):
@@ -66,6 +63,7 @@ def cache_batches_call():
     return res
 
 
+
 def cache_people_call(batch_id):
     people = []
     batch = rc.get('profiles?batch_id={}'.format(batch_id)).data
@@ -77,7 +75,7 @@ def cache_people_call(batch_id):
 
 def cache_person_call(person_id):
     p = rc.get('profiles/{}'.format(person_id)).data
-
+    
     return format_info(p)
 
 
@@ -87,6 +85,7 @@ def get_current_faculty():
     '''
     f = rc.get('profiles?role=faculty').data
     faculty = []
+
     for p in f:
         for stint in p['stints']:
             if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] is None:
@@ -152,23 +151,11 @@ def get_person_info(person_id):
     person_info = cache_person_call(person_id)
     return jsonify(person_info)
 
-# @app.route('api/v1/window')
-# @needs_authorization
-# def get_window_info():
-#     ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
-#     if not util.niceties_are_open(batches) or len(ret) == 1:
-#         ret = []
-#     return jsonify(
-#         {
-#             "status": 'closed',
-#             "opening": '',
-#         })
 
 
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
-    #self_info = rc.get('people/me').data
     admin = util.admin_access(current_user())
     data = {
         'admin': admin
@@ -195,7 +182,7 @@ def post_edited_niceties():
                 # ... set up the test for the next one
                 last_target = n.target_id
                 ret[n.target_id] = []  # initialize the dictionary
-            if n.anonymous == False:
+            if n.anonymous is False:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
                     'name': cache_person_call(n.author_id)['full_name'],
@@ -259,14 +246,13 @@ def niceties_from_me():
 def niceties_for_me():
     ret = []
     whoami = current_user().id
-    two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
                       .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
-        if n.text != None:
-            if n.anonymous == True:
+        if n.text is not None:
+            if n.anonymous is True:
                 store = {
                     'end_date': n.end_date,
                     'anonymous': n.anonymous,
@@ -326,7 +312,7 @@ def display_people():
     random.shuffle(staying)
     random.shuffle(leaving)
     random.shuffle(special)
-    if current_user_leaving == True:
+    if current_user_leaving is True:
         to_display = {
             'staying': staying,
             'leaving': leaving,

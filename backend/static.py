@@ -6,10 +6,10 @@ from datetime import datetime, timedelta
 from backend import app
 from backend.api import cache_person_call
 from backend.auth import current_user, needs_authorization
-from backend.models import Nicety, SiteConfiguration
-from backend.util import admin_access, decode_str, encode_str
-from flask import (abort, json, jsonify, redirect, render_template, send_file,
-                   send_from_directory, url_for)
+
+from backend.models import Nicety
+from backend.util import admin_access, decode_str
+from flask import abort, jsonify, render_template, send_file
 
 
 @app.route('/')
@@ -42,7 +42,6 @@ def serve_static_files(p, index_on_error=True):
 @app.route('/SFPixelate-Bold.ttf')
 def font():
     return send_file(os.path.realpath(os.path.join('SFPixelate-Bold.ttf')))
-    # return send_from_directory('/', 'SFPixelate-Bold.ttf')
 
 
 @app.route('/niceties-by-sender')
@@ -60,8 +59,8 @@ def niceties_by_sender():
                 # ... set up the test for the next one
                 last_author = author
                 ret[author] = []  # initialize the dictionary
-            if n.text is not None and n.text.isspace() == False:
-                if n.anonymous == False:
+            if n.text is not None and n.text.isspace() is False:
+                if n.anonymous is False:
                     ret[author].append({
                         'target_id': n.target_id,
                         'anon': False,
@@ -112,8 +111,8 @@ def print_niceties():
                 # ... set up the test for the next one
                 last_target = target
                 ret[target] = []  # initialize the dictionary
-            if n.text is not None and n.text.isspace() == False:
-                if n.anonymous == False:
+            if n.text is not None and n.text.isspace() is False:
+                if n.anonymous is False:
                     ret[target].append({
                         'author_id': n.author_id,
                         'anon': False,

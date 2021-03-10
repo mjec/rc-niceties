@@ -1,11 +1,12 @@
 import datetime
 
+from backend import config, db
 from backend.models import Cache
-from backend import db, config
 
 
 class NotInCache(Exception):
     pass
+
 
 def get(key, max_age=None):
     """Get a value from the cache, provided it is no  older than `max_age`, which
@@ -22,6 +23,7 @@ def get(key, max_age=None):
         raise NotInCache
     return db_row.value
 
+
 def set(key, value):
     """Set a value in the cache."""
     db_row = Cache.query.filter_by(key=key).one_or_none()
@@ -32,6 +34,7 @@ def set(key, value):
         db_row.value = value
     db_row.last_updated = datetime.datetime.now()
     db.session.commit()
+
 
 def flush_expired(max_age=None):
     """Remove items from the cache which are older than `max_age`, which can be a

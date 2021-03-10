@@ -1,12 +1,11 @@
-from datetime import datetime, time, date, timedelta
 from base64 import b64decode, b64encode
+from datetime import datetime, time, timedelta
 
 from backend import app
 
-import backend.config as config
-
 batch_closing_time_memo = {}
 batch_closing_warning_time_memo = {}
+
 
 def open_batches(end_date):
     '''
@@ -19,6 +18,7 @@ def open_batches(end_date):
     closing_time = datetime.combine(end_date, time(hour=10, minute=0))
     now = datetime.now()
     return (closing_time > now)
+
 
 def niceties_are_open(latest_batches):
     '''
@@ -35,18 +35,20 @@ def niceties_are_open(latest_batches):
             return True
     return False
 
+
 def name_from_rc_person(person):
     '''
     Returns a name as a string from an RC person object.
     '''
     return person['first_name']
-    #return '{} {}'.format(person['first_name'], person['last_name'])
+
 
 def full_name_from_rc_person(person):
     '''
     Returns a name as a string from an RC person object.
     '''
     return '{} {}'.format(person['first_name'], person['last_name'])
+
 
 def next_window(latest_batches):
     '''
@@ -60,8 +62,9 @@ def next_window(latest_batches):
         if earliest_end_date is None or e < earliest_end_date:
             earliest_end_date = e
     time_left = earliest_end_date - now
-    #print(time_left.days, time_left.seconds)
-    return end_date
+
+    return time_left
+
 
 def admin_access(current_user):
     if app.config.get('DEV') == 'TRUE' or current_user.id == 770 or current_user.id == 1804:
@@ -69,10 +72,12 @@ def admin_access(current_user):
     else:
         return False
 
+
 def encode_str(inp):
     if inp is None:
         return None
     return b64encode(inp.encode('utf-8')).decode('utf-8')
+
 
 def decode_str(inp):
     if inp is None:

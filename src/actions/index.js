@@ -33,8 +33,7 @@ function stateSaved() {
   }
 }
 
-function stateSaveEr
-ror() {
+function stateSaveError() {
   return {
     type: 'STATE_SAVE_ERROR'
   }

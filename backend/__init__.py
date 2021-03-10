@@ -1,8 +1,9 @@
 import os
 from base64 import b64decode
+
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_oauthlib.client import OAuth
+from flask_sqlalchemy import SQLAlchemy
 
 MOCK_OUT_RC_API = False
 
@@ -36,9 +37,9 @@ with app.app_context():
     )
 
 # Imports for URLs that should be available
-import backend.api
-import backend.auth
-import backend.static
+import backend.api  # noqa
+import backend.auth  # noqa
+import backend.static  # noqa
 
 # This file exports:
 #   app     The Flask() object
