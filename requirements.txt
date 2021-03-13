@@ -12,4 +12,4 @@ psycopg2==2.7.4
 requests==2.11.0
 requests-oauthlib==0.6.2
 SQLAlchemy==1.0.14
-Werkzeug==0.11.10
+Werkzeug==0.15.3
