@@ -6,13 +6,11 @@ An application to manage niceties delivered by [recursers](https://recurse.com) 
 
 This application is pretty simple. It stores niceties as text and some metadata associated with a unique (author, recipient, batch) tuple. This is stored in a Postgres database. Faculty can view and edit all the niceties. Recursers can see all the nice things said about them, and all the things they have said in the past.
 
-The backend is in Flask, and is just a REST API. The frontend is in react, because it's 2016 and that's the current hotness.
-
-All queries to the RC API is cached, and things
+The backend is in [Flask](https://flask.palletsprojects.com/en/1.1.x/), and is just a REST API. The DB is Postgres, with [SQLAlchemy](https://docs.sqlalchemy.org/en/13/) as an ORM and [Alembic](https://alembic.sqlalchemy.org/en/latest/#) to manage schema migrations. The frontend is in [react](https://reactjs.org/), because it's 2016 and that's the current hotness.
 
 ## Creating a development environment
 
-I built this using Python 3.5.2, node.js 3.10.5 and Postgres 9.5.3.
+I built this using Python 3.6.13, node.js 14.15.5 and Postgres 12.6.
 
 1. Clone the repository into an appropriate location.
 
