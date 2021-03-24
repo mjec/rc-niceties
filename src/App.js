@@ -9,7 +9,7 @@ import suittie from './suittie.png';
 import $ from 'jquery';
 
 var updated_niceties_spinlock = false;
-var updated_niceties = new Set();
+// var updated_niceties = new Set();
 const components = { People, NicetyDisplay };
 
 if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === "undefined") {
@@ -22,7 +22,7 @@ var People = React.createClass({
         var data_to_save = [];
         const dateUpdated = new Date(Date.now());
         const dateUpdatedStr = dateUpdated.toUTCString();
-        updated_niceties.forEach(function(e) {
+        this.state.updated_niceties.forEach(function(e) {
             var split_e = e.split(",");
             let anonymous;
             if (localStorage.getItem("anonymous-" + split_e[0]) === "undefined" || localStorage.getItem("anonymous-" + split_e[0]) === null) {
@@ -64,11 +64,11 @@ var People = React.createClass({
                 this.setState({noSave: true});
                 this.setState({justSaved: true});
                 localStorage.setItem("saved", "true");
-                updated_niceties.forEach(function(e) {
+                this.state.updated_niceties.forEach(function(e) {
                     const split_e = e.split(",");
                     localStorage.setItem("date_updated-" + split_e[0], dateUpdatedStr);
                 });
-                updated_niceties.clear();
+                this.state.updated_niceties.clear();
             }.bind(this),
             error: function(xhr, status, err) {
                 console.log(err)
@@ -81,13 +81,15 @@ var People = React.createClass({
             return {
                 data: [],
                 noSave: true,
-                justSaved: false
+                justSaved: false,
+                updated_niceties: new Set()
             }
         } else if (localStorage.getItem("saved") === "false") {
             return {
                 data: [],
                 noSave: false,
-                justSaved: false
+                justSaved: false,
+                updated_niceties: new Set()
             }
         }
     },
@@ -146,7 +148,7 @@ var People = React.createClass({
             // }.bind(this))
             staffRows = faculty.map(function(row) {
                 return (
-                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>
                 );
             }.bind(this))
 
@@ -174,14 +176,14 @@ var People = React.createClass({
                 <h3>Leaving Soon</h3>
                 {leaving.map(function(row) {
                   return (
-                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>
                   );
                 }.bind(this))}
                 <hr />
                 { maybeHeader }
                 {staying.map(function(row) {
                   return (
-                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>
                   );
                 }.bind(this))}
                 { maybeHR }
@@ -224,11 +226,11 @@ var PeopleRow = React.createClass({
         return (
             <Row>
               {this.props.data
-                  .map(function(result) {
-                      return (<Col lg="3" md="4" sm="6" xs="12">
-                              <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} saveButton={saveButton}/>
-                              </Col>);
-                  }.bind(this))}
+                .map(function(result) {
+                  return (<Col lg="3" md="4" sm="6" xs="12">
+                    <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} saveButton={saveButton} updated_niceties={this.props.updated_niceties}/>
+                  </Col>);
+                }.bind(this))}
             </Row>
         );
     }
@@ -306,8 +308,8 @@ var Person = React.createClass({
         } else {
             addString = this.props.data.id + ",2016-11-03";
         }
-        if (!(addString in updated_niceties)) {
-            updated_niceties.add(addString);
+        if (!(addString in this.props.updated_niceties)) {
+            this.props.updated_niceties.add(addString);
         }
         localStorage.setItem("saved", "false");
         this.props.saveReady();
