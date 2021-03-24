@@ -47,7 +47,7 @@ def authorized():
         user = User(
             id=me['id'],
             name=util.name_from_rc_person(me),
-            avatar_url=me['image'],
+            avatar_url=me['image_path'],
             is_faculty=me['is_faculty'])
         db.session.add(user)
         db.session.commit()
