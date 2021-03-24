@@ -52,7 +52,7 @@ def format_info(p):
         'end_date': latest_end_date,
         'placeholder': placeholder,
         'is_recurser': is_recurser,
-        'is_faculty': False,
+        'is_faculty': util.profile_is_faculty(p),
     }
 
     return person_info
@@ -84,17 +84,11 @@ def get_current_faculty():
     the most recent batch!
     '''
     f = rc.get('profiles?role=faculty').data
-    faculty = []
-
-    for p in f:
-        for stint in p['stints']:
-            if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] is None:
-                info = cache_person_call(p["id"])
-                info['is_faculty'] = True
-                faculty.append(info)
-                break
-
-    return faculty
+    return [
+        format_info(profile)
+        for profile in f
+        if util.profile_is_faculty(profile)
+    ]
 
 
 def get_current_batches_info():

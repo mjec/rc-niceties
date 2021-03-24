@@ -66,6 +66,13 @@ def next_window(latest_batches):
     return time_left
 
 
+def profile_is_faculty(profile):
+    for stint in profile['stints']:
+        if stint['type'] in ['employment', 'facilitatorship'] and stint['end_date'] is None:
+            return True
+    return False
+
+
 def admin_access(current_user):
     if app.config.get('DEV') == 'TRUE' or current_user.id == 770 or current_user.id == 1804:
         return True
