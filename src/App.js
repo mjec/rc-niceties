@@ -157,38 +157,38 @@ var People = React.createClass({
         //}
         return (
             <div className="people">
-             <Modal show={this.state.justSaved}>
+              <Modal show={this.state.justSaved}>
                 <Modal.Body>
-                    Niceties Saved!
+                  Niceties Saved!
                 </Modal.Body>
-            </Modal>
-            <div id="save_button">
+              </Modal>
+              <div id="save_button">
                 <SaveButton
-                    noSave={this.state.noSave}
-                    onClick={this.saveAllComments}>
-                    Save
+                  noSave={this.state.noSave}
+                  onClick={this.saveAllComments}>
+                  Save
                 </SaveButton>
-            </div>
+              </div>
               <Grid>
                 <hr />
                 <h3>Leaving Soon</h3>
                 {leaving.map(function(row) {
-                    return (
-                        <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
-                    );
+                  return (
+                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                  );
                 }.bind(this))}
                 <hr />
                 { maybeHeader }
                 {staying.map(function(row) {
-                    return (
-                        <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
-                    );
+                  return (
+                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+                  );
                 }.bind(this))}
                 { maybeHR }
                 { staffHeader }
                 { staffRows }
-            </Grid>
-                </div>
+              </Grid>
+            </div>
         );}
 });
 
