@@ -2,6 +2,7 @@ import os
 from base64 import b64decode
 
 from flask import Flask
+from flask_migrate import Migrate
 from flask_oauthlib.client import OAuth
 from flask_sqlalchemy import SQLAlchemy
 
@@ -34,7 +35,9 @@ with app.app_context():
         consumer_key=os.environ['RC_OAUTH_ID'],  # Deliberately throw exception if not set
         consumer_secret=os.environ['RC_OAUTH_SECRET'],  # Deliberately throw exception it not set
         access_token_method='POST',
+
     )
+    migrate = Migrate(app, db)
 
 # Imports for URLs that should be available
 import backend.api  # noqa
@@ -45,3 +48,4 @@ import backend.static  # noqa
 #   app     The Flask() object
 #   db      The SQLAlchemy() object
 #   rc      The OAuth() object for the RC remote application
+#   migrate The DB migration object
