@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Grid } from 'react-bootstrap';
 import $ from 'jquery'
 
-import { PeopleRow } from '../App';
+import PeopleRow from './PeopleRow';
 import SaveButton from "./SaveButton";
 
 

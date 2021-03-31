@@ -10,6 +10,7 @@ import $ from 'jquery';
 
 import People, { updated_niceties_spinlock } from './components/People';
 import SaveButton from './components/SaveButton';
+import PeopleRow from './components/PeopleRow';
 
 // var updated_niceties_spinlock = false;
 // var updated_niceties = new Set();
@@ -19,23 +20,8 @@ if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === 
     localStorage.setItem("saved", "true");
 }
 
-export var PeopleRow = React.createClass({
-    render: function() {
-        const saveButton = this.props.saveButton;
-        return (
-            <Row>
-              {this.props.data
-                .map(function(result) {
-                  return (<Col lg="3" md="4" sm="6" xs="12">
-                    <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} saveButton={saveButton} updated_niceties={this.props.updated_niceties}/>
-                  </Col>);
-                }.bind(this))}
-            </Row>
-        );
-    }
-});
 
-var Person = React.createClass({
+export var Person = React.createClass({
 
     getInitialState: function() {
         let textValue = '';
