@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { Person } from "../App";
+
+import Person from "./Person";
 
 const PeopleRow = React.createClass({
     render: function() {
