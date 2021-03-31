@@ -10,6 +10,7 @@ import $ from 'jquery';
 
 import People from './components/People';
 import SaveButton from './components/SaveButton';
+import NicetyRow from './components/NicetyRow';
 
 // var updated_niceties_spinlock = false;
 // var updated_niceties = new Set();
@@ -19,21 +20,6 @@ if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === 
     localStorage.setItem("saved", "true");
 }
 
-
-var NicetyRow = React.createClass({
-    render: function() {
-        return (
-            <Row>
-              {this.props.data
-                  .map(function(result) {
-                      return (<Col lg="3" md="4" sm="6" xs="12">
-                              <Nicety data={result}/>
-                              </Col>);
-                  })}
-            </Row>
-        );
-    }
-});
 
 var NicetyDisplay = React.createClass({
 
