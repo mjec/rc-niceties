@@ -1,7 +1,7 @@
 import React from 'react';
 import $ from 'jquery';
 
-import { AdminNicety } from '../App';
+import AdminNicety from './AdminNicety';
 
 const Admin = React.createClass({
     loadAllNiceties: function(callback) {
