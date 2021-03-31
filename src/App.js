@@ -22,34 +22,7 @@ if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === 
 
 
 
-var Nicety = React.createClass({
 
-    render: function() {
-        let photo;
-        if (this.props.data.anonymous) {
-            photo = suittie;
-        } else {
-            photo = this.props.data.avatar_url;
-        }
-        let name;
-        if ('name' in this.props.data) {
-            name = this.props.data.name;
-        } else {
-            name = 'Anonymous';
-        }
-        return (
-            <div className="nicety">
-                <Image responsive={true} src={photo} circle={true} />
-                <h3>{name}</h3>
-                <textarea
-                    defaultValue={this.props.data.text}
-                    rows="6"
-                    readOnly
-                />
-            </div>
-        );
-    }
-})
 
 var Admin = React.createClass({
     loadAllNiceties: function(callback) {

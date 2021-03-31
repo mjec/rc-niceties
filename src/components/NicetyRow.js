@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 
-import { Nicety } from '../App';
+import Nicety from './Nicety';
 
 const NicetyRow = React.createClass({
     render: function() {
