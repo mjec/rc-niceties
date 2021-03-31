@@ -10,7 +10,7 @@ import $ from 'jquery';
 
 import People from './components/People';
 import SaveButton from './components/SaveButton';
-import NicetyRow from './components/NicetyRow';
+import NicetyDisplay from './components/NicetyDisplay';
 
 // var updated_niceties_spinlock = false;
 // var updated_niceties = new Set();
@@ -21,42 +21,6 @@ if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === 
 }
 
 
-var NicetyDisplay = React.createClass({
-
-    getInitialState: function() {
-        return {
-            niceties: []
-        };
-    },
-
-    generateRows: function() {
-        let dataList = [];
-        for (let i = 0; i < this.props.niceties.length; i +=4) {
-            let row = [];
-            for (let j = 0; j < 4; j++) {
-                if ((i + j) < this.props.niceties.length) {
-                    row.push(this.props.niceties[i + j]);
-                }
-            }
-            dataList.push(row);
-        }
-        return dataList;
-    },
-
-    render: function() {
-        let list = this.generateRows();
-        return (
-            <div className="niceties">
-              <Grid>
-                {list.map(function(row) {
-                    return (
-                        <NicetyRow data={row}/>
-                    );
-                })}
-            </Grid>
-                </div>
-        );}
-});
 
 var Nicety = React.createClass({
 
