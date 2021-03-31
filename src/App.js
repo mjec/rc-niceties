@@ -9,6 +9,7 @@ import suittie from './suittie.png';
 import $ from 'jquery';
 
 import People, { updated_niceties_spinlock } from './components/People';
+import SaveButton from './components/SaveButton';
 
 // var updated_niceties_spinlock = false;
 // var updated_niceties = new Set();
@@ -17,32 +18,6 @@ const components = { People, NicetyDisplay };
 if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === "undefined") {
     localStorage.setItem("saved", "true");
 }
-
-// abc
-export var SaveButton = React.createClass({
-    render: function() {
-        if (this.props.noSave === true) {
-            return (
-                <div className="button">
-                    <Button
-                    bsStyle="primary"
-                    bsSize="large"
-                    disabled
-                    >Save</Button>
-                </div>
-            );
-        } else {
-            return (
-                <div className="button">
-                    <Button
-                    bsStyle="primary"
-                    bsSize="large"
-                    onClick={this.props.onClick}>Save</Button>
-                </div>
-            );
-        }
-    }
-});
 
 export var PeopleRow = React.createClass({
     render: function() {

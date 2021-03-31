@@ -2,7 +2,8 @@ import React from 'react';
 import { Modal, Grid } from 'react-bootstrap';
 import $ from 'jquery'
 
-import { PeopleRow, SaveButton } from '../App';
+import { PeopleRow } from '../App';
+import SaveButton from "./SaveButton";
 
 
 export let updated_niceties_spinlock = false;
