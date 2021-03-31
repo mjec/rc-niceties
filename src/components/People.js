@@ -8,14 +8,14 @@ import SaveButton from "./SaveButton";
 
 export let updated_niceties_spinlock = false;
 
-var People = React.createClass({
+const People = React.createClass({
     saveAllComments: function() {
         updated_niceties_spinlock = true;
-        var data_to_save = [];
+        let data_to_save = [];
         const dateUpdated = new Date(Date.now());
         const dateUpdatedStr = dateUpdated.toUTCString();
         this.state.updated_niceties.forEach(function(e) {
-            var split_e = e.split(",");
+            const split_e = e.split(",");
             let anonymous;
             if (localStorage.getItem("anonymous-" + split_e[0]) === "undefined" || localStorage.getItem("anonymous-" + split_e[0]) === null) {
                 anonymous = "false";
@@ -52,7 +52,7 @@ var People = React.createClass({
             dataType: 'json',
             type: 'POST',
             cache: false,
-            success: function(data) {
+            success: function() {
                 this.setState({noSave: true});
                 this.setState({justSaved: true});
                 localStorage.setItem("saved", "true");
@@ -113,7 +113,6 @@ var People = React.createClass({
     },
 
     render: function() {
-        let noReadRender;
         let leaving = this.generateRows(this.props.people.leaving);
         let staying = this.generateRows(this.props.people.staying);
         let special = this.generateRows(this.props.people.special);

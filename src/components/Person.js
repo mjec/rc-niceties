@@ -68,7 +68,7 @@ const Person = React.createClass({
             noReadValue: noReadValue,
         }
     },
-    updateSave: function(event) {
+    updateSave: function() {
         while (updated_niceties_spinlock) {}
         let addString;
         if (this.props.data.stints.length > 0) {

@@ -23,7 +23,7 @@ const AdminNicety = React.createClass({
             dataType: 'json',
             type: 'POST',
             cache: false,
-            success: function(data) {
+            success: function() {
                 this.setState({noSave: true});
             }.bind(this),
             error: function(xhr, status, err) {
