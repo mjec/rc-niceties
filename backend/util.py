@@ -1,5 +1,5 @@
 from base64 import b64decode, b64encode
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 
 from backend import app
 
@@ -18,22 +18,6 @@ def open_batches(end_date):
     closing_time = datetime.combine(end_date, time(hour=10, minute=0))
     now = datetime.now()
     return (closing_time > now)
-
-
-def niceties_are_open(latest_batches):
-    '''
-    Takes a list of the latest batches and determines whether
-    the window for writing niceties is open or not
-    '''
-    now = datetime.now()
-    for batch in latest_batches:
-        end_date = batch['end_date']
-        if not isinstance(end_date, datetime):
-            end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        window_open = end_date - timedelta(days=7)
-        if now > window_open and (end_date + timedelta(hours=10)) > now or app.config.get("DEV") == "TRUE":
-            return True
-    return False
 
 
 def name_from_rc_person(person):

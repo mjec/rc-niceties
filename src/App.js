@@ -103,9 +103,6 @@ const App = React.createClass({
         case "write-niceties":
             $('.dropdown-toggle').text('Write Niceties');
             $('.dropdown-toggle').append('<span class="caret"></span>');
-            if ('status' in this.state.people) {
-                return <h1>Niceties are closed!</h1>
-            }
             return <People people={this.state.people}
                             fromMe={this.state.fromMe}
                             save_nicety_api={this.props.save_nicety_api} />

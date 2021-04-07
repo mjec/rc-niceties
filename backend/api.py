@@ -5,7 +5,6 @@ import backend.cache as cache
 import backend.config as config
 import backend.util as util
 from backend import app, db, rc
-
 from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
 from flask import abort, json, jsonify, redirect, request, url_for
@@ -63,7 +62,6 @@ def cache_batches_call():
     return res
 
 
-
 def cache_people_call(batch_id):
     people = []
     batch = rc.get('profiles?batch_id={}'.format(batch_id)).data
@@ -75,7 +73,6 @@ def cache_people_call(batch_id):
 
 def cache_person_call(person_id):
     p = rc.get('profiles/{}'.format(person_id)).data
-
     return format_info(p)
 
 
@@ -94,8 +91,6 @@ def get_current_faculty():
 def get_current_batches_info():
     batches = cache_batches_call()
     ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
-    if not util.niceties_are_open(ret) or len(ret) == 1:
-        ret = []
     return ret
 
 
@@ -144,7 +139,6 @@ def partition_current_users(users):
 def get_person_info(person_id):
     person_info = cache_person_call(person_id)
     return jsonify(person_info)
-
 
 
 @app.route('/api/v1/self')
@@ -286,8 +280,6 @@ def get_all_batches():
 @needs_authorization
 def display_people():
     current = get_current_users()
-    if current == []:
-        return jsonify({'status': 'closed'})
     people = partition_current_users(current)
     user_id = current_user().id
     current_user_leaving = False
