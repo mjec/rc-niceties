@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, Grid } from 'react-bootstrap';
-import $ from 'jquery'
+import $ from 'jquery';
+import store from 'store2';
 
 import PeopleRow from './PeopleRow';
 import SaveButton from "./SaveButton";
@@ -17,30 +18,30 @@ const People = React.createClass({
         this.state.updated_niceties.forEach(function(e) {
             const split_e = e.split(",");
             let anonymous;
-            if (localStorage.getItem("anonymous-" + split_e[0]) === "undefined" || localStorage.getItem("anonymous-" + split_e[0]) === null) {
-                anonymous = "false";
+            if (store.get("anonymous-" + split_e[0]) === "undefined" || store.get("anonymous-" + split_e[0]) === null) {
+                anonymous = false;
             } else {
-                anonymous = localStorage.getItem("anonymous-" + split_e[0]);
+                anonymous = store.get("anonymous-" + split_e[0]);
             }
             let text;
-            if (localStorage.getItem("nicety-" + split_e[0]) === "undefined" || localStorage.getItem("nicety-" + split_e[0]) === null) {
+            if (store.get("nicety-" + split_e[0]) === "undefined" || store.get("nicety-" + split_e[0]) === null) {
                 text = '';
             } else {
-                text = localStorage.getItem("nicety-" + split_e[0]);
+                text = store.get("nicety-" + split_e[0]);
             }
             let noRead;
-            if (localStorage.getItem("no_read-" + split_e[0]) === "undefined" || localStorage.getItem("no_read-" + split_e[0]) === null) {
-                noRead = "false";
+            if (store.get("no_read-" + split_e[0]) === "undefined" || store.get("no_read-" + split_e[0]) === null) {
+                noRead = false;
             } else {
-                noRead = localStorage.getItem("no_read-" + split_e[0]);
+                noRead = store.get("no_read-" + split_e[0]);
             }
             data_to_save.push(
                 {
                     target_id: parseInt(split_e[0], 10),
                     end_date: split_e[1],
-                    anonymous: anonymous.toString(),
+                    anonymous: anonymous,
                     text: text,
-                    no_read: noRead.toString(),
+                    no_read: noRead,
                     date_updated: dateUpdatedStr
                 }
             );
@@ -55,10 +56,10 @@ const People = React.createClass({
             success: function() {
                 this.setState({noSave: true});
                 this.setState({justSaved: true});
-                localStorage.setItem("saved", "true");
+                store.set("saved", true);
                 this.state.updated_niceties.forEach(function(e) {
                     const split_e = e.split(",");
-                    localStorage.setItem("date_updated-" + split_e[0], dateUpdatedStr);
+                    store.set("date_updated-" + split_e[0], dateUpdatedStr);
                 });
                 this.state.updated_niceties.clear();
             }.bind(this),
@@ -69,14 +70,14 @@ const People = React.createClass({
     },
 
     getInitialState: function() {
-        if (localStorage.getItem("saved") === "true") {
+        if (store.get("saved") === true) {
             return {
                 data: [],
                 noSave: true,
                 justSaved: false,
                 updated_niceties: new Set()
             }
-        } else if (localStorage.getItem("saved") === "false") {
+        } else if (store.get("saved") === false) {
             return {
                 data: [],
                 noSave: false,

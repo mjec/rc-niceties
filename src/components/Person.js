@@ -1,15 +1,15 @@
 import React from 'react';
 import { Checkbox, Image } from 'react-bootstrap';
+import store from 'store2';
 
 import { updated_niceties_spinlock } from "./People";
 
 
 const Person = React.createClass({
-
     getInitialState: function() {
         let textValue = '';
-        let checkValue = "false";
-        let noReadValue = "false";
+        let checkValue = false;
+        let noReadValue = false;
         let dataPerson;
         let foundPerson = false;
         for (var i = 0; i < this.props.fromMe.length; i++) {
@@ -27,39 +27,39 @@ const Person = React.createClass({
                 dateUpdated = dataPerson.date_updated;
             }
         }
-        if (foundPerson && localStorage.getItem("date_updated-" + this.props.data.id) === null || localStorage.getItem("date_updated-" + this.props.data.id) === "undefined") {
+        if (foundPerson && store.get("date_updated-" + this.props.data.id) === null || store.get("date_updated-" + this.props.data.id) === "undefined") {
             if (dataPerson.text !== '' && dataPerson.text !== null) {
-                localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
+                store.set("nicety-" + this.props.data.id, dataPerson.text);
                 textValue = dataPerson.text;
             } else {
                 textValue = '';
             }
-            localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
-            checkValue = dataPerson.anonymous.toString();
-            localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
-            noReadValue = dataPerson.no_read.toString();
-            localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
-        } else if (foundPerson && localStorage.getItem("date_updated-" + this.props.data.id) !== dateUpdated) {
+            store.set("anonymous-" + this.props.data.id, dataPerson.anonymous);
+            checkValue = dataPerson.anonymous;
+            store.set("no_read-" + this.props.data.id, dataPerson.no_read);
+            noReadValue = dataPerson.no_read;
+            store.set("date_updated-" + this.props.data.id, dateUpdated);
+        } else if (foundPerson && store.get("date_updated-" + this.props.data.id) !== dateUpdated) {
             if (dataPerson.text !== '' && dataPerson.text !== null) {
-                localStorage.setItem("nicety-" + this.props.data.id, dataPerson.text);
+                store.set("nicety-" + this.props.data.id, dataPerson.text);
                 textValue = dataPerson.text;
             } else {
                 textValue = '';
             }
-            localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
-            checkValue = dataPerson.anonymous.toString();
-            localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
-            noReadValue = dataPerson.no_read.toString();
-            localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
+            store.set("anonymous-" + this.props.data.id, dataPerson.anonymous);
+            checkValue = dataPerson.anonymous;
+            store.set("no_read-" + this.props.data.id, dataPerson.no_read);
+            noReadValue = dataPerson.no_read;
+            store.set("date_updated-" + this.props.data.id, dateUpdated);
         } else {
-            if (localStorage.getItem("nicety-" + this.props.data.id) !== null) {
-                textValue = localStorage.getItem("nicety-" + this.props.data.id);
+            if (store.get("nicety-" + this.props.data.id) !== null) {
+                textValue = store.get("nicety-" + this.props.data.id);
             }
-            if (localStorage.getItem("anonymous-" + this.props.data.id) !== null) {
-                checkValue = localStorage.getItem("anonymous-" + this.props.data.id);
+            if (store.get("anonymous-" + this.props.data.id) !== null) {
+                checkValue = store.get("anonymous-" + this.props.data.id);
             }
-            if (localStorage.getItem("no_read-" + this.props.data.id) !== null) {
-                noReadValue = localStorage.getItem("no_read-" + this.props.data.id);
+            if (store.get("no_read-" + this.props.data.id) !== null) {
+                noReadValue = store.get("no_read-" + this.props.data.id);
             }
         }
         return {
@@ -79,22 +79,22 @@ const Person = React.createClass({
         if (!(addString in this.props.updated_niceties)) {
             this.props.updated_niceties.add(addString);
         }
-        localStorage.setItem("saved", "false");
+        store.set("saved", false);
         this.props.saveReady();
     },
     textareaChange: function(event) {
         this.setState({textValue: event.target.value});
-        localStorage.setItem("nicety-" + this.props.data.id, event.target.value);
+        store.set("nicety-" + this.props.data.id, event.target.value);
         this.updateSave();
     },
     anonymousChange: function(event) {
-        this.setState({checkValue: event.target.checked.toString()});
-        localStorage.setItem("anonymous-" + this.props.data.id, event.target.checked.toString());
+        this.setState({checkValue: event.target.checked});
+        store.set("anonymous-" + this.props.data.id, event.target.checked);
         this.updateSave();
     },
     noReadChange: function(event) {
-        this.setState({noReadValue: event.target.checked.toString()});
-        localStorage.setItem("no_read-" + this.props.data.id, event.target.checked.toString());
+        this.setState({noReadValue: event.target.checked});
+        store.set("no_read-" + this.props.data.id, event.target.checked);
         this.updateSave();
     },
 
@@ -110,40 +110,30 @@ const Person = React.createClass({
 
     render: function() {
         let anonymousRender;
-        if (this.state.checkValue === "true") {
+        if (this.state.checkValue === true) {
             anonymousRender = (
-                <Checkbox
-                    checked
-                    onChange={this.anonymousChange}
-                >
+                <Checkbox checked onChange={this.anonymousChange}>
                     Submit Anonymously
                 </Checkbox>
             );
-        } else if (this.state.checkValue === "false") {
+        } else if (this.state.checkValue === false) {
             anonymousRender = (
-                <Checkbox
-                    onChange={this.anonymousChange}
-                >
+                <Checkbox onChange={this.anonymousChange}>
                     Submit Anonymously
                 </Checkbox>
             );
         }
 
         let noReadRender;
-        if (this.state.noReadValue === "true") {
+        if (this.state.noReadValue === true) {
             noReadRender = (
-                <Checkbox
-                    checked
-                    onChange={this.noReadChange}
-                >
+                <Checkbox checked onChange={this.noReadChange}>
                     Don't Read At Ceremony
                 </Checkbox>
             );
-        } else if (this.state.noReadValue === "false") {
+        } else if (this.state.noReadValue === false) {
             noReadRender = (
-                <Checkbox
-                    onChange={this.noReadChange}
-                >
+                <Checkbox onChange={this.noReadChange}>
                     Don't Read At Ceremony
                 </Checkbox>
             );
