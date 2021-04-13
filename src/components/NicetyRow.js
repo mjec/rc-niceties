@@ -9,7 +9,7 @@ const NicetyRow = React.createClass({
             <Row>
               {this.props.data
                   .map(function(result) {
-                      return (<Col lg="3" md="4" sm="6" xs="12">
+                      return (<Col lg="3" md="6" sm="6" xs="12">
                               <Nicety data={result}/>
                               </Col>);
                   })}
