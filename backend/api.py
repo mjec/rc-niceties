@@ -175,12 +175,15 @@ def post_edited_niceties():
                     'author_id': n.author_id,
                     'name': cache_person_call(n.author_id)['full_name'],
                     'no_read': n.no_read,
+                    'reviewed': n.faculty_reviewed,
                     'text': util.decode_str(n.text),
                 })
             else:
                 ret[n.target_id].append({
+                    'author_id': n.author_id,
                     'text': util.decode_str(n.text),
                     'no_read': n.no_read,
+                    'reviewed': n.faculty_reviewed,
                 })
         return jsonify([
             {
@@ -201,11 +204,14 @@ def get_niceties_to_edit():
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = json.loads(request.form.get("author_id"))
     nicety_target = json.loads(request.form.get("target_id"))
+    nicety_reviewed = json.loads(request.form.get("faculty_reviewed"))
     if is_admin is True:
-        (Nicety.query
+        nicety = (Nicety.query
          .filter(Nicety.author_id == nicety_author)
          .filter(Nicety.target_id == nicety_target)
-         .update({'text': nicety_text}))
+         .one_or_none())
+        nicety.text = nicety_text
+        nicety.faculty_reviewed = nicety_reviewed
         db.session.commit()
         return jsonify({'status': 'OK'})
     else:
