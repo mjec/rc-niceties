@@ -4,6 +4,7 @@ import './App.css';
 import { Nav, Navbar, NavDropdown, MenuItem } from 'react-bootstrap';
 import React from 'react';
 import $ from 'jquery';
+import store from 'store2';
 
 import octotie from './octotie.png';
 
@@ -11,12 +12,12 @@ import People from './components/People';
 import NicetyDisplay from './components/NicetyDisplay';
 import Admin from './components/Admin';
 
-if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === "undefined") {
-    localStorage.setItem("saved", "true");
+
+if (store.get("saved") === null) {
+    store.set("saved", true);
 }
 
-
-var App = React.createClass({
+const App = React.createClass({
     loadPeopleFromServer: function(callback) {
         $.ajax({
             url: this.props.people_api,

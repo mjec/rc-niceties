@@ -75,7 +75,7 @@ def cache_people_call(batch_id):
 
 def cache_person_call(person_id):
     p = rc.get('profiles/{}'.format(person_id)).data
-    
+
     return format_info(p)
 
 
@@ -205,8 +205,8 @@ def post_edited_niceties():
 def get_niceties_to_edit():
     is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
-    nicety_author = request.form.get("author_id")
-    nicety_target = request.form.get("target_id")
+    nicety_author = json.loads(request.form.get("author_id"))
+    nicety_target = json.loads(request.form.get("target_id"))
     if is_admin is True:
         (Nicety.query
          .filter(Nicety.author_id == nicety_author)
