@@ -13,7 +13,7 @@ import NicetyDisplay from './components/NicetyDisplay';
 import Admin from './components/Admin';
 
 
-if (store.get("saved") === null || store.get("saved") === "undefined") {
+if (store.get("saved") === null) {
     store.set("saved", true);
 }
 

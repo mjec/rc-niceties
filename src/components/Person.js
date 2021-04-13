@@ -27,7 +27,7 @@ const Person = React.createClass({
                 dateUpdated = dataPerson.date_updated;
             }
         }
-        if (foundPerson && store.get("date_updated-" + this.props.data.id) === null || store.get("date_updated-" + this.props.data.id) === "undefined") {
+        if (foundPerson && store.get("date_updated-" + this.props.data.id) === null) {
             if (dataPerson.text !== '' && dataPerson.text !== null) {
                 store.set("nicety-" + this.props.data.id, dataPerson.text);
                 textValue = dataPerson.text;

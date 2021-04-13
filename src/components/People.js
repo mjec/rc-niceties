@@ -17,24 +17,10 @@ const People = React.createClass({
         const dateUpdatedStr = dateUpdated.toUTCString();
         this.state.updated_niceties.forEach(function(e) {
             const split_e = e.split(",");
-            let anonymous;
-            if (store.get("anonymous-" + split_e[0]) === "undefined" || store.get("anonymous-" + split_e[0]) === null) {
-                anonymous = false;
-            } else {
-                anonymous = store.get("anonymous-" + split_e[0]);
-            }
-            let text;
-            if (store.get("nicety-" + split_e[0]) === "undefined" || store.get("nicety-" + split_e[0]) === null) {
-                text = '';
-            } else {
-                text = store.get("nicety-" + split_e[0]);
-            }
-            let noRead;
-            if (store.get("no_read-" + split_e[0]) === "undefined" || store.get("no_read-" + split_e[0]) === null) {
-                noRead = false;
-            } else {
-                noRead = store.get("no_read-" + split_e[0]);
-            }
+            const anonymous = store.get("anonymous-" + split_e[0], false);
+            const text = store.get("nicety-" + split_e[0], '');
+            const noRead = store.get("no_read-" + split_e[0], false);
+
             data_to_save.push(
                 {
                     target_id: parseInt(split_e[0], 10),
