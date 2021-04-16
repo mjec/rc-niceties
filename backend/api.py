@@ -334,17 +334,21 @@ def display_people():
 def save_niceties():
     niceties_to_save = json.loads(request.form.get("niceties", "[]"))
     for n in niceties_to_save:
+        if n.get('end_date'):
+            end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
+        else:
+            end_date = None
         nicety = (
             Nicety
             .query      # Query is always about getting Nicety objects from the database
             .filter_by(
-                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
+                end_date=end_date,
                 target_id=n.get("target_id"),
                 author_id=current_user().id)
             .one_or_none())
         if nicety is None:
             nicety = Nicety(
-                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
+                end_date=end_date,
                 target_id=n.get("target_id"),
                 author_id=current_user().id)
             db.session.add(nicety)

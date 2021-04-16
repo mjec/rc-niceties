@@ -17,6 +17,12 @@ const People = React.createClass({
         const dateUpdatedStr = dateUpdated.toUTCString();
         this.state.updated_niceties.forEach(function(e) {
             const split_e = e.split(",");
+            let end_date;
+            if (split_e[1] === "null") {
+              end_date = null;
+            } else {
+              end_date = split_e[1];
+            }
             const anonymous = store.get("anonymous-" + split_e[0], false);
             const text = store.get("nicety-" + split_e[0], '');
             const noRead = store.get("no_read-" + split_e[0], false);
@@ -24,7 +30,7 @@ const People = React.createClass({
             data_to_save.push(
                 {
                     target_id: parseInt(split_e[0], 10),
-                    end_date: split_e[1],
+                    end_date: end_date,
                     anonymous: anonymous,
                     text: text,
                     no_read: noRead,
