@@ -20,6 +20,7 @@ const AdminNicety = React.createClass({
         const data = {
             text: this.state.text,
             author_id: this.props.nicety.author_id,
+            end_date: this.props.nicety.end_date,
             target_id: this.props.target_id,
             faculty_reviewed: this.state.reviewedValue
         }

@@ -174,6 +174,7 @@ def post_edited_niceties():
                 ret[n.target_id].append({
                     'author_id': n.author_id,
                     'name': cache_person_call(n.author_id)['full_name'],
+                    'end_date': n.end_date,
                     'no_read': n.no_read,
                     'reviewed': n.faculty_reviewed,
                     'text': util.decode_str(n.text),
@@ -181,9 +182,10 @@ def post_edited_niceties():
             else:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
-                    'text': util.decode_str(n.text),
+                    'end_date': n.end_date,
                     'no_read': n.no_read,
                     'reviewed': n.faculty_reviewed,
+                    'text': util.decode_str(n.text),
                 })
         return jsonify([
             {
@@ -203,12 +205,14 @@ def get_niceties_to_edit():
     is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = json.loads(request.form.get("author_id"))
+    nicety_end_date = datetime.strptime(request.form.get("end_date"), "%a, %d %b %Y %H:%M:%S %Z").date()
     nicety_target = json.loads(request.form.get("target_id"))
     nicety_reviewed = json.loads(request.form.get("faculty_reviewed"))
     if is_admin is True:
         nicety = (Nicety.query
          .filter(Nicety.author_id == nicety_author)
          .filter(Nicety.target_id == nicety_target)
+         .filter(Nicety.end_date == nicety_end_date)
          .one_or_none())
         nicety.text = nicety_text
         nicety.faculty_reviewed = nicety_reviewed
