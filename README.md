@@ -17,10 +17,15 @@ I built this using Python 3.6.13, node.js 14.15.5 and Postgres 12.6.
 2. Set up your Python virtual environment by running `pyvenv venv` in that directory and running `source venv/bin/activate` to active it.
 
 3. Install Python requirements with `pip install -r requirements.txt`.
+   You may need to install some [build
+   prerequisites](https://www.psycopg.org/docs/install.html#build-prerequisites);
+   on Debian-like systems, they include the packages `python3-dev` and
+   `libpq-dev`.
 
 4. Install the frontend requirements with `npm install`.
 
-5. Create an empty Postgres database, e.g. `createdb rcniceties`
+5. [Install PostgreSQL](https://www.postgresql.org/download/)
+   and create an empty database, e.g. `createdb rcniceties`
 
 6. Set the following environment variables, noting that the application **will not run** if any of these is not set:
     * `FLASK_APP` - the location of the app, e.g. `backend:app`
