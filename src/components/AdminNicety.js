@@ -32,7 +32,7 @@ const AdminNicety = React.createClass({
         });
     },
 
-    textareaChange: function() {
+    textareaChange: function(event) {
         this.setState({ text: event.target.value , noSave: false });
     },
 
