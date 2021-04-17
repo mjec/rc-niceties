@@ -10,7 +10,7 @@ const PeopleRow = React.createClass({
             <Row>
               {this.props.data
                 .map(function(result) {
-                  return (<Col lg="3" md="4" sm="6" xs="12">
+                  return (<Col lg="3" md="6" sm="6" xs="12">
                     <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} saveButton={saveButton} updated_niceties={this.props.updated_niceties}/>
                   </Col>);
                 }.bind(this))}

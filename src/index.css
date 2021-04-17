@@ -26,7 +26,7 @@ hr {
   display: inline;
 }
 
-#save_button {
+.save_button {
   padding: 10px;
 }
 
@@ -37,7 +37,7 @@ hr {
 }
 
 #component_frame {
-  background-color: #E7E7E7;
+  background-color: #e7e7e7;
   padding: 15px;
   padding-top: 109px;
 }
@@ -63,18 +63,18 @@ hr {
 .navbar-nav {
   float: right;
   height: 40px;
-  margin: 0px;
+  margin: 0;
   margin-right: 7px;
 }
 
-.navbar-nav>li>a {
+.navbar-nav > li > a {
   height: 40px;
   padding-top: auto;
   padding-bottom: auto;
 }
 
 @media (min-width: 768px) {
-  .navbar-nav>li>a {
+  .navbar-nav > li > a {
     padding-top: 10px;
     padding-bottom: 10px;
   }
@@ -93,60 +93,62 @@ hr {
 .container {
   padding-bottom: 9px;
   padding-top: 10px;
-  margin: 0px;
+  margin: 0;
 }
 
 .dropdown-menu {
-  right: 0px;
+  right: 0;
   left: auto;
 }
 
-.dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
-  background-color: #ED6C26;
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:focus,
+.dropdown-menu > .active > a:hover {
+  background-color: #ed6c26;
 }
 
 a:focus {
-  outline: 5px auto #ED6C26;
+  outline: 5px auto #ed6c26;
   outline-offset: -2px;
 }
 
 textarea:focus {
-  outline: 5px auto #ED6C26;
+  outline: 5px auto #ed6c26;
   outline-offset: -2px;
 }
 
 .btn-primary {
-  background-color: #ED6C26;
-  border-color: #C65B21;
+  background-color: #ed6c26;
+  border-color: #c65b21;
 }
 
 .btn-primary:active {
-  background-color: #C65B21;
-  border-color: #ED6C26;
+  background-color: #c65b21;
+  border-color: #ed6c26;
 }
 
 .btn-primary:focus {
-  background-color: #C65B21;
-  border-color: #ED6C26;
+  background-color: #c65b21;
+  border-color: #ed6c26;
 }
 
 .btn-primary:active:focus {
-  background-color: #C65B21;
-  border-color: #ED6C26;
+  background-color: #c65b21;
+  border-color: #ed6c26;
 }
 
 .btn-primary:hover {
-  background-color: #C65B21;
-  border-color: #AA4E1D;
+  background-color: #c65b21;
+  border-color: #aa4e1d;
 }
 
 .btn-primary:hover:disabled {
-  background-color: #C65B21;
-  border-color: #AA4E1D;
+  background-color: #c65b21;
+  border-color: #aa4e1d;
 }
 
 .fade.in {
-  opacity: .8;
+  opacity: 0.8;
   display: block;
 }
 

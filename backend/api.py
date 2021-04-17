@@ -5,7 +5,6 @@ import backend.cache as cache
 import backend.config as config
 import backend.util as util
 from backend import app, db, rc
-
 from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
 from flask import abort, json, jsonify, redirect, request, url_for
@@ -63,7 +62,6 @@ def cache_batches_call():
     return res
 
 
-
 def cache_people_call(batch_id):
     people = []
     batch = rc.get('profiles?batch_id={}'.format(batch_id)).data
@@ -75,7 +73,6 @@ def cache_people_call(batch_id):
 
 def cache_person_call(person_id):
     p = rc.get('profiles/{}'.format(person_id)).data
-
     return format_info(p)
 
 
@@ -94,8 +91,6 @@ def get_current_faculty():
 def get_current_batches_info():
     batches = cache_batches_call()
     ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
-    if not util.niceties_are_open(ret) or len(ret) == 1:
-        ret = []
     return ret
 
 
@@ -146,7 +141,6 @@ def get_person_info(person_id):
     return jsonify(person_info)
 
 
-
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
@@ -180,13 +174,18 @@ def post_edited_niceties():
                 ret[n.target_id].append({
                     'author_id': n.author_id,
                     'name': cache_person_call(n.author_id)['full_name'],
+                    'end_date': n.end_date,
                     'no_read': n.no_read,
+                    'reviewed': n.faculty_reviewed,
                     'text': util.decode_str(n.text),
                 })
             else:
                 ret[n.target_id].append({
-                    'text': util.decode_str(n.text),
+                    'author_id': n.author_id,
+                    'end_date': n.end_date,
                     'no_read': n.no_read,
+                    'reviewed': n.faculty_reviewed,
+                    'text': util.decode_str(n.text),
                 })
         return jsonify([
             {
@@ -206,12 +205,17 @@ def get_niceties_to_edit():
     is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = json.loads(request.form.get("author_id"))
+    nicety_end_date = datetime.strptime(request.form.get("end_date"), "%a, %d %b %Y %H:%M:%S %Z").date()
     nicety_target = json.loads(request.form.get("target_id"))
+    nicety_reviewed = json.loads(request.form.get("faculty_reviewed"))
     if is_admin is True:
-        (Nicety.query
+        nicety = (Nicety.query
          .filter(Nicety.author_id == nicety_author)
          .filter(Nicety.target_id == nicety_target)
-         .update({'text': nicety_text}))
+         .filter(Nicety.end_date == nicety_end_date)
+         .one_or_none())
+        nicety.text = nicety_text
+        nicety.faculty_reviewed = nicety_reviewed
         db.session.commit()
         return jsonify({'status': 'OK'})
     else:
@@ -240,10 +244,14 @@ def niceties_from_me():
 def niceties_for_me():
     ret = []
     whoami = current_user().id
-    valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
-                      .filter(Nicety.target_id == whoami)
-                      .all())
+    if app.config.get("DEBUG_SHOW_ALL") == "TRUE":
+        valid_niceties = (Nicety.query
+                          .all())
+    else:
+        valid_niceties = (Nicety.query
+                          .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
+                          .filter(Nicety.target_id == whoami)
+                          .all())
     for n in valid_niceties:
         if n.text is not None:
             if n.anonymous is True:
@@ -286,8 +294,6 @@ def get_all_batches():
 @needs_authorization
 def display_people():
     current = get_current_users()
-    if current == []:
-        return jsonify({'status': 'closed'})
     people = partition_current_users(current)
     user_id = current_user().id
     current_user_leaving = False
@@ -328,17 +334,21 @@ def display_people():
 def save_niceties():
     niceties_to_save = json.loads(request.form.get("niceties", "[]"))
     for n in niceties_to_save:
+        if n.get('end_date'):
+            end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
+        else:
+            end_date = None
         nicety = (
             Nicety
             .query      # Query is always about getting Nicety objects from the database
             .filter_by(
-                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
+                end_date=end_date,
                 target_id=n.get("target_id"),
                 author_id=current_user().id)
             .one_or_none())
         if nicety is None:
             nicety = Nicety(
-                end_date=datetime.strptime(n.get("end_date"), "%Y-%m-%d").date(),
+                end_date=end_date,
                 target_id=n.get("target_id"),
                 author_id=current_user().id)
             db.session.add(nicety)

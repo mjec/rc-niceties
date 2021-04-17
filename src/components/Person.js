@@ -8,7 +8,7 @@ import { updated_niceties_spinlock } from "./People";
 const Person = React.createClass({
     getInitialState: function() {
         let textValue = '';
-        let checkValue = false;
+        let anonValue = false;
         let noReadValue = false;
         let dataPerson;
         let foundPerson = false;
@@ -35,7 +35,7 @@ const Person = React.createClass({
                 textValue = '';
             }
             store.set("anonymous-" + this.props.data.id, dataPerson.anonymous);
-            checkValue = dataPerson.anonymous;
+            anonValue = dataPerson.anonymous;
             store.set("no_read-" + this.props.data.id, dataPerson.no_read);
             noReadValue = dataPerson.no_read;
             store.set("date_updated-" + this.props.data.id, dateUpdated);
@@ -47,7 +47,7 @@ const Person = React.createClass({
                 textValue = '';
             }
             store.set("anonymous-" + this.props.data.id, dataPerson.anonymous);
-            checkValue = dataPerson.anonymous;
+            anonValue = dataPerson.anonymous;
             store.set("no_read-" + this.props.data.id, dataPerson.no_read);
             noReadValue = dataPerson.no_read;
             store.set("date_updated-" + this.props.data.id, dateUpdated);
@@ -56,7 +56,7 @@ const Person = React.createClass({
                 textValue = store.get("nicety-" + this.props.data.id);
             }
             if (store.get("anonymous-" + this.props.data.id) !== null) {
-                checkValue = store.get("anonymous-" + this.props.data.id);
+                anonValue = store.get("anonymous-" + this.props.data.id);
             }
             if (store.get("no_read-" + this.props.data.id) !== null) {
                 noReadValue = store.get("no_read-" + this.props.data.id);
@@ -64,7 +64,7 @@ const Person = React.createClass({
         }
         return {
             textValue: textValue,
-            checkValue: checkValue,
+            anonValue: anonValue,
             noReadValue: noReadValue,
         }
     },
@@ -88,7 +88,7 @@ const Person = React.createClass({
         this.updateSave();
     },
     anonymousChange: function(event) {
-        this.setState({checkValue: event.target.checked});
+        this.setState({anonValue: event.target.checked});
         store.set("anonymous-" + this.props.data.id, event.target.checked);
         this.updateSave();
     },
@@ -110,13 +110,13 @@ const Person = React.createClass({
 
     render: function() {
         let anonymousRender;
-        if (this.state.checkValue === true) {
+        if (this.state.anonValue === true) {
             anonymousRender = (
                 <Checkbox checked onChange={this.anonymousChange}>
                     Submit Anonymously
                 </Checkbox>
             );
-        } else if (this.state.checkValue === false) {
+        } else if (this.state.anonValue === false) {
             anonymousRender = (
                 <Checkbox onChange={this.anonymousChange}>
                     Submit Anonymously

@@ -34,6 +34,7 @@ I built this using Python 3.6.13, node.js 14.15.5 and Postgres 12.6.
     * `RC_OAUTH_ID` - your Recurse Center OAuth application ID
     * `RC_OAUTH_SECRET` - your Recurse Center OAuth application secret
     * `DEV` - set to either `TRUE` or `FALSE`, depending on if this is a development or production environment
+    * `DEBUG_SHOW_ALL` (optional) - set to `TRUE` to show every nicety in the DB on the Niceties For Me page (useful for debugging) or `FALSE` (default) for normal behavior
 
    A common way of setting up these environment variables is with a `.env` file in your project directory, containing `export ENV_VAR=value` on each line. This can be loaded by running `source .env` and will be automatically loaded by `heroku local`.
 
