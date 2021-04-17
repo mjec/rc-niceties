@@ -17,15 +17,12 @@ const generateRows = (input) => {
     return dataList;
 };
 
-const NicetyDisplay = React.createClass({
-    render: function() {
-        return (
-            <div className="niceties">
-                <Grid>
-                    {generateRows(this.props.niceties).map((row) => <NicetyRow data={row}/>)}
-                </Grid>
-            </div>
-        );}
-});
+const NicetyDisplay = (props) => (
+    <div className="niceties">
+        <Grid>
+            {generateRows(props.niceties).map((row) => <NicetyRow data={row}/>)}
+        </Grid>
+    </div>
+);
 
 export default NicetyDisplay;
