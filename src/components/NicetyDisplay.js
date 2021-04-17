@@ -22,14 +22,10 @@ const NicetyDisplay = React.createClass({
         let list = this.generateRows();
         return (
             <div className="niceties">
-              <Grid>
-                {list.map(function(row) {
-                    return (
-                        <NicetyRow data={row}/>
-                    );
-                })}
-            </Grid>
-                </div>
+                <Grid>
+                    {list.map((row) => (<NicetyRow data={row}/>)}
+                </Grid>
+            </div>
         );}
 });
 
