@@ -4,13 +4,6 @@ import { Grid } from 'react-bootstrap';
 import NicetyRow from './NicetyRow';
 
 const NicetyDisplay = React.createClass({
-
-    getInitialState: function() {
-        return {
-            niceties: []
-        };
-    },
-
     generateRows: function() {
         let dataList = [];
         for (let i = 0; i < this.props.niceties.length; i +=4) {
