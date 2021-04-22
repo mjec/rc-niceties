@@ -19,7 +19,7 @@ Mako==1.1.4
 MarkupSafe==1.1.1
 oauthlib==2.1.0
 pip==18.1
-psycopg2==2.7.4
+psycopg2==2.8.6
 pyparsing==2.4.7
 python-dateutil==2.8.1
 python-editor==1.0.4
