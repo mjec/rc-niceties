@@ -108,7 +108,6 @@ const People = React.createClass({
     render: function() {
         let leaving = this.generateRows(this.props.people.leaving);
         let staying = this.generateRows(this.props.people.staying);
-        let special = this.generateRows(this.props.people.special);
         let faculty = this.generateRows(this.props.people.faculty);
         const savePass = this.saveReady.bind(this);
 
@@ -124,12 +123,6 @@ const People = React.createClass({
 
         let staffHeader;
         let staffRows;
-        //if (staying.length > 0) {
-            // staffRows = special.map(function(row) {
-            //     return (
-            //         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
-            //     );
-            // }.bind(this))
             staffRows = faculty.map(function(row) {
                 return (
                     <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>
@@ -140,7 +133,6 @@ const People = React.createClass({
                 <h3>Staff</h3>
 
             );
-        //}
         return (
             <div className="people">
               <Modal show={this.state.justSaved}>

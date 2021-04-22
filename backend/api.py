@@ -306,23 +306,18 @@ def display_people():
             leaving.append(person)
     staying = list(person for person in people['staying'])
     faculty = get_current_faculty()
-    # there needs to be a better way to add special people to the current exiting batch
-    special = [x for x in faculty if x['id'] == 601]
     random.seed(current_user().random_seed)
     random.shuffle(staying)
     random.shuffle(leaving)
-    random.shuffle(special)
     if current_user_leaving is True:
         to_display = {
             'staying': staying,
             'leaving': leaving,
-            'special': special,
             'faculty': faculty
         }
     else:
         to_display = {
             'leaving': leaving,
-            'special': special,
             'faculty': faculty
         }
 
