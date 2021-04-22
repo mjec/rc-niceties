@@ -121,18 +121,6 @@ const People = React.createClass({
             this.alertTimer();
         }
 
-        let staffHeader;
-        let staffRows;
-            staffRows = faculty.map(function(row) {
-                return (
-                    <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>
-                );
-            }.bind(this))
-
-            staffHeader = (
-                <h3>Staff</h3>
-
-            );
         return (
             <div className="people">
               <Modal show={this.state.justSaved}>
@@ -163,8 +151,17 @@ const People = React.createClass({
                   );
                 }.bind(this))}
                 { maybeHR }
-                { staffHeader }
-                { staffRows }
+
+                <h3>Staff</h3>
+                {faculty.map((row) => (
+                    <PeopleRow
+                        fromMe={this.props.fromMe}
+                        data={row}
+                        saveReady={savePass}
+                        updated_niceties={this.state.updated_niceties}
+                    />
+                ))}
+
               </Grid>
               <div className="save_button">
                 <SaveButton
