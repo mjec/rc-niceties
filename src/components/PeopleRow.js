@@ -5,7 +5,6 @@ import Person from "./Person";
 
 const PeopleRow = React.createClass({
     render: function() {
-        const saveButton = this.props.saveButton;
         return (
             <Row>
                 {this.props.data.map((result) => (
@@ -14,7 +13,7 @@ const PeopleRow = React.createClass({
                             fromMe={this.props.fromMe}
                             data={result}
                             saveReady={this.props.saveReady}
-                            saveButton={saveButton}
+                            saveButton={this.props.saveButton}
                             updated_niceties={this.props.updated_niceties}
                         />
                     </Col>
