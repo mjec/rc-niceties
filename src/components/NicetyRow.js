@@ -7,12 +7,11 @@ const NicetyRow = React.createClass({
     render: function() {
         return (
             <Row>
-              {this.props.data
-                  .map(function(result) {
-                      return (<Col lg="3" md="6" sm="6" xs="12">
-                              <Nicety data={result}/>
-                              </Col>);
-                  })}
+                {this.props.data.map((result) => (
+                    <Col lg="3" md="6" sm="6" xs="12">
+                        <Nicety data={result}/>
+                    </Col>
+                ))}
             </Row>
         );
     }
