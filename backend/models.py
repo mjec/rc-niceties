@@ -47,7 +47,9 @@ class Nicety(db.Model):
     no_read = db.Column(db.Boolean)
     date_updated = db.Column(db.Text)
 
-    batch_author_target_unique = db.UniqueConstraint('batch', 'author', 'target')
+    __table_args__ = (db.UniqueConstraint(author_id, target_id, end_date),)
+
+
 
     def __init__(self, end_date, author_id, target_id, **kwargs):
         self.end_date = end_date
