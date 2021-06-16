@@ -153,7 +153,7 @@ def get_self_info():
 
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
 @needs_authorization
-def post_edited_niceties():
+def get_admin_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
     is_admin = util.admin_access(current_user())
@@ -201,7 +201,7 @@ def post_edited_niceties():
 
 @app.route('/api/v1/admin-edit-niceties', methods=['POST'])
 @needs_authorization
-def get_niceties_to_edit():
+def post_admin_edits():
     is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = json.loads(request.form.get("author_id"))
