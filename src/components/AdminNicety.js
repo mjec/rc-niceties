@@ -1,6 +1,5 @@
 import React from 'react';
 import {Checkbox} from 'react-bootstrap';
-import $ from 'jquery';
 
 import SaveButton from './SaveButton';
 
@@ -23,19 +22,16 @@ class AdminNicety extends React.Component {
             target_id: this.props.target_id,
             faculty_reviewed: this.state.reviewedValue,
         }
-        $.ajax({
-            url: this.props.admin_edit_api,
-            data: data,
-            dataType: 'json',
-            type: 'POST',
-            cache: false,
-            success: function () {
-                this.setState({noSave: true});
-            }.bind(this),
-            error: function (xhr, status, err) {
-                console.log(err)
-            },
-        });
+        fetch(this.props.admin_edit_api, {
+          method: 'POST',
+          headers: {
+            'Content-Type': "application/json",
+          },
+          cache: 'no-cache',
+          body: JSON.stringify(data),
+        })
+        .then(() => this.setState({noSave: true}))
+        .catch((err) => console.log(err))
     }
 
     textareaChange = (event) => {
