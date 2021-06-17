@@ -9,17 +9,15 @@ class Admin extends React.Component {
   }
 
   loadAllNiceties = (callback) => {
-    $.ajax({
-      url: this.props.admin_edit_api,
-      dataType: 'json',
-      cache: false,
-      success: function (data) {
-        callback(data);
+    fetch(this.props.admin_edit_api, {
+      headers: {
+        'Content-Type': "application/json"
       },
-      error: function (xhr, status, err) {
-        console.error(this.props.people, status, err.toString());
-      }.bind(this),
-    });
+      cache: 'no-cache',
+    })
+    .then((response) => response.json())
+    .then((data) => callback(data))
+    .catch((err) => console.log(err))
   }
 
   componentDidMount = () => {
