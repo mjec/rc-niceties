@@ -146,6 +146,7 @@ const Person = React.createClass({
                 defaultValue={this.state.textValue}
                 onChange={this.textareaChange}
                 rows="6"
+                placeholder={this.props.data.placeholder}
             />
             {anonymousRender}
             {noReadRender}
