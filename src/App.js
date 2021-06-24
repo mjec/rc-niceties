@@ -80,20 +80,18 @@ const App = React.createClass({
         };
     },
     componentDidMount: function() {
-        this.loadNicetiesFromMe(function (data1) {
-            this.loadPeopleFromServer(function (data2) {
-                this.loadNicetiesForMe(function (data3) {
-                    this.loadSelfInfo(function (data4) {
-                        this.setState({
-                            niceties: data3,
-                            people: data2,
-                            fromMe: data1,
-                            selfInfo: data4
-                        });
-                    }.bind(this));
-                }.bind(this));
-            }.bind(this));
-        }.bind(this));
+      this.loadNicetiesFromMe((data) => {
+        this.setState({fromMe: data})
+      })
+      this.loadPeopleFromServer((data) => {
+        this.setState({people: data})
+      })
+      this.loadNicetiesForMe((data) => {
+        this.setState({niceties: data})
+      })
+      this.loadSelfInfo((data) => {
+        this.setState({selfInfo: data})
+      })
     },
     handleSelect: function(eventKey) {
         this.setState({currentview: eventKey});
