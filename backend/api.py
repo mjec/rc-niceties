@@ -328,8 +328,8 @@ def display_people():
 @app.route('/api/v1/save-niceties', methods=['POST'])
 @needs_authorization
 def save_niceties():
-    niceties_to_save = json.loads(request.form.get("niceties", "[]"))
-    for n in niceties_to_save:
+    niceties_to_save = request.get_json()
+    for n in niceties_to_save["niceties"]:
         if n.get('end_date'):
             end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
         else:

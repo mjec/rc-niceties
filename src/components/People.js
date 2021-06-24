@@ -1,6 +1,5 @@
 import React from 'react';
 import { Modal, Grid } from 'react-bootstrap';
-import $ from 'jquery';
 import store from 'store2';
 
 import PeopleRow from './PeopleRow';
@@ -46,26 +45,27 @@ class People extends React.Component {
           );
       });
       updated_niceties_spinlock = false;
-      $.ajax({
-          url: this.props.save_nicety_api,
-          data: {'niceties': JSON.stringify(data_to_save)},
-          dataType: 'json',
-          type: 'POST',
-          cache: false,
-          success: function() {
-              this.setState({noSave: true});
-              this.setState({justSaved: true});
-              store.set("saved", true);
-              this.state.updated_niceties.forEach(function(e) {
-                  const split_e = e.split(",");
-                  store.set("date_updated-" + split_e[0], dateUpdatedStr);
-              });
-              this.state.updated_niceties.clear();
-          }.bind(this),
-          error: function(xhr, status, err) {
-              console.log(err)
-          }
-      });
+
+      fetch(this.props.save_nicety_api, {
+        method: 'POST',
+        headers: {
+          'Content-Type': "application/json"
+        },
+        cache: 'no-cache',
+        body: JSON.stringify({'niceties': data_to_save}),
+      })
+      .then(response => response.json())
+      .then(data => {
+        this.setState({noSave: true});
+        this.setState({justSaved: true});
+        store.set("saved", true);
+        this.state.updated_niceties.forEach(function(e) {
+          const split_e = e.split(",");
+          store.set("date_updated-" + split_e[0], dateUpdatedStr);
+        });
+        this.state.updated_niceties.clear();
+      })
+      .catch(err => console.log(err))
   }
 
   generateRows = (inputArray) => {
