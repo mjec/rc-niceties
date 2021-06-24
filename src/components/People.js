@@ -111,12 +111,6 @@ const People = React.createClass({
         let faculty = this.generateRows(this.props.people.faculty);
         const savePass = this.saveReady.bind(this);
 
-        let maybeHeader  = '';
-        let maybeHR = '';
-        if (staying.length > 0) {
-            maybeHeader = (<h3>In-Batch</h3>);
-            maybeHR = (<hr />);
-        }
         if (this.state.justSaved) {
             this.alertTimer();
         }
@@ -143,15 +137,16 @@ const People = React.createClass({
                     <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>
                   );
                 }.bind(this))}
+
                 <hr />
-                { maybeHeader }
+                <h3>In-Batch</h3>
                 {staying.map(function(row) {
                   return (
                     <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>
                   );
                 }.bind(this))}
-                { maybeHR }
 
+                <hr />
                 <h3>Staff</h3>
                 {faculty.map((row) => (
                     <PeopleRow
