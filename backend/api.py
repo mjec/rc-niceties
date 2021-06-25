@@ -197,27 +197,6 @@ def post_edited_niceties():
         return jsonify({'authorized': "false"})
 
 
-@app.route('/api/v1/admin-edit-niceties', methods=['POST'])
-@needs_authorization
-def get_niceties_to_edit():
-    is_admin = util.admin_access(current_user())
-    nicety_text = util.encode_str(request.form.get("text"))
-    nicety_author = json.loads(request.form.get("author_id"))
-    nicety_end_date = datetime.strptime(request.form.get("end_date"), "%a, %d %b %Y %H:%M:%S %Z").date()
-    nicety_target = json.loads(request.form.get("target_id"))
-    if is_admin is True:
-        nicety = (Nicety.query
-                  .filter(Nicety.author_id == nicety_author)
-                  .filter(Nicety.target_id == nicety_target)
-                  .filter(Nicety.end_date == nicety_end_date)
-                  .one_or_none())
-        nicety.text = nicety_text
-        db.session.commit()
-        return jsonify({'status': 'OK'})
-    else:
-        return jsonify({'authorized': "false"})
-
-
 @app.route('/api/v1/niceties-from-me')
 @needs_authorization
 def niceties_from_me():
