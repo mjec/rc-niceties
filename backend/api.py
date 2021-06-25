@@ -176,7 +176,6 @@ def post_edited_niceties():
                     'name': cache_person_call(n.author_id)['full_name'],
                     'end_date': n.end_date,
                     'no_read': n.no_read,
-                    'reviewed': n.faculty_reviewed,
                     'text': util.decode_str(n.text),
                 })
             else:
@@ -184,7 +183,6 @@ def post_edited_niceties():
                     'author_id': n.author_id,
                     'end_date': n.end_date,
                     'no_read': n.no_read,
-                    'reviewed': n.faculty_reviewed,
                     'text': util.decode_str(n.text),
                 })
         return jsonify([
@@ -207,15 +205,13 @@ def get_niceties_to_edit():
     nicety_author = json.loads(request.form.get("author_id"))
     nicety_end_date = datetime.strptime(request.form.get("end_date"), "%a, %d %b %Y %H:%M:%S %Z").date()
     nicety_target = json.loads(request.form.get("target_id"))
-    nicety_reviewed = json.loads(request.form.get("faculty_reviewed"))
     if is_admin is True:
         nicety = (Nicety.query
-         .filter(Nicety.author_id == nicety_author)
-         .filter(Nicety.target_id == nicety_target)
-         .filter(Nicety.end_date == nicety_end_date)
-         .one_or_none())
+                  .filter(Nicety.author_id == nicety_author)
+                  .filter(Nicety.target_id == nicety_target)
+                  .filter(Nicety.end_date == nicety_end_date)
+                  .one_or_none())
         nicety.text = nicety_text
-        nicety.faculty_reviewed = nicety_reviewed
         db.session.commit()
         return jsonify({'status': 'OK'})
     else:
@@ -360,7 +356,6 @@ def save_niceties():
         if '' == text:
             text = None
         nicety.text = text
-        nicety.faculty_reviewed = False
         nicety.no_read = n.get("no_read")
         nicety.date_updated = n.get("date_updated")
     db.session.commit()
