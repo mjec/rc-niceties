@@ -1,5 +1,4 @@
 import React from 'react';
-import { Checkbox } from 'react-bootstrap';
 import $ from 'jquery';
 
 import SaveButton from './SaveButton';
@@ -9,20 +8,15 @@ const AdminNicety = React.createClass({
         return {
             text: this.props.nicety.text,
             noSave: true,
-            reviewedValue: this.props.nicety.reviewed
         };
     },
 
-    reviewedChange: function(event) {
-      this.setState({reviewedValue: event.target.checked, noSave: false});
-    },
     saveNicety: function() {
         const data = {
             text: this.state.text,
             author_id: this.props.nicety.author_id,
             end_date: this.props.nicety.end_date,
             target_id: this.props.target_id,
-            faculty_reviewed: this.state.reviewedValue
         }
         $.ajax({
             url: this.props.admin_edit_api,
@@ -45,20 +39,6 @@ const AdminNicety = React.createClass({
     },
 
     render: function() {
-        let reviewedRender;
-        if (this.state.reviewedValue === true) {
-          reviewedRender = (
-            <Checkbox checked onChange={this.reviewedChange}>
-            Reviewed
-            </Checkbox>
-          );
-        } else if (this.state.reviewedValue === false) {
-          reviewedRender = (
-            <Checkbox onChange={this.reviewedChange}>
-            Reviewed
-            </Checkbox>
-          );
-        }
 
         let nicetyName;
         if ('name' in this.props.nicety) {
@@ -91,8 +71,6 @@ const AdminNicety = React.createClass({
                         onClick={this.saveNicety}>
                         Save
                     </SaveButton>
-                    {reviewedRender}
-                    <br />
                 </div>
             );
         }
