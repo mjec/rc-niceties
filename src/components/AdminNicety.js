@@ -69,22 +69,14 @@ class AdminNicety extends React.Component {
         let nicetyReturn = null;
         if (this.props.nicety.text !== '' && this.props.nicety.text !== null) {
             const textStyle = {
-                width: '75%'
+                width: '75%',
+                whiteSpace: 'pre-wrap'
             }
             nicetyReturn = (
                 <div>
                     <h4>From {nicetyName}</h4>
                     <h5>{noRead}</h5>
-                    <textarea
-                        defaultValue={this.state.text}
-                        onChange={this.textareaChange}
-                        rows="6"
-                        style={textStyle}/>
-                    <SaveButton noSave={this.state.noSave} onClick={this.saveNicety}>
-                        Save
-                    </SaveButton>
-                    {reviewedRender}
-                    <br/>
+                    <p style={textStyle}>{this.props.nicety.text}</p>
                 </div>
             );
         }
