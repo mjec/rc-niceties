@@ -203,17 +203,18 @@ def post_edited_niceties():
 @needs_authorization
 def get_niceties_to_edit():
     is_admin = util.admin_access(current_user())
-    nicety_text = util.encode_str(request.form.get("text"))
-    nicety_author = json.loads(request.form.get("author_id"))
-    nicety_end_date = datetime.strptime(request.form.get("end_date"), "%a, %d %b %Y %H:%M:%S %Z").date()
-    nicety_target = json.loads(request.form.get("target_id"))
-    nicety_reviewed = json.loads(request.form.get("faculty_reviewed"))
+    request_data = request.get_json()
+    nicety_text = util.encode_str(request_data["text"])
+    nicety_author = request_data["author_id"]
+    nicety_end_date = datetime.strptime(request_data["end_date"], "%a, %d %b %Y %H:%M:%S %Z").date()
+    nicety_target = request_data["target_id"]
+    nicety_reviewed = request_data["faculty_reviewed"]
     if is_admin is True:
         nicety = (Nicety.query
-         .filter(Nicety.author_id == nicety_author)
-         .filter(Nicety.target_id == nicety_target)
-         .filter(Nicety.end_date == nicety_end_date)
-         .one_or_none())
+                  .filter(Nicety.author_id == nicety_author)
+                  .filter(Nicety.target_id == nicety_target)
+                  .filter(Nicety.end_date == nicety_end_date)
+                  .one_or_none())
         nicety.text = nicety_text
         nicety.faculty_reviewed = nicety_reviewed
         db.session.commit()
@@ -315,8 +316,8 @@ def display_people():
 @app.route('/api/v1/save-niceties', methods=['POST'])
 @needs_authorization
 def save_niceties():
-    niceties_to_save = json.loads(request.form.get("niceties", "[]"))
-    for n in niceties_to_save:
+    niceties_to_save = request.get_json()
+    for n in niceties_to_save["niceties"]:
         if n.get('end_date'):
             end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
         else:

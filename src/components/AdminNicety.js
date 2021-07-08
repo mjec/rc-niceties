@@ -1,69 +1,63 @@
 import React from 'react';
-import { Checkbox } from 'react-bootstrap';
-import $ from 'jquery';
+import {Checkbox} from 'react-bootstrap';
 
 import SaveButton from './SaveButton';
 
-const AdminNicety = React.createClass({
-    getInitialState: function() {
-        return {
-            text: this.props.nicety.text,
-            noSave: true,
-            reviewedValue: this.props.nicety.reviewed
-        };
-    },
+class AdminNicety extends React.Component {
+    state = {
+        text: this.props.nicety.text,
+        noSave: true,
+        reviewedValue: this.props.nicety.reviewed,
+    }
 
-    reviewedChange: function(event) {
-      this.setState({reviewedValue: event.target.checked, noSave: false});
-    },
-    saveNicety: function() {
+    reviewedChange = (event) => {
+        this.setState({reviewedValue: event.target.checked, noSave: false,});
+    }
+
+    saveNicety = () => {
         const data = {
             text: this.state.text,
             author_id: this.props.nicety.author_id,
             end_date: this.props.nicety.end_date,
             target_id: this.props.target_id,
-            faculty_reviewed: this.state.reviewedValue
+            faculty_reviewed: this.state.reviewedValue,
         }
-        $.ajax({
-            url: this.props.admin_edit_api,
-            data: data,
-            dataType: 'json',
-            type: 'POST',
-            cache: false,
-            success: function() {
-                this.setState({noSave: true});
-            }.bind(this),
-            error: function(xhr, status, err) {
-                console.log(err)
-            }
-        });
-    },
+        fetch(this.props.admin_edit_api, {
+          method: 'POST',
+          headers: {
+            'Content-Type': "application/json",
+          },
+          cache: 'no-cache',
+          body: JSON.stringify(data),
+        })
+        .then(() => this.setState({noSave: true}))
+        .catch((err) => console.log(err))
+    }
 
-    textareaChange: function(event) {
-        this.setState({ text: event.target.value , noSave: false });
+    textareaChange = (event) => {
+        this.setState({text: event.target.value, noSave: false,});
+    }
 
-    },
-
-    render: function() {
+    render() {
         let reviewedRender;
         if (this.state.reviewedValue === true) {
-          reviewedRender = (
-            <Checkbox checked onChange={this.reviewedChange}>
-            Reviewed
-            </Checkbox>
-          );
+            reviewedRender = (
+                <Checkbox checked="checked" onChange={this.reviewedChange}>
+                    Reviewed
+                </Checkbox>
+            );
         } else if (this.state.reviewedValue === false) {
-          reviewedRender = (
-            <Checkbox onChange={this.reviewedChange}>
-            Reviewed
-            </Checkbox>
-          );
+            reviewedRender = (
+                <Checkbox onChange={this.reviewedChange}>
+                    Reviewed
+                </Checkbox>
+            );
         }
 
         let nicetyName;
         if ('name' in this.props.nicety) {
             nicetyName = this.props.nicety.name;
-        } else  {
+        } else {
             nicetyName = 'Anonymous';
         }
 
@@ -85,19 +79,17 @@ const AdminNicety = React.createClass({
                         defaultValue={this.state.text}
                         onChange={this.textareaChange}
                         rows="6"
-                        style={textStyle} />
-                     <SaveButton
-                        noSave={this.state.noSave}
-                        onClick={this.saveNicety}>
+                        style={textStyle}/>
+                    <SaveButton noSave={this.state.noSave} onClick={this.saveNicety}>
                         Save
                     </SaveButton>
                     {reviewedRender}
-                    <br />
+                    <br/>
                 </div>
             );
         }
         return nicetyReturn;
     }
-});
+}
 
 export default AdminNicety;
