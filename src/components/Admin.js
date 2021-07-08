@@ -1,5 +1,4 @@
 import React from 'react';
-import $ from 'jquery';
 
 import AdminNicety from './AdminNicety';
 
