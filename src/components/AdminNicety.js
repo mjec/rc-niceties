@@ -1,12 +1,63 @@
 import React from 'react';
+import {Checkbox} from 'react-bootstrap';
 
-const AdminNicety = React.createClass({
-    render: function() {
+import SaveButton from './SaveButton';
+
+class AdminNicety extends React.Component {
+    state = {
+        text: this.props.nicety.text,
+        noSave: true,
+        reviewedValue: this.props.nicety.reviewed,
+    }
+
+    reviewedChange = (event) => {
+        this.setState({reviewedValue: event.target.checked, noSave: false,});
+    }
+
+    saveNicety = () => {
+        const data = {
+            text: this.state.text,
+            author_id: this.props.nicety.author_id,
+            end_date: this.props.nicety.end_date,
+            target_id: this.props.target_id,
+            faculty_reviewed: this.state.reviewedValue,
+        }
+        fetch(this.props.admin_edit_api, {
+          method: 'POST',
+          headers: {
+            'Content-Type': "application/json",
+          },
+          cache: 'no-cache',
+          body: JSON.stringify(data),
+        })
+        .then(() => this.setState({noSave: true}))
+        .catch((err) => console.log(err))
+    }
+
+    textareaChange = (event) => {
+        this.setState({text: event.target.value, noSave: false,});
+    }
+
+    render() {
+        let reviewedRender;
+        if (this.state.reviewedValue === true) {
+            reviewedRender = (
+                <Checkbox checked="checked" onChange={this.reviewedChange}>
+                    Reviewed
+                </Checkbox>
+            );
+        } else if (this.state.reviewedValue === false) {
+            reviewedRender = (
+                <Checkbox onChange={this.reviewedChange}>
+                    Reviewed
+                </Checkbox>
+            );
+        }
 
         let nicetyName;
         if ('name' in this.props.nicety) {
             nicetyName = this.props.nicety.name;
-        } else  {
+        } else {
             nicetyName = 'Anonymous';
         }
 
@@ -31,6 +82,6 @@ const AdminNicety = React.createClass({
         }
         return nicetyReturn;
     }
-});
+}
 
 export default AdminNicety;

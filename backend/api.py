@@ -271,30 +271,18 @@ def display_people():
     current = get_current_users()
     people = partition_current_users(current)
     user_id = current_user().id
-    current_user_leaving = False
-    leaving = []
-    to_display = None
-    for person in people['leaving']:
-        if person['id'] == user_id:
-            current_user_leaving = True
-        else:
-            leaving.append(person)
-    staying = list(person for person in people['staying'])
-    faculty = get_current_faculty()
+
+    leaving = [person for person in people['leaving'] if person['id'] != user_id]
+    staying = [person for person in people['staying'] if person['id'] != user_id]
+
     random.seed(current_user().random_seed)
     random.shuffle(staying)
     random.shuffle(leaving)
-    if current_user_leaving is True:
-        to_display = {
-            'staying': staying,
-            'leaving': leaving,
-            'faculty': faculty
-        }
-    else:
-        to_display = {
-            'leaving': leaving,
-            'faculty': faculty
-        }
+    to_display = {
+        'staying': staying,
+        'leaving': leaving,
+        'faculty': get_current_faculty()
+    }
 
     return jsonify(to_display)
 
@@ -302,8 +290,8 @@ def display_people():
 @app.route('/api/v1/save-niceties', methods=['POST'])
 @needs_authorization
 def save_niceties():
-    niceties_to_save = json.loads(request.form.get("niceties", "[]"))
-    for n in niceties_to_save:
+    niceties_to_save = request.get_json()
+    for n in niceties_to_save["niceties"]:
         if n.get('end_date'):
             end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
         else:
