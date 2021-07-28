@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<style type="text/css" media="print">
+<style type="text/css" media="print, screen">
   @page {
     size: 7in 9.25in;
     margin: 27mm 16mm 27mm 16mm;
@@ -15,7 +15,7 @@
     text-align: center
   }
 
-  p.nicety {
+  div.nicety {
     page-break-inside: avoid;
   }
 
@@ -30,7 +30,7 @@
 <html>
 
   <head>
-    <title>Printable Niceties</title>
+    <title>Niceties by Sender</title>
   </head>
 
   <body>
@@ -38,10 +38,9 @@
     <div class="page_print">
       <h2>{{ person.to }}</h2>
       {% for nicety in person.niceties %}
-      <p class="nicety"> {{ nicety.text }}
+      <div class="nicety"> {{ nicety.text | nl2br }}
         {% if nicety.name is defined %}
-        <br>
-        <span class="signature"> for <i>{{ nicety.name }}</i></p>
+        <span class="signature"> for <i>{{ nicety.name }}</i></span></div>
       {% endif %}
       {% endfor %}
     </div>

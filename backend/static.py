@@ -1,15 +1,16 @@
 import os
-from base64 import b64decode, b64encode
+import re
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
 from backend import app
 from backend.api import cache_person_call
 from backend.auth import current_user, needs_authorization
-
 from backend.models import Nicety
 from backend.util import admin_access, decode_str
 from flask import abort, jsonify, render_template, send_file
+from jinja2 import evalcontextfilter
+from markupsafe import Markup, escape
 
 
 @app.route('/')
@@ -46,7 +47,7 @@ def font():
 
 @app.route('/niceties-by-sender')
 def niceties_by_sender():
-    ret = {}    # Mapping from target_id to a list of niceties for that person
+    ret = {}    # Mapping from author_id to a list of niceties from that person
     is_admin = admin_access(current_user())
     if is_admin is True:
         valid_niceties = (Nicety.query
@@ -69,8 +70,9 @@ def niceties_by_sender():
                     })
                 else:
                     ret[author].append({
+                        'target_id': n.target_id,
                         'anon': True,
-                        'name': "An Unknown Admirer",
+                        'name': cache_person_call(n.target_id)['full_name'],
                         'text': decode_str(n.text),
                     })
         ret = OrderedDict(sorted(ret.items(), key=lambda t: t[0]))
@@ -142,3 +144,21 @@ def print_niceties():
                                })
     else:
         return jsonify({'authorized': "false"})
+
+
+@evalcontextfilter
+def nl2br(eval_ctx, value):
+    br = "<br>\n"
+
+    if eval_ctx.autoescape:
+        # value = escape(value)
+        br = Markup(br)
+
+    result = "\n\n".join(
+        f"<p>{br.join(p.splitlines())}</p>"
+        for p in re.split(r"(?:\r\n|\r(?!\n)|\n){2,}", value)
+    )
+    return Markup(result) if eval_ctx.autoescape else result
+
+
+app.jinja_env.filters['nl2br'] = nl2br

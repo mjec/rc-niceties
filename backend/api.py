@@ -77,9 +77,6 @@ def cache_person_call(person_id):
 
 
 def get_current_faculty():
-    ''' faculty will always appear in
-    the most recent batch!
-    '''
     f = rc.get('profiles?role=faculty').data
     return [
         format_info(profile)
@@ -153,7 +150,7 @@ def get_self_info():
 
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
 @needs_authorization
-def post_edited_niceties():
+def get_admin_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
     is_admin = util.admin_access(current_user())
