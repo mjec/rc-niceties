@@ -105,11 +105,12 @@ def partition_current_users(users):
         'leaving': []
     }
     user_stints = [user['stints'] for user in users]
+    twelve_weeks = datetime.today() + timedelta(weeks=12)
     end_dates = []
     for stints in user_stints:
         if stints != []:
             for stint in stints:
-                if stint['end_date'] is not None and stint['type'] == 'retreat':
+                if stint['type'] == 'retreat' and datetime.strptime(stint['end_date'], "%Y-%m-%d") <= twelve_weeks:
                     end_dates.append(stint['end_date'])
     end_dates = sorted(list(set(end_dates)))
     end_dates = end_dates[::-1]
