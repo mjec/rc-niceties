@@ -74,19 +74,12 @@ class Person extends React.Component {
         while (updated_niceties_spinlock) {}
         let addString;
         if (this.props.data.stints.length > 0) {
-            addString = this.props.data.id + "," + this
-                .props
-                .data
-                .stints[this.props.data.stints.length - 1]
-                .end_date;
+            addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
         } else {
             addString = this.props.data.id + ",2016-11-03";
         }
         if (!(addString in this.props.updated_niceties)) {
-            this
-                .props
-                .updated_niceties
-                .add(addString);
+            this.props.updated_niceties.add(addString);
         }
         store.set("saved", false);
         this
