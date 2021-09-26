@@ -82,9 +82,7 @@ class Person extends React.Component {
             this.props.updated_niceties.add(addString);
         }
         store.set("saved", false);
-        this
-            .props
-            .saveReady();
+        this.props.saveReady();
     }
 
     textareaChange = (event) => {
