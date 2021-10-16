@@ -29,59 +29,43 @@ class App extends React.Component {
   }
 
     loadPeopleFromServer = (callback) => {
-        $.ajax({
-            url: this.props.people_api,
-            dataType: 'json',
-            cache: false,
-            success: (data) => {
-                callback(data);
-            },
-            error: (xhr, status, err) => {
-                //console.error(this.props.people, status, err.toString());
-            },
-        });
+      fetch(this.props.people_api, {
+        headers: {'Content-Type': "application/json"},
+        cache: 'no-cache'
+      })
+      .then(response => response.json())
+      .then(data => callback(data))
+      .catch(err => console.log(err))
     }
 
     loadNicetiesFromMe = (callback) => {
-        $.ajax({
-            url: this.props.from_me_api,
-            dataType: 'json',
-            cache: false,
-            success: (data) => {
-                callback(data);
-            },
-            error: (xhr, status, err) => {
-                //console.error(this.props.fromMe, status, err.toString());
-            },
-        });
+      fetch(this.props.from_me_api, {
+        headers: {'Content-Type': "application/json"},
+        cache: 'no-cache'
+      })
+      .then(response => response.json())
+      .then(data => callback(data))
+      .catch(err => console.log(err))
     }
 
     loadNicetiesForMe = (callback) => {
-        $.ajax({
-            url: this.props.for_me_api,
-            dataType: 'json',
-            cache: false,
-            success: (data) => {
-                callback(data);
-            },
-            error: (xhr, status, err) => {
-                //console.error(this.props.niceties, status, err.toString());
-            },
-        });
+      fetch(this.props.for_me_api, {
+        headers: {'Content-Type': "application/json"},
+        cache: 'no-cache'
+      })
+      .then(response => response.json())
+      .then(data => callback(data))
+      .catch(err => console.log(err))
     }
 
     loadSelfInfo = (callback) => {
-        $.ajax({
-            url: this.props.self_api,
-            dataType: 'json',
-            cache: false,
-            success: (data) => {
-                callback(data);
-            },
-            error: (xhr, status, err) => {
-                //console.error(this.props.niceties, status, err.toString());
-            },
-        });
+      fetch(this.props.self_api, {
+        headers: {'Content-Type': "application/json"},
+        cache: 'no-cache'
+      })
+      .then(response => response.json())
+      .then(data => callback(data))
+      .catch(err => console.log(err))
     }
 
     componentDidMount = () => {

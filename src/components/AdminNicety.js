@@ -11,6 +11,7 @@ class AdminNicety extends React.Component {
         noSave: true,
         reviewedValue: this.props.nicety.reviewed,
     }
+  }
 
     reviewedChange = (event) => {
         this.setState({reviewedValue: event.target.checked, noSave: false,});
