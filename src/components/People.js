@@ -9,12 +9,15 @@ import SaveButton from "./SaveButton";
 export let updated_niceties_spinlock = false;
 
 class People extends React.Component {
-  state = {
+  constructor(props) {
+    super(props);
+    this.state = {
     data: [],
     noSave: store.get("saved"),
     justSaved: false,
     updated_niceties: new Set()
   }
+}
 
   saveAllComments = () => {
       updated_niceties_spinlock = true;

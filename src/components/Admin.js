@@ -3,9 +3,12 @@ import React from 'react';
 import AdminNicety from './AdminNicety';
 
 class Admin extends React.Component {
-  state = {
+  constructor(props) {
+    super(props);
+    this.state = {
     niceties: []
   }
+}
 
   loadAllNiceties = (callback) => {
     fetch(this.props.admin_edit_api, {
