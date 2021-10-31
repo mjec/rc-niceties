@@ -25,62 +25,32 @@ class App extends React.Component {
         niceties: [],
         currentview: "write-niceties",
         selfInfo: []
+      }
     }
-  }
 
-    loadPeopleFromServer = (callback) => {
-      fetch(this.props.people_api, {
+    loadData = (api, dataVar) => {
+      fetch(api, {
         headers: {'Content-Type': "application/json"},
         cache: 'no-cache'
       })
       .then(response => response.json())
-      .then(data => callback(data))
-      .catch(err => console.log(err))
-    }
-
-    loadNicetiesFromMe = (callback) => {
-      fetch(this.props.from_me_api, {
-        headers: {'Content-Type': "application/json"},
-        cache: 'no-cache'
+      .then(data => {
+        let newState = {}
+        newState[dataVar] = data
+        this.setState(newState)
       })
-      .then(response => response.json())
-      .then(data => callback(data))
-      .catch(err => console.log(err))
-    }
-
-    loadNicetiesForMe = (callback) => {
-      fetch(this.props.for_me_api, {
-        headers: {'Content-Type': "application/json"},
-        cache: 'no-cache'
-      })
-      .then(response => response.json())
-      .then(data => callback(data))
-      .catch(err => console.log(err))
-    }
-
-    loadSelfInfo = (callback) => {
-      fetch(this.props.self_api, {
-        headers: {'Content-Type': "application/json"},
-        cache: 'no-cache'
-      })
-      .then(response => response.json())
-      .then(data => callback(data))
       .catch(err => console.log(err))
     }
 
     componentDidMount = () => {
-        this.loadNicetiesFromMe((data) => {
-            this.setState({fromMe: data})
-        })
-        this.loadPeopleFromServer((data) => {
-            this.setState({people: data})
-        })
-        this.loadNicetiesForMe((data) => {
-            this.setState({niceties: data})
-        })
-        this.loadSelfInfo((data) => {
-            this.setState({selfInfo: data})
-        })
+      // loadPeopleFromServer
+      this.loadData(this.props.people_api, "people")
+      // loadNicetiesFromMe
+      this.loadData(this.props.from_me_api, "fromMe")
+      // loadNicetiesForMe
+      this.loadData(this.props.for_me_api, "niceties")
+      // loadSelfInfo
+      this.loadData(this.props.self_api, "selfInfo")
     }
 
     handleSelect = (eventKey) => {
