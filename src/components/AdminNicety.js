@@ -4,11 +4,14 @@ import {Checkbox} from 'react-bootstrap';
 import SaveButton from './SaveButton';
 
 class AdminNicety extends React.Component {
-    state = {
+    constructor(props) {
+      super(props)
+      this.state = {
         text: this.props.nicety.text,
         noSave: true,
         reviewedValue: this.props.nicety.reviewed,
     }
+  }
 
     reviewedChange = (event) => {
         this.setState({reviewedValue: event.target.checked, noSave: false,});
