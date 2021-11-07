@@ -78,13 +78,13 @@ class App extends React.Component {
         }
         return (
             <div className="App">
-                <Navbar fixedTop="fixedTop" id="main_nav">
+                <Navbar fixedTop id="main_nav">
                     <div id="title">
                         recurse<br/>
                         nice-<br/>
                         ties
                     </div>
-                    <img id="octotie" src={octotie} alt="" height="153"/>
+                    <img id="octotie" src={octotie} alt="an octopus wearing a nice tie" height="153"/>
                     <Nav activeKey={this.state.currentview} onSelect={this.handleSelect}>
                         <NavDropdown>
                             <MenuItem eventKey="write-niceties">Write Niceties</MenuItem>
