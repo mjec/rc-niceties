@@ -34,22 +34,14 @@ class App extends React.Component {
         cache: 'no-cache'
       })
       .then(response => response.json())
-      .then(data => {
-        let newState = {}
-        newState[dataVar] = data
-        this.setState(newState)
-      })
+      .then(data => this.setState({[dataVar]: data}))
       .catch(err => console.log(err))
     }
 
     componentDidMount = () => {
-      // loadPeopleFromServer
       this.loadData(this.props.people_api, "people")
-      // loadNicetiesFromMe
       this.loadData(this.props.from_me_api, "fromMe")
-      // loadNicetiesForMe
       this.loadData(this.props.for_me_api, "niceties")
-      // loadSelfInfo
       this.loadData(this.props.self_api, "selfInfo")
     }
 
