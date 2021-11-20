@@ -106,7 +106,7 @@ class Person extends React.Component {
     render() {
         return (
             <div className="person">
-                <Image responsive={true} src={this.props.data.avatar_url} circle={true}/>
+                <Image responsive={true} src={this.props.data.avatar_url} title={this.props.data.full_name} circle={true}/>
                 <h3>{this.props.data.name}</h3>
                 <textarea
                     defaultValue={this.state.textValue}

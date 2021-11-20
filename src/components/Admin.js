@@ -44,10 +44,7 @@ class Admin extends React.Component {
                 <br/> {
                   person.niceties.map((nicety) => {
                     return (
-                      <AdminNicety
-                        nicety={nicety}
-                        target_id={person.to_id}
-                        admin_edit_api={this.props.admin_edit_api}/>
+                      <AdminNicety nicety={nicety}/>
                     );
                   })
                 }
