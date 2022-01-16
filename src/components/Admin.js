@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import AdminNicety from './AdminNicety';
 
-function Admin(props) {
+const Admin = (props) => {
   const loadAllNiceties = (callback) => {
     fetch(props.admin_edit_api, {
       headers: {
