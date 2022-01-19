@@ -1,17 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import AdminNicety from './AdminNicety';
 
-class Admin extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-    niceties: []
-  }
-}
-
-  loadAllNiceties = (callback) => {
-    fetch(this.props.admin_edit_api, {
+const Admin = (props) => {
+  const loadAllNiceties = (callback) => {
+    fetch(props.admin_edit_api, {
       headers: {
         'Content-Type': "application/json"
       },
@@ -22,22 +15,21 @@ class Admin extends React.Component {
     .catch((err) => console.log(err))
   }
 
-  componentDidMount = () => {
-    this.loadAllNiceties((data) => this.setState({niceties: data})
-    );
-  }
+  const [adminNiceties, setAdminNiceties] = useState([]);
+  useEffect(() => {
+    loadAllNiceties((data) => setAdminNiceties(data));
+  }, [])
 
-  render() {
-    return (
+  return (
       <div>
-        {this.state.niceties.map((person) => {
-          let noTextCheck = false;
+        {adminNiceties.map((person) => {
+          let textCheck = false;
           person.niceties.forEach((nicety) => {
             if (nicety.text !== '' && nicety.text !== null) {
-              noTextCheck = true;
+              textCheck = true;
             }
           });
-          if (noTextCheck) {
+          if (textCheck) {
             return (
               <div>
                 <h2>To {person.to_name}</h2>
@@ -58,6 +50,5 @@ class Admin extends React.Component {
       </div>
     );
   }
-}
 
 export default Admin;

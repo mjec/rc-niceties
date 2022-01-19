@@ -11,7 +11,6 @@ const PeopleRow = (props) => (
                     fromMe={props.fromMe}
                     data={result}
                     saveReady={props.saveReady}
-                    saveButton={props.saveButton}
                     updated_niceties={props.updated_niceties}
                 />
             </Col>

@@ -158,11 +158,17 @@ def get_admin_niceties():
     three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
     if is_admin is True:
-        valid_niceties = (Nicety.query
-                          .filter(Nicety.end_date > three_weeks_ago)
-                          .filter(Nicety.end_date < three_weeks_from_now)
-                          .order_by(Nicety.target_id)
-                          .all())
+        if app.config.get("DEBUG_SHOW_ALL") == "TRUE":
+            valid_niceties = (Nicety.query
+                              .filter(Nicety.end_date > three_weeks_ago)
+                              .order_by(Nicety.target_id)
+                              .all())
+        else:
+            valid_niceties = (Nicety.query
+                              .filter(Nicety.end_date > three_weeks_ago)
+                              .filter(Nicety.end_date < three_weeks_from_now)
+                              .order_by(Nicety.target_id)
+                              .all())
         for n in valid_niceties:
             if n.target_id != last_target:
                 # ... set up the test for the next one
