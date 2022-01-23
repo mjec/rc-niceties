@@ -5,7 +5,6 @@ import store from 'store2';
 import {updated_niceties_spinlock} from "./People";
 
 const Person = (props) => {
-
     const [textValue, setTextValue] = useState("");
     const [anonValue, setAnonValue] = useState(false);
     const [noReadValue, setNoReadValue] = useState(false);

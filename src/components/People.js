@@ -9,17 +9,6 @@ import SaveButton from "./SaveButton";
 export let updated_niceties_spinlock = false;
 
 const People = (props) => {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//     data: [],
-//     noSave: store.get("saved"),
-//     justSaved: false,
-//     updated_niceties: new Set()
-//   }
-// }
-
-  // const [data, setData] = useState([]);
   const [noSave, setNoSave] = useState(store.get("saved"))
   const [justSaved, setJustSaved] = useState(false)
   const [updatedNiceties, setUpdatedNiceties] = useState(new Set())
