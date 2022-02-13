@@ -111,12 +111,12 @@ const Person = (props) => {
                   rows="6"
                   placeholder={props.data.placeholder}/>
               <Checkbox
-                  checked={anonValue === true}
+                  checked={anonValue}
                   onChange={anonymousChange}>
                   Submit Anonymously
               </Checkbox>
               <Checkbox
-                  checked={noReadValue === true}
+                  checked={noReadValue}
                   onChange={noReadChange}>
                   Don't Read At Ceremony
               </Checkbox>

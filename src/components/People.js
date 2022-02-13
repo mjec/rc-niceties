@@ -105,20 +105,32 @@ const People = (props) => {
       alertTimer();
   }
 
-  const leavingRows = leaving.map((row) => (
-    <PeopleRow fromMe={props.fromMe} data={row} saveReady={saveReady}
-    updatedNiceties={updatedNiceties} setUpdatedNiceties={setUpdatedNiceties}/>
-  ))
+const leavingRows = leaving.map((row) => (
+  <PeopleRow
+    fromMe={props.fromMe}
+    data={row}
+    saveReady={saveReady}
+    updatedNiceties={updatedNiceties}
+    setUpdatedNiceties={setUpdatedNiceties}/>
+))
 
-  const stayingRows = staying.map((row) => (
-    <PeopleRow fromMe={props.fromMe} data={row} saveReady={saveReady}
-    updatedNiceties={updatedNiceties} setUpdatedNiceties={setUpdatedNiceties}/>
-  ))
+const stayingRows = staying.map((row) => (
+  <PeopleRow
+    fromMe={props.fromMe}
+    data={row}
+    saveReady={saveReady}
+    updatedNiceties={updatedNiceties}
+    setUpdatedNiceties={setUpdatedNiceties}/>
+))
 
   const staffRows = faculty.map((row) => (
-    <PeopleRow fromMe={props.fromMe} data={row} saveReady={saveReady}
-    updatedNiceties={updatedNiceties} setUpdatedNiceties={setUpdatedNiceties}/>
-  ))
+  <PeopleRow
+    fromMe={props.fromMe}
+    data={row}
+    saveReady={saveReady}
+    updatedNiceties={updatedNiceties}
+    setUpdatedNiceties={setUpdatedNiceties}/>
+))
 
 
   return (
