@@ -51,7 +51,6 @@ const People = (props) => {
         cache: 'no-cache',
         body: JSON.stringify({'niceties': data_to_save}),
       })
-      .then(response => response.json())
       .then(() => {
         setNoSave(true);
         setJustSaved(true);
