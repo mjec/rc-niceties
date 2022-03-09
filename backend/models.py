@@ -4,6 +4,40 @@ from os import urandom
 from backend import db
 
 
+class Profile(db.Model):
+    __tablename__ = 'profile'
+
+    profile_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(500), nullable=False)
+    first_name = db.Column(db.String)
+    last_name = db.Column(db.String)
+    avatar_url = db.Column(db.String(500))
+    bio_rendered = db.Column(db.String)
+    interests = db.Column(db.String)
+    before_rc = db.Column(db.String)
+    during_rc = db.Column(db.String)
+    stints = db.relationship("Stint", backref="profile")
+
+    def __repr__(self):
+        return '<Profile:{} ({})'.format(self.profile_id, self.name)
+
+
+class Stint(db.Model):
+    __tablename__ = 'stint'
+
+    stint_id = db.Column(db.Integer, primary_key=True)
+    profile_id = db.Column(db.ForeignKey("profile.profile_id"), nullable=False)
+    type_stint = db.Column(db.String, nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date)
+    title = db.Column(db.String)
+
+    __table_args__ = (db.UniqueConstraint(profile_id, start_date),)
+
+    def __repr__(self):
+        return '<Stint:{}>'.format(self.stint_id)
+
+
 class User(db.Model):
     __tablename__ = 'user'
 
