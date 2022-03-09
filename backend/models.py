@@ -13,8 +13,6 @@ class User(db.Model):
     avatar_url = db.Column(db.String(500), nullable=True)
     faculty = db.Column(db.Boolean)
     anonymous_by_default = db.Column(db.Boolean)
-    autosave_timeout = db.Column(db.Integer)
-    autosave_enabled = db.Column(db.Boolean)
     random_seed = db.Column(db.LargeBinary(32))
 
     def __init__(self, id, name, **kwargs):
@@ -23,8 +21,6 @@ class User(db.Model):
         self.avatar_url = kwargs.get("avatar_url", None)
         self.faculty = kwargs.get("faculty", None)
         self.anonymous_by_default = kwargs.get("anonymous_by_default", False)
-        self.autosave_timeout = kwargs.get("autosave_timeout", 10)
-        self.autosave_enabled = kwargs.get("autosave_enabled", True)
         self.random_seed = urandom(32)
 
     def __repr__(self):
@@ -39,7 +35,6 @@ class Nicety(db.Model):
     author_id = db.Column(db.ForeignKey('user.id'))  # RC user ID
     target_id = db.Column(db.Integer)  # RC user ID
     anonymous = db.Column(db.Boolean)
-    starred = db.Column(db.Boolean)
     text = db.Column(db.Text, nullable=True)
     no_read = db.Column(db.Boolean)
     date_updated = db.Column(db.Text)
@@ -51,7 +46,6 @@ class Nicety(db.Model):
         self.author_id = author_id
         self.target_id = target_id
         self.anonymous = kwargs.get("anonymous", False)
-        self.starred = kwargs.get("starred", False)
         self.text = kwargs.get("text", None)
         self.no_read = kwargs.get("no_read", False)
         self.date_updated = kwargs.get("date_updated", "")
