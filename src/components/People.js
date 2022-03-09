@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Grid } from 'react-bootstrap';
 import store from 'store2';
 
@@ -8,23 +8,17 @@ import SaveButton from "./SaveButton";
 
 export let updated_niceties_spinlock = false;
 
-class People extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-    data: [],
-    noSave: store.get("saved"),
-    justSaved: false,
-    updated_niceties: new Set()
-  }
-}
+const People = (props) => {
+  const [noSave, setNoSave] = useState(store.get("saved"))
+  const [justSaved, setJustSaved] = useState(false)
+  const [updatedNiceties, setUpdatedNiceties] = useState(new Set())
 
-  saveAllComments = () => {
+  const saveAllComments = () => {
       updated_niceties_spinlock = true;
       let data_to_save = [];
       const dateUpdated = new Date(Date.now());
       const dateUpdatedStr = dateUpdated.toUTCString();
-      this.state.updated_niceties.forEach(function(e) {
+      updatedNiceties.forEach(function(e) {
           const split_e = e.split(",");
           let end_date;
           if (split_e[1] === "null") {
@@ -49,7 +43,7 @@ class People extends React.Component {
       });
       updated_niceties_spinlock = false;
 
-      fetch(this.props.save_nicety_api, {
+      fetch(props.save_nicety_api, {
         method: 'POST',
         headers: {
           'Content-Type': "application/json"
@@ -57,21 +51,20 @@ class People extends React.Component {
         cache: 'no-cache',
         body: JSON.stringify({'niceties': data_to_save}),
       })
-      .then(response => response.json())
-      .then(data => {
-        this.setState({noSave: true});
-        this.setState({justSaved: true});
+      .then(() => {
+        setNoSave(true);
+        setJustSaved(true);
         store.set("saved", true);
-        this.state.updated_niceties.forEach(function(e) {
+        updatedNiceties.forEach(function(e) {
           const split_e = e.split(",");
           store.set("date_updated-" + split_e[0], dateUpdatedStr);
         });
-        this.state.updated_niceties.clear();
+        setUpdatedNiceties(new Set());
       })
       .catch(err => console.log(err))
   }
 
-  generateRows = (inputArray) => {
+  const generateRows = (inputArray) => {
       let dataList = [];
       if (inputArray !== undefined) {
           for (let i = 0; i < inputArray.length; i +=4) {
@@ -87,77 +80,93 @@ class People extends React.Component {
       return dataList;
   }
 
-  saveReady = () => {
-      this.setState({noSave: false});
+  const saveReady = () => {
+      setNoSave(false);
   }
 
-  alertTimer = () => {
-      setTimeout(function () {
-          this.setState({justSaved: false});
-      }.bind(this), 3000);
+  const alertTimer = () => {
+      setTimeout(() => {
+          setJustSaved(false);
+      }, 3000);
   }
 
-  render() {
-      let leaving = this.generateRows(this.props.people.leaving);
-      let staying = this.generateRows(this.props.people.staying);
-      let faculty = this.generateRows(this.props.people.faculty);
+  let leaving = generateRows(props.people.leaving);
+  let staying = generateRows(props.people.staying);
+  let faculty = generateRows(props.people.faculty);
 
-      let maybeHeader  = '';
-      let maybeHR = '';
-      if (staying.length > 0) {
-          maybeHeader = (<h3>In-Batch</h3>);
-          maybeHR = (<hr />);
-      }
-      if (this.state.justSaved) {
-          this.alertTimer();
-      }
+  let maybeHeader  = '';
+  let maybeHR = '';
+  if (staying.length > 0) {
+      maybeHeader = (<h3>In-Batch</h3>);
+      maybeHR = (<hr />);
+  }
+  if (justSaved) {
+      alertTimer();
+  }
 
-      const staffRows = faculty.map((row) => (
-          <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={this.saveReady} updated_niceties={this.state.updated_niceties}/>
-        ))
+const leavingRows = leaving.map((row) => (
+  <PeopleRow
+    fromMe={props.fromMe}
+    data={row}
+    saveReady={saveReady}
+    updatedNiceties={updatedNiceties}
+    setUpdatedNiceties={setUpdatedNiceties}/>
+))
 
-      return (
-          <div className="people">
-            <Modal show={this.state.justSaved}>
-              <Modal.Body>
-                Niceties Saved!
-              </Modal.Body>
-            </Modal>
-            <div className="save_button">
-              <SaveButton
-                noSave={this.state.noSave}
-                onClick={this.saveAllComments}>
-                Save
-              </SaveButton>
-            </div>
-            <Grid>
-              <hr />
-              <h3>Leaving Soon</h3>
-              {leaving.map((row) => (
-                  <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={this.saveReady} updated_niceties={this.state.updated_niceties}/>
-                ))}
+const stayingRows = staying.map((row) => (
+  <PeopleRow
+    fromMe={props.fromMe}
+    data={row}
+    saveReady={saveReady}
+    updatedNiceties={updatedNiceties}
+    setUpdatedNiceties={setUpdatedNiceties}/>
+))
 
-              <hr />
-              { maybeHeader }
-              {staying.map((row) => (
-                  <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={this.saveReady} updated_niceties={this.state.updated_niceties}/>
-                ))}
+  const staffRows = faculty.map((row) => (
+  <PeopleRow
+    fromMe={props.fromMe}
+    data={row}
+    saveReady={saveReady}
+    updatedNiceties={updatedNiceties}
+    setUpdatedNiceties={setUpdatedNiceties}/>
+))
 
-              { maybeHR }
-              <h3>Staff</h3>
-              { staffRows }
-            </Grid>
-            <div className="save_button">
-              <SaveButton
-                noSave={this.state.noSave}
-                onClick={this.saveAllComments}>
-                Save
-              </SaveButton>
-            </div>
-          </div>
-      );
-    }
 
+  return (
+      <div className="people">
+        <Modal show={justSaved}>
+          <Modal.Body>
+            Niceties Saved!
+          </Modal.Body>
+        </Modal>
+        <div className="save_button">
+          <SaveButton
+            noSave={noSave}
+            onClick={saveAllComments}>
+            Save
+          </SaveButton>
+        </div>
+        <Grid>
+          <hr />
+          <h3>Leaving Soon</h3>
+          { leavingRows }
+          <hr />
+          { maybeHeader }
+          { stayingRows }
+          { maybeHR }
+          <h3>Staff</h3>
+          { staffRows }
+        </Grid>
+        <div className="save_button">
+          <SaveButton
+            noSave={noSave}
+            onClick={saveAllComments}>
+            Save
+          </SaveButton>
+        </div>
+      </div>
+  );
 }
+
 
 export default People;
