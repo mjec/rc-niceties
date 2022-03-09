@@ -12,7 +12,6 @@ class User(db.Model):
     name = db.Column(db.String(500))
     avatar_url = db.Column(db.String(500), nullable=True)
     faculty = db.Column(db.Boolean)
-    anonymous_by_default = db.Column(db.Boolean)
     random_seed = db.Column(db.LargeBinary(32))
 
     def __init__(self, id, name, **kwargs):
@@ -20,7 +19,6 @@ class User(db.Model):
         self.name = name
         self.avatar_url = kwargs.get("avatar_url", None)
         self.faculty = kwargs.get("faculty", None)
-        self.anonymous_by_default = kwargs.get("anonymous_by_default", False)
         self.random_seed = urandom(32)
 
     def __repr__(self):
