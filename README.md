@@ -38,6 +38,7 @@ I built this using Python 3.6.13, node.js 14.15.5 and Postgres 12.6.
     * `DATABASE_URL` - the database connection URL `e.g. postgres://localhost/rcniceties`
     * `RC_OAUTH_ID` - your Recurse Center OAuth application ID
     * `RC_OAUTH_SECRET` - your Recurse Center OAuth application secret
+    * `RC_API_ACCESS_TOKEN` - your Recurse Center personal access token
     * `DEV` - set to either `TRUE` or `FALSE`, depending on if this is a development or production environment
     * `DEBUG_SHOW_ALL` (optional) - set to `TRUE` to show every nicety in the DB on the Niceties For Me page (useful for debugging) or `FALSE` (default) for normal behavior
 
@@ -67,3 +68,15 @@ This is designed to be deployed to Heroku. To do this:
 1. Enable the Python and node.js buildpacks for the application.
 
 2. Set up a Postgres database for the application and run `heroku pg:push [database-name] DATABASE_URL` to copy your local database to Heroku.
+
+3. We can schedule data updates using the
+[Heroku Scheduler](https://devcenter.heroku.com/articles/scheduler):
+
+    ```sh
+    $ heroku addons:create scheduler:standard
+    $ heroku addons:open scheduler
+    ```
+
+    Create a new job that runs daily, and set the command to `./update-data.py`
+
+    Then, in theory, it should be a simple `git push heroku main`!
