@@ -44,7 +44,11 @@ I built this using Python 3.6.13, node.js 14.15.5 and Postgres 12.6.
 
    A common way of setting up these environment variables is with a `.env` file in your project directory, containing `export ENV_VAR=value` on each line. This can be loaded by running `source .env` and will be automatically loaded by `heroku local`.
 
-7. Optionally mock out the RC API by setting `MOCK_OUT_RC_API = True` in `backend/__init__.py`. This means you do not have to set `RC_OAUTH_ID` or `RC_OAUTH_SECRET`, but you'll only get sample data (contained in the `mock/fixtures` folder, and with request -> filename mapping in `mock/rc.py`). Alternatively, you'll need to [set up an RC application](https://recurse.com/settings/oauth) with a redirect URI pointing to your local server (e.g. `http://localhost:8000/login/authorized`) or with the special value `urn:ietf:wg:oauth:2.0:oob`.
+7. Optionally mock out the RC API by setting `MOCK_OUT_RC_API = True` in
+   `backend/__init__.py`. This means you do not have to set `RC_OAUTH_ID` or
+  `RC_OAUTH_SECRET`, but you'll only get sample data (contained in the
+  `mock/fixtures` folder, and with request -> filename mapping in `mock/rc.py`).
+  Alternatively, you'll need to [set up an RC application](https://www.recurse.com/settings/apps) with a redirect URI pointing to your local server (e.g. `http://localhost:8000/login/authorized`) or with the special value `urn:ietf:wg:oauth:2.0:oob`.
 
 8. At the command prompt, run `flask db upgrade` to create the DB tables.
 
