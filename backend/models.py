@@ -62,28 +62,31 @@ class User(db.Model):
 class Nicety(db.Model):
     __tablename__ = 'nicety'
 
-    id = db.Column(db.Integer, primary_key=True)
+    nicety_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    author_id = db.Column(db.ForeignKey("user.id"))  # RC user ID
+    target_id = db.Column(db.ForeignKey("profile.profile_id"))  # RC user ID
     end_date = db.Column(db.Date)
-    author_id = db.Column(db.ForeignKey('user.id'))  # RC user ID
-    target_id = db.Column(db.Integer)  # RC user ID
     anonymous = db.Column(db.Boolean)
     text = db.Column(db.Text, nullable=True)
     no_read = db.Column(db.Boolean)
     date_updated = db.Column(db.Text)
+    stint_id = db.Column(db.ForeignKey("stint.stint_id"))
 
-    __table_args__ = (db.UniqueConstraint(author_id, target_id, end_date),)
+    __table_args__ = (db.UniqueConstraint(author_id, target_id, stint_id),)
 
-    def __init__(self, end_date, author_id, target_id, **kwargs):
+    def __init__(self, end_date, nicety_id, author_id, target_id, stint_id, **kwargs):
         self.end_date = end_date
+        self.nicety_id = nicety_id
         self.author_id = author_id
         self.target_id = target_id
+        self.stint_id = stint_id
         self.anonymous = kwargs.get("anonymous", False)
         self.text = kwargs.get("text", None)
         self.no_read = kwargs.get("no_read", False)
         self.date_updated = kwargs.get("date_updated", "")
 
     def __repr__(self):
-        return '<Nicety:{}>'.format(self.id)
+        return '<Nicety:{}>'.format(self.nicety_id)
 
 
 class SiteConfiguration(db.Model):

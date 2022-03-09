@@ -44,6 +44,7 @@ def upgrade():
             ["profile.profile_id"],
         ),
         sa.PrimaryKeyConstraint("stint_id"),
+        sa.UniqueConstraint("profile_id", "start_date", name="stint_profile_id_start_date_key")
     )
 
 
