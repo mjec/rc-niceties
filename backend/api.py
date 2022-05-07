@@ -322,7 +322,7 @@ def save_niceties():
             # So then db.session.commit() sends the update (or insert) for every object
             # in the session. This includes every object created by a [model].query and
             # everything added to the session with db.session.add().
-        nicety.anonymous = n.get("anonymous", current_user().anonymous_by_default)
+        nicety.anonymous = n.get("anonymous", False)
         text = util.encode_str(n.get("text").strip())
         if '' == text:
             text = None
