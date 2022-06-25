@@ -99,6 +99,8 @@ def needs_authorization(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
+            # print(f'current user: {current_user()}')
+            # print(f"session token: {session.get('rc_token')}")
             if (current_user() is None) or (type(session.get('rc_token')) is tuple):
                 return redirect(url_for('login'))
             else:

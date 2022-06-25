@@ -38,12 +38,17 @@ I built this using Python 3.6.13, node.js 14.15.5 and Postgres 12.6.
     * `DATABASE_URL` - the database connection URL `e.g. postgres://localhost/rcniceties`
     * `RC_OAUTH_ID` - your Recurse Center OAuth application ID
     * `RC_OAUTH_SECRET` - your Recurse Center OAuth application secret
+    * `RC_API_ACCESS_TOKEN` - your Recurse Center personal access token
     * `DEV` - set to either `TRUE` or `FALSE`, depending on if this is a development or production environment
     * `DEBUG_SHOW_ALL` (optional) - set to `TRUE` to show every nicety in the DB on the Niceties For Me page (useful for debugging) or `FALSE` (default) for normal behavior
 
    A common way of setting up these environment variables is with a `.env` file in your project directory, containing `export ENV_VAR=value` on each line. This can be loaded by running `source .env` and will be automatically loaded by `heroku local`.
 
-7. Optionally mock out the RC API by setting `MOCK_OUT_RC_API = True` in `backend/__init__.py`. This means you do not have to set `RC_OAUTH_ID` or `RC_OAUTH_SECRET`, but you'll only get sample data (contained in the `mock/fixtures` folder, and with request -> filename mapping in `mock/rc.py`). Alternatively, you'll need to [set up an RC application](https://recurse.com/settings/oauth) with a redirect URI pointing to your local server (e.g. `http://localhost:8000/login/authorized`) or with the special value `urn:ietf:wg:oauth:2.0:oob`.
+7. Optionally mock out the RC API by setting `MOCK_OUT_RC_API = True` in
+   `backend/__init__.py`. This means you do not have to set `RC_OAUTH_ID` or
+  `RC_OAUTH_SECRET`, but you'll only get sample data (contained in the
+  `mock/fixtures` folder, and with request -> filename mapping in `mock/rc.py`).
+  Alternatively, you'll need to [set up an RC application](https://www.recurse.com/settings/apps) with a redirect URI pointing to your local server (e.g. `http://localhost:8000/login/authorized`) or with the special value `urn:ietf:wg:oauth:2.0:oob`.
 
 8. At the command prompt, run `flask db upgrade` to create the DB tables.
 
@@ -67,3 +72,15 @@ This is designed to be deployed to Heroku. To do this:
 1. Enable the Python and node.js buildpacks for the application.
 
 2. Set up a Postgres database for the application and run `heroku pg:push [database-name] DATABASE_URL` to copy your local database to Heroku.
+
+3. We can schedule data updates using the
+[Heroku Scheduler](https://devcenter.heroku.com/articles/scheduler):
+
+    ```sh
+    $ heroku addons:create scheduler:standard
+    $ heroku addons:open scheduler
+    ```
+
+    Create a new job that runs daily, and set the command to `./update-data.py`
+
+    Then, in theory, it should be a simple `git push heroku main`!
