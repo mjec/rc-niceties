@@ -63,20 +63,19 @@ class Nicety(db.Model):
     __tablename__ = 'nicety'
 
     nicety_id = db.Column(db.Integer, primary_key=True, nullable=False)
-    author_id = db.Column(db.ForeignKey("user.id"))  # RC user ID
+    author_id = db.Column(db.ForeignKey("profile.profile_id"))  # RC user ID
     target_id = db.Column(db.ForeignKey("profile.profile_id"))  # RC user ID
     end_date = db.Column(db.Date)
     anonymous = db.Column(db.Boolean)
     text = db.Column(db.Text, nullable=True)
     no_read = db.Column(db.Boolean)
     date_updated = db.Column(db.Text)
-    stint_id = db.Column(db.ForeignKey("stint.stint_id"))
+    stint_id = db.Column(db.ForeignKey("stint.stint_id"), nullable=False)
 
     __table_args__ = (db.UniqueConstraint(author_id, target_id, stint_id),)
 
-    def __init__(self, end_date, nicety_id, author_id, target_id, stint_id, **kwargs):
+    def __init__(self, end_date, author_id, target_id, stint_id, **kwargs):
         self.end_date = end_date
-        self.nicety_id = nicety_id
         self.author_id = author_id
         self.target_id = target_id
         self.stint_id = stint_id

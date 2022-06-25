@@ -101,6 +101,7 @@ def update_database(people):
         p.stints.extend(stint_instances)
         db.session.add(p)
         db.session.commit()
+        verify_api_stints_match_database(stint_instances, p.profile_id)
 
 
 def create_stints(stints_all, profile_id):
@@ -132,6 +133,39 @@ def create_stints(stints_all, profile_id):
 
         stint_instances.append(s)
     return stint_instances
+
+def verify_api_stints_match_database(stint_instances, profile_id):
+    """
+    When a user decides to be a in different batch, the api will
+    generate a new stint id.
+    In that case, we need to delete the old stint from our database.
+    """
+    # number_of_stints_in_api = len(stint_instances)
+    stints_in_database = Stint.query.filter_by(profile_id=profile_id).all()
+    # print(f"equal to each other:{type(stint_instances) == type(stints_in_database)}")
+    # print(f"stints_in_database: {stints_in_database}")
+
+
+
+    stints_in_database_ids = [stint.stint_id for stint in stints_in_database]
+    stints_in_api_ids = [stint.stint_id for stint in stint_instances]
+    stints_in_database_ids.sort()
+    stints_in_api_ids.sort()
+
+    logging.info(f"stint_instances: {stint_instances}")
+    logging.info(f"stints_in_database: {stints_in_database}")
+    if stints_in_database_ids != stints_in_api_ids:
+        for database_stint in stints_in_database:
+            if database_stint not in stint_instances:
+                db.session.delete(database_stint)
+                db.session.commit()
+    stints_in_database = Stint.query.filter_by(profile_id=profile_id).all()
+    logging.info(f"stint_instances: {stint_instances}")
+    logging.info(f"stints_in_database: {stints_in_database}")
+    assert stints_in_database_ids == stints_in_api_ids, "Stints from API and database do not match up"
+
+
+
 
 
 if __name__ == "__main__":
