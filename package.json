@@ -8,7 +8,7 @@
     "react": "^16.14.0",
     "react-bootstrap": "^0.33.0",
     "react-dom": "^16.14.0",
-    "react-scripts": "^3.4.0",
+    "react-scripts": "^5.0.1",
     "store2": "^2.12.0"
   },
   "proxy": "http://localhost:8000",
